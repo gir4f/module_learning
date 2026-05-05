@@ -1,33 +1,43 @@
 {
   "name": "modul-ajar",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --build"
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "type-check": "nuxt typecheck",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "test": "vitest run --pool=threads"
   },
   "dependencies": {
-    "axios": "^1.15.2",
+    "@nuxtjs/supabase": "^1.6.0",
+    "@pinia/nuxt": "^0.11.2",
+    "@prisma/client": "^6.19.0",
+    "@primevue/nuxt-module": "^4.5.5",
+    "@supabase/supabase-js": "^2.86.0",
+    "nuxt": "^3.18.0",
     "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.5",
-    "vue": "^3.5.32",
-    "vue-router": "^5.0.6"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
-    "@tsconfig/node24": "^24.0.4",
+    "@nuxtjs/tailwindcss": "^6.14.0",
     "@types/node": "^24.12.2",
-    "@vitejs/plugin-vue": "^6.0.6",
-    "@vue/tsconfig": "^0.9.1",
-    "npm-run-all2": "^8.0.4",
+    "@vue/test-utils": "^2.4.6",
+    "playwright": "^1.56.1",
+    "prisma": "^6.19.0",
+    "tsx": "^4.20.6",
     "typescript": "~6.0.0",
-    "vite": "^8.0.8",
-    "vite-plugin-vue-devtools": "^8.1.1",
-    "vue-tsc": "^3.2.6"
+    "vitest": "^4.0.15"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
