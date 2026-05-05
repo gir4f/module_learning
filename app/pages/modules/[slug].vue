@@ -2,10 +2,10 @@
   <div>
     <ModuleDocument v-if="module" :module="module" />
     <section v-else class="mx-auto max-w-3xl px-4 py-16 text-center">
-      <h1 class="text-2xl font-bold text-slate-900">Module not found</h1>
-      <p class="mt-2 text-slate-600">The requested learning module is unavailable or unpublished.</p>
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Modul tidak ditemukan</h1>
+      <p class="mt-2 text-slate-600 dark:text-slate-300">Modul pembelajaran yang diminta belum tersedia atau belum dipublikasikan.</p>
       <NuxtLink to="/" class="mt-6 inline-flex rounded-md bg-brand-teal px-4 py-2 font-semibold text-white">
-        Back to modules
+        Kembali ke modul
       </NuxtLink>
     </section>
   </div>

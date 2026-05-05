@@ -1,42 +1,57 @@
-# modul-ajar
+# Modul Ajar
 
-This template should help get you started developing with Vue 3 in Vite.
+Internal learning module app for PT. Gitronik Dimindo Indonesia.
 
-## Recommended IDE Setup
+The app is now a Nuxt full-stack CRUD module:
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Learner pages use Nuxt, Vue 3, and Tailwind CSS.
+- Admin CRUD uses PrimeVue.
+- API routes live in Nuxt server routes.
+- Prisma connects to Supabase Postgres.
+- Supabase Auth handles login and roles.
+- Supabase Storage stores uploaded module assets.
 
-## Recommended Browser Setup
+## Setup
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+Create `.env` from `.env.example` and fill in the real Supabase values:
 
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```env
+DATABASE_URL="postgresql://..."
+NUXT_PUBLIC_SUPABASE_URL="https://PROJECT_REF.supabase.co"
+NUXT_PUBLIC_SUPABASE_KEY="sb_publishable_or_anon_key"
+NUXT_PUBLIC_MODULE_ASSETS_BUCKET="module-assets"
+SUPABASE_SERVICE_ROLE_KEY=""
 ```
 
-### Compile and Hot-Reload for Development
+`SUPABASE_SERVICE_ROLE_KEY` is optional unless the signed upload API is used.
+
+## Commands
+
+Use `npm.cmd` on Windows PowerShell:
 
 ```sh
-npm run dev
+npm.cmd install
+npx.cmd prisma generate
+npm.cmd run db:seed
+npm.cmd run dev -- --host 127.0.0.1 --port 3000
 ```
 
-### Type-Check, Compile and Minify for Production
+Verification:
 
 ```sh
-npm run build
+npm.cmd test
+npx.cmd nuxi typecheck
+npx.cmd nuxi build
+```
+
+## Admin Bootstrap
+
+The first authenticated Supabase user becomes `ADMIN` if no admin profile exists. Later users default to `VIEWER`.
+
+Promote a user manually in Supabase SQL if needed:
+
+```sql
+update "Profile"
+set role = 'ADMIN'
+where email = 'person@example.com';
 ```

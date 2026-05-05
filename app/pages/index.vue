@@ -1,60 +1,79 @@
 <template>
-  <section class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-    <div class="grid gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
-      <div>
-        <p class="text-sm font-bold uppercase text-brand-teal">PT. Gitronik Dimindo Indonesia</p>
-        <h1 class="mt-3 text-4xl font-bold tracking-tight text-brand-navy sm:text-5xl">
+  <PageShell>
+    <section class="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-navy via-brand-navy to-brand-teal p-5 text-white shadow-xl sm:p-8">
+      <div class="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-center">
+        <div>
+          <img
+            :src="'/module-assets/Gitronikbgputih.jpg'"
+            alt="PT. Gitronik Dimindo Indonesia"
+            class="h-14 w-auto rounded-md bg-white"
+            loading="lazy"
+          >
+          <p class="mt-6 text-sm font-bold uppercase text-cyan-100">PT. Gitronik Dimindo Indonesia</p>
+          <h1 class="mt-2 max-w-3xl text-3xl font-extrabold sm:text-5xl">
           Modul pembelajaran safety device
-        </h1>
-        <p class="mt-4 max-w-2xl text-lg text-slate-600">
-          Cari modul, detail produk, komponen, dan lampiran dari dokumentasi pembelajaran internal.
-        </p>
-      </div>
-      <img
-        :src="'/module-assets/Fototruk.png'"
-        alt="Truk dengan safety device"
-        class="h-64 w-full rounded-lg object-cover shadow-sm ring-1 ring-slate-200"
-      >
-    </div>
-
-    <div class="mt-8">
-      <ModuleSearch v-model="search" />
-    </div>
-
-    <div v-if="pending" class="mt-8 rounded-lg bg-white p-6 text-slate-600">
-      Loading modules...
-    </div>
-
-    <div v-else-if="error" class="mt-8 rounded-lg border border-red-200 bg-red-50 p-6 text-red-700">
-      {{ error }}
-    </div>
-
-    <div v-else class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <NuxtLink
-        v-for="module in modules"
-        :key="module.slug"
-        :to="`/modules/${module.slug}`"
-        class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-teal hover:shadow-md"
-      >
-        <div class="flex items-start justify-between gap-3">
-          <h2 class="text-lg font-bold text-brand-navy">{{ module.title }}</h2>
-          <span class="rounded-full bg-cyan-50 px-2 py-1 text-xs font-bold text-brand-teal">
-            {{ module.details.length }}
-          </span>
+          </h1>
+          <p class="mt-4 max-w-3xl text-base leading-7 text-cyan-50">
+            Library teknis untuk membaca dokumentasi produk, komponen, dan lampiran internal dengan cepat.
+          </p>
+          <div class="mt-6 max-w-2xl rounded-xl bg-white/95 p-2 shadow-lg">
+            <div class="relative">
+              <i class="pi pi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+              <input
+                ref="heroSearchInput"
+                v-model="search"
+                type="search"
+                class="w-full rounded-lg border-0 bg-white py-4 pl-11 pr-24 text-base text-slate-900 outline-none focus:ring-4 focus:ring-cyan-100"
+                placeholder="Cari modul, produk, atau komponen..."
+                aria-label="Cari modul"
+              >
+              <button
+                v-if="search"
+                type="button"
+                class="absolute right-16 top-1/2 -translate-y-1/2 rounded-md p-2 text-slate-500 hover:bg-slate-100"
+                aria-label="Bersihkan pencarian"
+                @click="search = ''"
+              >
+                <i class="pi pi-times" aria-hidden="true" />
+              </button>
+              <kbd class="absolute right-4 top-1/2 -translate-y-1/2 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">Ctrl K</kbd>
+            </div>
+          </div>
         </div>
-        <p class="mt-2 line-clamp-2 text-sm text-slate-600">{{ module.description || module.keywords }}</p>
-        <p class="mt-4 text-sm font-semibold text-brand-teal">Open module</p>
-      </NuxtLink>
-    </div>
-  </section>
+        <dl class="grid grid-cols-3 gap-3 overflow-x-auto rounded-xl bg-white/10 p-4 backdrop-blur">
+          <div v-for="stat in heroStats" :key="stat.label" class="min-w-24 rounded-lg bg-white/12 p-3">
+            <dt class="text-xs font-semibold uppercase text-cyan-100">{{ stat.label }}</dt>
+            <dd class="mt-2 text-3xl font-extrabold">{{ stat.value }}</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <ModuleLibrary
+      v-model="search"
+      class="mt-6"
+      :modules="filteredModules"
+      :total-count="modules.length"
+      :active-category="activeCategory"
+      :pending="pending"
+      :error="error"
+      :show-search="false"
+      @clear="clearFilters"
+      @update:category="activeCategory = $event"
+    />
+  </PageShell>
 </template>
 
 <script setup lang="ts">
 import type { LearningModule } from '~/types/learning'
-import ModuleSearch from '~/components/learning/ModuleSearch.vue'
+import ModuleLibrary from '~/components/learning/ModuleLibrary.vue'
+import PageShell from '~/components/shared/PageShell.vue'
+import { moduleCategory, type ModuleCategory } from '~/utils/moduleUi'
 
 const search = ref('')
 const debouncedSearch = ref('')
+const activeCategory = ref<ModuleCategory>('semua')
+const heroSearchInput = ref<HTMLInputElement | null>(null)
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(search, (value) => {
@@ -70,4 +89,44 @@ const { data, pending, error } = await useFetch<LearningModule[]>('/api/modules'
 })
 
 const modules = computed(() => data.value || [])
+const filteredModules = computed(() => {
+  if (activeCategory.value === 'semua') return modules.value
+  return modules.value.filter((module) => moduleCategory(module) === activeCategory.value)
+})
+const sectionCount = computed(() => modules.value.reduce((total, module) => total + module.details.length, 0))
+const attachmentCount = computed(() => modules.value.reduce((total, module) => {
+  return total + module.details.reduce((subtotal, detail) => subtotal + detail.attachments.length, 0)
+}, 0))
+const heroStats = computed(() => [
+  { label: 'Modul', value: modules.value.length },
+  { label: 'Section', value: sectionCount.value },
+  { label: 'Lampiran', value: attachmentCount.value },
+])
+
+onMounted(() => {
+  window.addEventListener('keydown', focusShortcut)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', focusShortcut)
+})
+
+function focusShortcut(event: KeyboardEvent) {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+    event.preventDefault()
+    heroSearchInput.value?.focus()
+  }
+}
+
+function clearFilters() {
+  search.value = ''
+  activeCategory.value = 'semua'
+}
+
+useSeoMeta({
+  title: 'Modul Pembelajaran Safety Device | Gitronik',
+  description: 'Library modul pembelajaran internal PT. Gitronik Dimindo Indonesia untuk dokumentasi safety device, komponen, dan lampiran teknis.',
+  ogTitle: 'Modul Pembelajaran Safety Device',
+  ogDescription: 'Library teknis internal PT. Gitronik Dimindo Indonesia.',
+})
 </script>

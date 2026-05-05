@@ -19,24 +19,21 @@ export default defineEventHandler(async (event) => {
     return module
   }
 
-  try {
-    const module = await prisma.module.findFirst({
-      where: {
-        OR: [{ id }, { slug: id }],
-        ...(role === 'ADMIN' ? {} : { status: 'PUBLISHED' as const }),
-      },
-      include: moduleInclude,
+  const module = await prisma.module.findFirst({
+    where: {
+      OR: [{ id }, { slug: id }],
+      ...(role === 'ADMIN' ? {} : { status: 'PUBLISHED' as const }),
+    },
+    include: moduleInclude,
+  }).catch((error) => {
+    console.error('Failed to load module from database.', error)
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Database is unavailable.',
+      data: { message: 'Database is unavailable.' },
     })
+  })
 
-    if (!module) throw createError({ statusCode: 404, statusMessage: 'Module not found.' })
-    return module
-  } catch (error) {
-    if (error && typeof error === 'object' && 'statusCode' in error) throw error
-
-    const module = seedModules.find((item) => item.slug === id || item.id === id)
-    if (!module || (role !== 'ADMIN' && module.status !== 'PUBLISHED')) {
-      throw createError({ statusCode: 404, statusMessage: 'Module not found.' })
-    }
-    return module
-  }
+  if (!module) throw createError({ statusCode: 404, statusMessage: 'Module not found.' })
+  return module
 })

@@ -1,61 +1,118 @@
 <template>
   <section v-if="module" class="space-y-5">
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <p class="text-sm font-bold uppercase text-brand-teal">Module Editor</p>
-        <h1 class="text-2xl font-bold text-brand-navy">{{ module.title }}</h1>
-      </div>
-      <div class="flex flex-wrap gap-2">
+    <AdminPageHeader
+      eyebrow="Module Editor"
+      :title="module.title"
+      description="Edit module metadata, document sections, component rows, and attachment metadata from one compact workspace."
+    >
+      <template #actions>
         <Button label="Open Learner Page" icon="pi pi-external-link" outlined @click="navigateTo(`/modules/${module.slug}`)" />
         <Button label="New Detail" icon="pi pi-plus" @click="openDetailDialog()" />
+      </template>
+    </AdminPageHeader>
+
+    <div class="grid gap-5 lg:grid-cols-[340px_1fr]">
+      <aside class="space-y-4 lg:sticky lg:top-24 lg:self-start">
+        <Card>
+          <template #title>Module Metadata</template>
+          <template #subtitle>Visible labels and validation stay close to each field.</template>
+          <template #content>
+            <ModuleForm :module="module" @save="saveModule" @cancel="refresh" />
+          </template>
+        </Card>
+
+        <div class="rounded-lg border border-slate-200 bg-white p-4">
+          <h2 class="text-sm font-bold uppercase text-slate-500">Summary</h2>
+          <dl class="mt-3 grid gap-3 text-sm">
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-slate-600">Status</dt>
+              <dd><ModuleStatusTag :status="module.status" /></dd>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-slate-600">Sections</dt>
+              <dd class="font-bold text-brand-navy">{{ module.details.length }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-slate-600">Components</dt>
+              <dd class="font-bold text-brand-navy">{{ componentCount }}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <dt class="text-slate-600">Attachments</dt>
+              <dd class="font-bold text-brand-navy">{{ attachmentCount }}</dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+
+      <div class="space-y-4">
+        <Card>
+          <template #title>Details Workspace</template>
+          <template #subtitle>Expand a row to preview learner content without leaving the editor.</template>
+          <template #content>
+            <DataTable
+              v-model:expanded-rows="expandedRows"
+              :value="module.details"
+              data-key="id"
+              striped-rows
+              paginator
+              :rows="8"
+              table-style="min-width: 62rem"
+            >
+              <template #empty>
+                <EmptyState
+                  title="No details yet"
+                  description="Create the first detail section to start building this module document."
+                  icon="pi pi-file-edit"
+                >
+                  <Button label="New Detail" icon="pi pi-plus" @click="openDetailDialog()" />
+                </EmptyState>
+              </template>
+              <Column expander style="width: 3rem" />
+              <Column field="title" header="Detail" sortable>
+                <template #body="{ data }">
+                  <div>
+                    <p class="font-semibold text-slate-900">{{ data.title }}</p>
+                    <p class="text-xs text-slate-500">{{ data.slug }}</p>
+                  </div>
+                </template>
+              </Column>
+              <Column field="components" header="Components">
+                <template #body="{ data }">{{ data.components.length }}</template>
+              </Column>
+              <Column field="attachments" header="Attachments">
+                <template #body="{ data }">{{ data.attachments.length }}</template>
+              </Column>
+              <Column field="sortOrder" header="Order" sortable />
+              <Column header="Actions">
+                <template #body="{ data }">
+                  <div class="flex flex-wrap gap-2">
+                    <Button icon="pi pi-pencil" label="Edit" size="small" @click="openDetailDialog(data)" />
+                    <Button icon="pi pi-paperclip" label="Attachments" size="small" severity="secondary" @click="openAttachmentDialog(data)" />
+                    <Button icon="pi pi-trash" label="Delete" size="small" severity="danger" outlined @click="confirmDeleteDetail(data)" />
+                  </div>
+                </template>
+              </Column>
+              <template #expansion="{ data }">
+                <div class="grid gap-4 bg-slate-50 p-4">
+                  <div>
+                    <h3 class="font-bold text-slate-900">{{ data.title }}</h3>
+                    <p class="mt-1 text-sm text-slate-600">{{ data.summary || 'No summary yet.' }}</p>
+                  </div>
+                  <ComponentTable v-if="data.components.length" :components="data.components" />
+                  <EmptyState
+                    v-else
+                    title="No component rows"
+                    description="Add rows when this section needs a structured parts table."
+                    icon="pi pi-table"
+                  />
+                  <AttachmentList :attachments="data.attachments" />
+                </div>
+              </template>
+            </DataTable>
+          </template>
+        </Card>
       </div>
     </div>
-
-    <Card>
-      <template #title>Module Metadata</template>
-      <template #content>
-        <ModuleForm :module="module" @save="saveModule" @cancel="refresh" />
-      </template>
-    </Card>
-
-    <Card>
-      <template #title>Details</template>
-      <template #content>
-        <DataTable :value="module.details" data-key="id" striped-rows>
-          <Column field="title" header="Detail" />
-          <Column field="components" header="Components">
-            <template #body="{ data }">{{ data.components.length }}</template>
-          </Column>
-          <Column field="attachments" header="Attachments">
-            <template #body="{ data }">{{ data.attachments.length }}</template>
-          </Column>
-          <Column field="sortOrder" header="Order" />
-          <Column header="Actions">
-            <template #body="{ data }">
-              <div class="flex flex-wrap gap-2">
-                <Button icon="pi pi-pencil" label="Edit" size="small" @click="openDetailDialog(data)" />
-                <Button icon="pi pi-paperclip" label="Attachments" size="small" severity="secondary" @click="openAttachmentDialog(data)" />
-                <Button icon="pi pi-trash" label="Delete" size="small" severity="danger" outlined @click="confirmDeleteDetail(data)" />
-              </div>
-            </template>
-          </Column>
-        </DataTable>
-      </template>
-    </Card>
-
-    <Card v-for="detail in module.details" :key="detail.id || detail.slug">
-      <template #title>{{ detail.title }}</template>
-      <template #subtitle>{{ detail.summary || 'No summary yet.' }}</template>
-      <template #content>
-        <div class="grid gap-5">
-          <ComponentTable v-if="detail.components.length" :components="detail.components" />
-          <p v-else class="rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-500">
-            No component rows yet.
-          </p>
-          <AttachmentList :attachments="detail.attachments" />
-        </div>
-      </template>
-    </Card>
 
     <Dialog v-model:visible="detailDialogOpen" modal :header="editingDetail?.id ? 'Edit Detail' : 'New Detail'" class="w-[min(980px,96vw)]">
       <form class="grid gap-4" @submit.prevent="saveDetail">
@@ -195,9 +252,12 @@
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import type { Attachment, AttachmentType, ComponentItem, LearningModule, ModuleDetail } from '~/types/learning'
+import AdminPageHeader from '~/components/admin/AdminPageHeader.vue'
 import AttachmentList from '~/components/learning/AttachmentList.vue'
 import ComponentTable from '~/components/learning/ComponentTable.vue'
 import ModuleForm from '~/components/admin/ModuleForm.vue'
+import ModuleStatusTag from '~/components/admin/ModuleStatusTag.vue'
+import EmptyState from '~/components/shared/EmptyState.vue'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
@@ -217,6 +277,7 @@ const editingDetail = ref<ModuleDetail | null>(null)
 const attachmentDetail = ref<ModuleDetail | null>(null)
 const formError = ref('')
 const uploadTitle = ref('')
+const expandedRows = ref<Record<string, boolean>>({})
 const attachmentTypes: AttachmentType[] = ['IMAGE', 'SPREADSHEET', 'FILE', 'LINK']
 
 const detailForm = reactive({
@@ -233,6 +294,9 @@ const attachmentForm = reactive({
   title: '',
   url: '',
 })
+
+const componentCount = computed(() => module.value?.details.reduce((total, detail) => total + detail.components.length, 0) || 0)
+const attachmentCount = computed(() => module.value?.details.reduce((total, detail) => total + detail.attachments.length, 0) || 0)
 
 function resetDetailForm(detail?: ModuleDetail) {
   editingDetail.value = detail || null

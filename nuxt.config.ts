@@ -6,6 +6,17 @@ export default defineNuxtConfig({
   experimental: {
     appManifest: false,
   },
+  app: {
+    head: {
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
+    },
+    pageTransition: { name: 'page', mode: 'out-in' },
+  },
   modules: [
     '@nuxtjs/tailwindcss',
     '@primevue/nuxt-module',

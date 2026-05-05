@@ -1,7 +1,19 @@
-import type { LearningModule } from '../types/learning'
 import { normalizeSearchText } from './slug'
 
-export function moduleMatchesQuery(module: LearningModule, query: string) {
+interface SearchableModule {
+  title?: string | null
+  description?: string | null
+  keywords?: string | null
+  details: Array<{
+    title?: string | null
+    summary?: string | null
+    keywords?: string | null
+    components: Array<{ name?: string | null }>
+    attachments: Array<{ title?: string | null }>
+  }>
+}
+
+export function moduleMatchesQuery(module: SearchableModule, query: string) {
   const words = normalizeSearchText(query).split(' ').filter(Boolean)
   if (!words.length) return true
 
