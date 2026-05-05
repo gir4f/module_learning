@@ -432,11 +432,24 @@
         >
           <h3>{{ product.name }}</h3>
           <p v-if="product.keywords">{{ product.keywords }}</p>
-          <ul v-if="product.items.length" class="custom-items">
-            <li v-for="item in product.items" :key="item">{{ item }}</li>
-          </ul>
-          <p v-else>Belum ada kelengkapan barang.</p>
-          <button type="button" @click="selectDetail(`product:${product.id}`)">Pilih Detail Ini</button>
+          <table v-if="getProductComponents(product).length" class="components-table">
+            <thead>
+              <tr>
+                <th>Komponen</th>
+                <th>Jumlah</th>
+                <th>Satuan</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="component in getProductComponents(product)" :key="`${product.id}-${component.name}`">
+                <td>{{ component.name }}</td>
+                <td>{{ component.quantity }}</td>
+                <td>{{ component.unit }}</td>
+                <td>{{ component.note }}</td>
+              </tr>
+            </tbody>
+          </table>
 
           <div
             v-if="getImagesForDetail(`product:${product.id}`).length || getSpreadsheetsForDetail(`product:${product.id}`).length"
@@ -787,6 +800,18 @@ export default {
       this.attachments.spreadsheets = this.attachments.spreadsheets.filter((sheet) => sheet.id !== id)
       this.persistAttachments()
     },
+    getProductComponents(product) {
+      if (product.components?.length) return product.components
+
+      return (product.items || []).map((item) => {
+        return {
+          name: item,
+          quantity: '',
+          unit: '',
+          note: '',
+        }
+      })
+    },
     getImagesForDetail(detailKey) {
       return this.attachments.images.filter((image) => image.detailKey === detailKey)
     },
@@ -808,7 +833,6 @@ main { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
 .item img { max-width: 100%; border-radius: 6px; display: block; margin-bottom: 8px; }
 .custom-items { margin: 0; padding-left: 20px; color: #333; line-height: 1.7; }
 .detail-product.selected { background: #f7fcfd; border-radius: 8px; padding: 14px; }
-.detail-product button { border: 0; border-radius: 6px; background: #e8f6f8; color: #1d4f80; cursor: pointer; font: inherit; font-weight: 700; padding: 9px 12px; }
 .inline-attachments { border-top: 1px solid #e3e8ef; margin-top: 16px; padding-top: 16px; }
 .inline-attachments h4 { color: #1d4f80; font-size: 0.92rem; margin: 0 0 12px; }
 .attachment-panel h3 { margin: 0 0 12px; color: #333; font-size: 0.95rem; }

@@ -51,14 +51,32 @@
             <input v-model.trim="form.keywords" type="text" placeholder="kata kunci pencarian produk" />
           </label>
 
-          <label>
-            Kelengkapan Barang
-            <textarea
-              v-model="form.itemsText"
-              rows="5"
-              placeholder="Satu kelengkapan per baris"
-            ></textarea>
-          </label>
+          <div class="components-editor">
+            <div class="editor-heading">
+              <h2>Kelengkapan Barang</h2>
+              <button type="button" class="secondary-action" @click="addComponent">Tambah Baris</button>
+            </div>
+
+            <div class="component-grid component-grid-head">
+              <span>Komponen</span>
+              <span>Jumlah</span>
+              <span>Satuan</span>
+              <span>Keterangan</span>
+              <span></span>
+            </div>
+
+            <div
+              v-for="(component, index) in form.components"
+              :key="component.id"
+              class="component-grid component-row"
+            >
+              <input v-model.trim="component.name" type="text" placeholder="Nama komponen" />
+              <input v-model.trim="component.quantity" type="text" placeholder="1" />
+              <input v-model.trim="component.unit" type="text" placeholder="Pcs" />
+              <input v-model.trim="component.note" type="text" placeholder="Opsional" />
+              <button type="button" class="danger-action icon-action" @click="removeComponent(index)">Hapus</button>
+            </div>
+          </div>
 
           <p v-if="error" class="form-error">{{ error }}</p>
 
@@ -87,9 +105,7 @@
             <div>
               <h2>{{ product.name }}</h2>
               <p>{{ getModuleName(product.parentSlug) }} - {{ product.keywords || 'Tanpa kata kunci tambahan' }}</p>
-              <ul v-if="product.items.length">
-                <li v-for="item in product.items" :key="item">{{ item }}</li>
-              </ul>
+              <p>{{ (product.components || []).length }} komponen</p>
             </div>
             <div class="card-actions">
               <button type="button" @click="openProduct(product)">Lihat</button>
@@ -133,7 +149,15 @@ export default {
         newModuleName: '',
         name: '',
         keywords: '',
-        itemsText: '',
+        components: [
+          {
+            id: 'initial',
+            name: '',
+            quantity: '',
+            unit: '',
+            note: '',
+          },
+        ],
       },
     }
   },
@@ -159,8 +183,28 @@ export default {
         newModuleName: '',
         name: '',
         keywords: '',
-        itemsText: '',
+        components: [this.createComponent()],
       }
+    },
+    createComponent(component = {}) {
+      return {
+        id: component.id || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        name: component.name || '',
+        quantity: component.quantity || '',
+        unit: component.unit || '',
+        note: component.note || '',
+      }
+    },
+    addComponent() {
+      this.form.components.push(this.createComponent())
+    },
+    removeComponent(index) {
+      if (this.form.components.length === 1) {
+        this.form.components = [this.createComponent()]
+        return
+      }
+
+      this.form.components.splice(index, 1)
     },
     resolveParentSlug() {
       if (this.form.moduleMode === 'existing') return this.form.parentSlug
@@ -169,10 +213,16 @@ export default {
     },
     buildProduct() {
       const detailSlug = makeSlug(this.form.name)
-      const items = this.form.itemsText
-        .split('\n')
-        .map((item) => item.trim())
-        .filter(Boolean)
+      const components = this.form.components
+        .map((component) => {
+          return {
+            name: component.name.trim(),
+            quantity: component.quantity.trim(),
+            unit: component.unit.trim(),
+            note: component.note.trim(),
+          }
+        })
+        .filter((component) => component.name)
 
       return {
         id: this.editingId || `${Date.now()}`,
@@ -181,7 +231,8 @@ export default {
         slug: this.resolveParentSlug(),
         name: this.form.name,
         keywords: this.form.keywords,
-        items,
+        components,
+        items: components.map((component) => component.name),
       }
     },
     saveProduct() {
@@ -209,6 +260,11 @@ export default {
 
       if (!product.detailSlug) {
         this.error = 'Nama produk belum valid.'
+        return
+      }
+
+      if (this.hasIncompleteComponent()) {
+        this.error = 'Setiap komponen yang diisi wajib memiliki nama, jumlah, dan satuan.'
         return
       }
 
@@ -251,8 +307,13 @@ export default {
         newModuleName: '',
         name: product.name,
         keywords: product.keywords || '',
-        itemsText: (product.items || []).join('\n'),
+        components: (product.components?.length ? product.components : product.items || []).map((component) => {
+          return typeof component === 'string'
+            ? this.createComponent({ name: component })
+            : this.createComponent(component)
+        }),
       }
+      if (!this.form.components.length) this.form.components = [this.createComponent()]
     },
     deleteProduct(id) {
       const product = this.products.find((item) => item.id === id)
@@ -265,6 +326,14 @@ export default {
       saveProducts(this.products)
 
       if (this.editingId === id) this.resetForm()
+    },
+    hasIncompleteComponent() {
+      return this.form.components.some((component) => {
+        const hasAnyValue = component.name || component.quantity || component.unit || component.note
+        if (!hasAnyValue) return false
+
+        return !component.name || !component.quantity || !component.unit
+      })
     },
     getModuleName(parentSlug) {
       return this.modules.find((module) => module.slug === parentSlug)?.name || parentSlug
@@ -285,7 +354,7 @@ export default {
 .product-page {
   padding: 24px;
   display: grid;
-  grid-template-columns: minmax(280px, 420px) 1fr;
+  grid-template-columns: minmax(620px, 1.15fr) minmax(320px, 0.85fr);
   align-items: start;
   gap: 24px;
 }
@@ -392,6 +461,48 @@ export default {
   font-size: 0.9rem;
 }
 
+.components-editor {
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.editor-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.editor-heading h2 {
+  color: #26323f;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.component-grid {
+  display: grid;
+  grid-template-columns: minmax(160px, 1.45fr) minmax(86px, 0.7fr) minmax(96px, 0.75fr) minmax(140px, 1.15fr) auto;
+  gap: 8px;
+  min-width: 0;
+}
+
+.component-row input {
+  min-width: 0;
+}
+
+.component-grid-head {
+  color: #687686;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.icon-action {
+  padding: 10px 12px;
+}
+
 .form-actions,
 .card-actions {
   display: flex;
@@ -462,13 +573,24 @@ button {
   font-size: 0.9rem;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1120px) {
   .product-page {
     grid-template-columns: 1fr;
   }
 
   .product-card {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 720px) {
+  .component-grid,
+  .component-grid-head {
+    grid-template-columns: 1fr;
+  }
+
+  .component-grid-head {
+    display: none;
   }
 }
 </style>

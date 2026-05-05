@@ -24,16 +24,47 @@ export function loadProducts() {
     if (!Array.isArray(products)) return []
 
     return products.map((product) => {
+      const components = normalizeComponents(product.components, product.items)
+
       return {
         ...product,
         parentSlug: product.parentSlug || product.slug,
         detailSlug: product.detailSlug || makeSlug(product.name),
-        items: Array.isArray(product.items) ? product.items : [],
+        components,
+        items: Array.isArray(product.items) ? product.items : components.map((component) => component.name),
       }
     })
   } catch {
     return []
   }
+}
+
+function normalizeComponents(components, legacyItems = []) {
+  if (Array.isArray(components) && components.length) {
+    return components
+      .map((component) => {
+        return {
+          name: component.name || component.komponen || '',
+          quantity: component.quantity || component.jumlah || '',
+          unit: component.unit || component.satuan || '',
+          note: component.note || component.keterangan || '',
+        }
+      })
+      .filter((component) => component.name)
+  }
+
+  if (!Array.isArray(legacyItems)) return []
+
+  return legacyItems
+    .map((item) => {
+      return {
+        name: String(item || '').trim(),
+        quantity: '',
+        unit: '',
+        note: '',
+      }
+    })
+    .filter((component) => component.name)
 }
 
 export function saveProducts(products) {
