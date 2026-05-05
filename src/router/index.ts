@@ -8,6 +8,10 @@ const routes = [
     {
         path: '/module/:slug',
         component: () => import('@/modules/ModuleDetail.vue')
+    },
+    {
+        path: '/produk',
+        component: () => import('@/modules/ProductCrud.vue')
     }
 ]
 

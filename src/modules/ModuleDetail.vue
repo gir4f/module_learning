@@ -422,6 +422,141 @@
 
       </section>
 
+      <section v-if="productDetails.length" class="group">
+        <h2>Detail Produk Tambahan</h2>
+        <div
+          v-for="product in productDetails"
+          :key="product.id"
+          class="item detail-product"
+          :class="{ selected: selectedDetailKey === `product:${product.id}` }"
+        >
+          <h3>{{ product.name }}</h3>
+          <p v-if="product.keywords">{{ product.keywords }}</p>
+          <ul v-if="product.items.length" class="custom-items">
+            <li v-for="item in product.items" :key="item">{{ item }}</li>
+          </ul>
+          <p v-else>Belum ada kelengkapan barang.</p>
+          <button type="button" @click="selectDetail(`product:${product.id}`)">Pilih Detail Ini</button>
+
+          <div
+            v-if="getImagesForDetail(`product:${product.id}`).length || getSpreadsheetsForDetail(`product:${product.id}`).length"
+            class="inline-attachments"
+          >
+            <h4>Lampiran {{ product.name }}</h4>
+            <div v-if="getImagesForDetail(`product:${product.id}`).length" class="image-grid">
+              <article
+                v-for="image in getImagesForDetail(`product:${product.id}`)"
+                :key="image.id"
+                class="image-card"
+              >
+                <img :src="image.url" :alt="image.title" />
+                <div>
+                  <strong>{{ image.title }}</strong>
+                  <span>{{ image.source === 'file' ? 'Upload gambar' : 'Link gambar' }}</span>
+                </div>
+                <button type="button" class="delete-attachment" @click="removeImage(image.id)">Hapus</button>
+              </article>
+            </div>
+
+            <ul v-if="getSpreadsheetsForDetail(`product:${product.id}`).length" class="spreadsheet-list">
+              <li v-for="sheet in getSpreadsheetsForDetail(`product:${product.id}`)" :key="sheet.id">
+                <a :href="sheet.url" target="_blank" rel="noopener noreferrer">{{ sheet.title }}</a>
+                <button type="button" class="delete-attachment" @click="removeSpreadsheet(sheet.id)">Hapus</button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="group attachment-panel">
+        <h2>Lampiran Detail Modul</h2>
+
+        <div class="attachment-form-grid">
+          <form class="attachment-form" @submit.prevent="addImageLink">
+            <h3>Tambah Gambar</h3>
+            <label>
+              Detail produk
+              <select v-model="selectedDetailKey" required>
+                <option value="" disabled>Pilih detail produk</option>
+                <option v-for="detail in detailOptions" :key="detail.key" :value="detail.key">
+                  {{ detail.name }}
+                </option>
+              </select>
+            </label>
+            <label>
+              Upload gambar
+              <input type="file" accept="image/*" @change="uploadImage" />
+            </label>
+            <label>
+              Link gambar rangkaian (opsional)
+              <input v-model.trim="imageForm.url" type="url" placeholder="https://contoh.com/rangkaian.jpg" />
+            </label>
+            <label>
+              Judul gambar
+              <input v-model.trim="imageForm.title" type="text" placeholder="Rangkaian, PCB, wiring, dll." />
+            </label>
+            <button type="submit">Simpan Link Gambar</button>
+          </form>
+
+          <form class="attachment-form" @submit.prevent="addSpreadsheetLink">
+            <h3>Tambah Spreadsheet</h3>
+            <label>
+              Detail produk
+              <select v-model="selectedDetailKey" required>
+                <option value="" disabled>Pilih detail produk</option>
+                <option v-for="detail in detailOptions" :key="detail.key" :value="detail.key">
+                  {{ detail.name }}
+                </option>
+              </select>
+            </label>
+            <label>
+              Link spreadsheet kelengkapan barang
+              <input v-model.trim="spreadsheetForm.url" type="url" placeholder="https://docs.google.com/spreadsheets/..." required />
+            </label>
+            <label>
+              Judul spreadsheet
+              <input v-model.trim="spreadsheetForm.title" type="text" placeholder="Kelengkapan barang" />
+            </label>
+            <button type="submit">Simpan Spreadsheet</button>
+          </form>
+        </div>
+
+        <p v-if="attachmentError" class="attachment-error">{{ attachmentError }}</p>
+
+        <div v-if="!detailOptions.length" class="empty-attachments">
+          Tambahkan nama produk/detail terlebih dahulu sebelum menambahkan gambar atau spreadsheet.
+        </div>
+
+        <div v-else-if="!selectedDetailKey" class="empty-attachments">
+          Pilih detail produk untuk melihat atau menambahkan lampiran.
+        </div>
+
+        <div v-else-if="!attachmentGroups.length" class="empty-attachments">
+          Belum ada lampiran untuk detail produk di modul ini.
+        </div>
+
+        <div v-for="group in attachmentGroups" :key="group.detail.key" class="attachment-list detail-attachment-block">
+          <h3>{{ group.detail.name }}</h3>
+          <div v-if="group.images.length" class="image-grid">
+            <article v-for="image in group.images" :key="image.id" class="image-card">
+                <img :src="image.url" :alt="image.title" />
+                <div>
+                  <strong>{{ image.title }}</strong>
+                  <span>{{ image.source === 'file' ? 'Upload gambar' : 'Link gambar' }}</span>
+                </div>
+                <button type="button" class="delete-attachment" @click="removeImage(image.id)">Hapus</button>
+              </article>
+            </div>
+
+          <ul v-if="group.spreadsheets.length" class="spreadsheet-list">
+            <li v-for="sheet in group.spreadsheets" :key="sheet.id">
+              <a :href="sheet.url" target="_blank" rel="noopener noreferrer">{{ sheet.title }}</a>
+              <button type="button" class="delete-attachment" @click="removeSpreadsheet(sheet.id)">Hapus</button>
+            </li>
+          </ul>
+        </div>
+      </section>
+
     </main>
     <div class="back-actions">
       <button type="button" @click="$router.push('/')">← Kembali</button>
@@ -431,11 +566,33 @@
 
 <script>
 import AppHeader from '@/components/AppHeader.vue'
+import { loadModuleAttachments, saveModuleAttachments } from '@/data/moduleAttachments'
 import { getModuleTitle } from '@/data/modules'
+import { getModuleDetailOptions, getProductsByModule, loadProducts, onProductsUpdated } from '@/data/products'
 
 export default {
   components: {
     AppHeader,
+  },
+  data() {
+    return {
+      attachments: {
+        images: [],
+        spreadsheets: [],
+      },
+      products: [],
+      selectedDetailKey: '',
+      stopProductsListener: null,
+      attachmentError: '',
+      imageForm: {
+        title: '',
+        url: '',
+      },
+      spreadsheetForm: {
+        title: '',
+        url: '',
+      },
+    }
   },
   computed: {
     slug() {
@@ -443,7 +600,199 @@ export default {
     },
     title() {
       return getModuleTitle(this.slug)
-    }
+    },
+    productDetails() {
+      return this.products.filter((product) => product.parentSlug === this.slug)
+    },
+    detailOptions() {
+      return getModuleDetailOptions(this.slug)
+    },
+    selectedDetail() {
+      return this.detailOptions.find((detail) => detail.key === this.selectedDetailKey)
+    },
+    selectedDetailName() {
+      return this.selectedDetail?.name || ''
+    },
+    selectedImages() {
+      return this.attachments.images.filter((image) => image.detailKey === this.selectedDetailKey)
+    },
+    selectedSpreadsheets() {
+      return this.attachments.spreadsheets.filter((sheet) => sheet.detailKey === this.selectedDetailKey)
+    },
+    attachmentGroups() {
+      return this.detailOptions
+        .map((detail) => {
+          return {
+            detail,
+            images: this.getImagesForDetail(detail.key),
+            spreadsheets: this.getSpreadsheetsForDetail(detail.key),
+          }
+        })
+        .filter((group) => group.images.length || group.spreadsheets.length)
+    },
+  },
+  watch: {
+    slug: {
+      immediate: true,
+      handler() {
+        this.loadAttachments()
+      },
+    },
+    '$route.query.detail': {
+      immediate: true,
+      handler(detailKey) {
+        if (detailKey) this.selectedDetailKey = detailKey
+      },
+    },
+  },
+  mounted() {
+    this.products = loadProducts()
+    this.stopProductsListener = onProductsUpdated((products) => {
+      this.products = products
+      if (this.selectedDetailKey && !this.detailOptions.some((detail) => detail.key === this.selectedDetailKey)) {
+        this.selectedDetailKey = this.detailOptions[0]?.key || ''
+      }
+    })
+  },
+  beforeUnmount() {
+    if (this.stopProductsListener) this.stopProductsListener()
+  },
+  methods: {
+    loadAttachments() {
+      this.attachments = loadModuleAttachments(this.slug)
+      this.products = loadProducts()
+      this.attachmentError = ''
+      const queryDetail = this.$route.query.detail
+      this.selectedDetailKey = queryDetail || this.detailOptions[0]?.key || ''
+      this.imageForm = {
+        title: '',
+        url: '',
+      }
+      this.spreadsheetForm = {
+        title: '',
+        url: '',
+      }
+    },
+    persistAttachments() {
+      saveModuleAttachments(this.slug, this.attachments)
+    },
+    makeAttachmentId() {
+      return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    },
+    requireSelectedDetail() {
+      if (this.selectedDetailKey && this.selectedDetail) return true
+
+      this.attachmentError = 'Pilih detail produk terlebih dahulu.'
+      return false
+    },
+    selectDetail(detailKey) {
+      this.selectedDetailKey = detailKey
+      this.$router.replace({
+        path: this.$route.path,
+        query: {
+          ...this.$route.query,
+          detail: detailKey,
+        },
+      })
+    },
+    addImageLink() {
+      this.attachmentError = ''
+
+      if (!this.requireSelectedDetail()) return
+
+      if (!this.imageForm.url) {
+        return
+      }
+
+      this.attachments.images = [
+        {
+          id: this.makeAttachmentId(),
+          title: this.imageForm.title || 'Gambar rangkaian',
+          url: this.imageForm.url,
+          source: 'url',
+          detailKey: this.selectedDetailKey,
+          detailName: this.selectedDetailName,
+        },
+        ...this.attachments.images,
+      ]
+      this.persistAttachments()
+      this.imageForm = {
+        title: '',
+        url: '',
+      }
+    },
+    uploadImage(event) {
+      this.attachmentError = ''
+      if (!this.requireSelectedDetail()) {
+        event.target.value = ''
+        return
+      }
+
+      const file = event.target.files?.[0]
+      if (!file) return
+
+      if (!file.type.startsWith('image/')) {
+        this.attachmentError = 'File harus berupa gambar.'
+        event.target.value = ''
+        return
+      }
+
+      const reader = new FileReader()
+      reader.onload = () => {
+        this.attachments.images = [
+          {
+            id: this.makeAttachmentId(),
+            title: this.imageForm.title || file.name,
+            url: reader.result,
+            source: 'file',
+            detailKey: this.selectedDetailKey,
+            detailName: this.selectedDetailName,
+          },
+          ...this.attachments.images,
+        ]
+        this.persistAttachments()
+        event.target.value = ''
+      }
+      reader.onerror = () => {
+        this.attachmentError = 'Gambar gagal dibaca.'
+      }
+      reader.readAsDataURL(file)
+    },
+    addSpreadsheetLink() {
+      this.attachmentError = ''
+
+      if (!this.requireSelectedDetail()) return
+
+      this.attachments.spreadsheets = [
+        {
+          id: this.makeAttachmentId(),
+          title: this.spreadsheetForm.title || 'Spreadsheet kelengkapan barang',
+          url: this.spreadsheetForm.url,
+          detailKey: this.selectedDetailKey,
+          detailName: this.selectedDetailName,
+        },
+        ...this.attachments.spreadsheets,
+      ]
+      this.persistAttachments()
+      this.spreadsheetForm = {
+        title: '',
+        url: '',
+      }
+    },
+    removeImage(id) {
+      this.attachments.images = this.attachments.images.filter((image) => image.id !== id)
+      this.persistAttachments()
+    },
+    removeSpreadsheet(id) {
+      this.attachments.spreadsheets = this.attachments.spreadsheets.filter((sheet) => sheet.id !== id)
+      this.persistAttachments()
+    },
+    getImagesForDetail(detailKey) {
+      return this.attachments.images.filter((image) => image.detailKey === detailKey)
+    },
+    getSpreadsheetsForDetail(detailKey) {
+      return this.attachments.spreadsheets.filter((sheet) => sheet.detailKey === detailKey)
+    },
   }
 }
 </script>
@@ -457,6 +806,35 @@ main { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
 .item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 .item h3 { margin: 0 0 12px; font-size: 0.95rem; color: #333; }
 .item img { max-width: 100%; border-radius: 6px; display: block; margin-bottom: 8px; }
+.custom-items { margin: 0; padding-left: 20px; color: #333; line-height: 1.7; }
+.detail-product.selected { background: #f7fcfd; border-radius: 8px; padding: 14px; }
+.detail-product button { border: 0; border-radius: 6px; background: #e8f6f8; color: #1d4f80; cursor: pointer; font: inherit; font-weight: 700; padding: 9px 12px; }
+.inline-attachments { border-top: 1px solid #e3e8ef; margin-top: 16px; padding-top: 16px; }
+.inline-attachments h4 { color: #1d4f80; font-size: 0.92rem; margin: 0 0 12px; }
+.attachment-panel h3 { margin: 0 0 12px; color: #333; font-size: 0.95rem; }
+.attachment-form-grid { display: grid; grid-template-columns: repeat(2, minmax(260px, 1fr)); gap: 18px; }
+.attachment-form { border: 1px solid #e3e8ef; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.attachment-form label { display: flex; flex-direction: column; gap: 7px; color: #26323f; font-size: 0.9rem; font-weight: 700; }
+.attachment-form input,
+.attachment-form select { border: 1px solid #ccd6e0; border-radius: 6px; box-sizing: border-box; color: #1f2933; font: inherit; font-weight: 400; padding: 10px 12px; width: 100%; }
+.attachment-form input:focus,
+.attachment-form select:focus { border-color: #10b7c5; box-shadow: 0 0 0 3px rgba(16, 183, 197, 0.14); outline: none; }
+.attachment-form button,
+.delete-attachment { border: 0; border-radius: 6px; cursor: pointer; font: inherit; font-weight: 700; padding: 10px 12px; }
+.attachment-form button { align-self: flex-start; background: #10b7c5; color: white; }
+.attachment-error { color: #b42318; margin: 14px 0 0; }
+.empty-attachments { border: 1px dashed #ccd6e0; border-radius: 8px; color: #687686; margin-top: 18px; padding: 22px; text-align: center; }
+.attachment-list { margin-top: 22px; }
+.detail-attachment-block { border: 1px solid #e3e8ef; border-radius: 8px; padding: 14px; }
+.image-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.image-card { border: 1px solid #e3e8ef; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.image-card img { aspect-ratio: 4 / 3; border-radius: 6px; object-fit: contain; width: 100%; background: #f7f9fb; }
+.image-card strong { color: #26323f; display: block; font-size: 0.95rem; }
+.image-card span { color: #687686; display: block; font-size: 0.82rem; margin-top: 3px; }
+.spreadsheet-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.spreadsheet-list li { align-items: center; border: 1px solid #e3e8ef; border-radius: 8px; display: flex; gap: 12px; justify-content: space-between; padding: 12px; }
+.spreadsheet-list a { color: #1d4f80; font-weight: 700; overflow-wrap: anywhere; }
+.delete-attachment { align-self: flex-start; background: #fff1f0; color: #b42318; }
 table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 12px; }
 th { background: #e3f2fd; text-align: left; padding: 8px 12px; }
 td { padding: 8px 12px; border-bottom: 1px solid #eee; }
@@ -475,5 +853,9 @@ td { padding: 8px 12px; border-bottom: 1px solid #eee; }
   font-weight: 700;
   padding: 12px 18px;
   box-shadow: 0 6px 16px rgba(16, 183, 197, 0.28);
+}
+@media (max-width: 760px) {
+  .attachment-form-grid { grid-template-columns: 1fr; }
+  .spreadsheet-list li { align-items: flex-start; flex-direction: column; }
 }
 </style>

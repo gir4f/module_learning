@@ -44,6 +44,7 @@
 
       <nav>
         <RouterLink to="/" @click="closeMenu">Home</RouterLink>
+        <RouterLink to="/produk" @click="closeMenu">Tambah Produk</RouterLink>
         <a href="#sop" @click.prevent="goToModule('alur-kerja')">SOP</a>
 
         <h2>Produk</h2>
@@ -61,14 +62,17 @@
 </template>
 
 <script>
-import { modules, normalize, matchesQuery } from '@/data/modules'
+import { normalize, matchesQuery } from '@/data/modules'
+import { getAllModules, loadProducts, onProductsUpdated } from '@/data/products'
 
 export default {
   data() {
     return {
       search: '',
       menuOpen: false,
-      modules,
+      modules: [],
+      userProducts: [],
+      stopProductsListener: null,
     }
   },
   computed: {
@@ -102,6 +106,19 @@ export default {
         }
       }
 
+      for (const product of this.userProducts) {
+        const module = this.modules.find((item) => item.slug === product.parentSlug)
+        if (matchesQuery([product.name, product.keywords, module?.name], q)) {
+          result.push({
+            key: `product-${product.id}`,
+            slug: product.parentSlug,
+            detail: `product:${product.id}`,
+            label: product.name,
+            moduleName: module?.name || product.parentSlug,
+          })
+        }
+      }
+
       const seen = new Set()
       return result.filter((suggestion) => {
         const key = `${suggestion.slug}-${suggestion.label}`
@@ -110,6 +127,17 @@ export default {
         return true
       }).slice(0, 10)
     },
+  },
+  mounted() {
+    this.modules = getAllModules()
+    this.userProducts = loadProducts()
+    this.stopProductsListener = onProductsUpdated((products) => {
+      this.modules = getAllModules()
+      this.userProducts = products
+    })
+  },
+  beforeUnmount() {
+    if (this.stopProductsListener) this.stopProductsListener()
   },
   methods: {
     closeMenu() {
@@ -121,7 +149,11 @@ export default {
     },
     goToSuggestion(suggestion) {
       this.search = suggestion.label
-      this.goToModule(suggestion.slug)
+      this.closeMenu()
+      this.$router.push({
+        path: `/module/${suggestion.slug}`,
+        query: suggestion.detail ? { detail: suggestion.detail } : {},
+      })
     },
     pickFirst() {
       if (this.suggestions.length) this.goToSuggestion(this.suggestions[0])
