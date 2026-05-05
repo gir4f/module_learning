@@ -15,12 +15,14 @@
         <!-- Speed Uni -->
         <div class="item">
           <h3>Speed Uni</h3>
+          <DetailAttachments detail-name="Speed Uni" :images="getImagesForName('Speed Uni')" :spreadsheets="getSpreadsheetsForName('Speed Uni')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <img src="@/assets/images/Device Speed Uni.jpg" alt="Speed Uni" />
         </div>
 
         <!-- Speed Forklift -->
         <div class="item">
           <h3>Speed Forklift</h3>
+          <DetailAttachments detail-name="Speed Forklift GT-SAL09FHV1" :images="getImagesForName('Speed Forklift GT-SAL09FHV1')" :spreadsheets="getSpreadsheetsForName('Speed Forklift GT-SAL09FHV1')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
       </section>
@@ -30,6 +32,7 @@
         <h2>Device Fatigue</h2>
         <div class="item">
           <h3>Fatigue Merah Putih (FMP)</h3>
+          <DetailAttachments detail-name="Fatigue Merah Putih (FMP)" :images="getImagesForName('Fatigue Merah Putih (FMP)')" :spreadsheets="getSpreadsheetsForName('Fatigue Merah Putih (FMP)')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
            <h4>Kelengkapan Part — FMP</h4>
           <table>
@@ -65,6 +68,7 @@
         <h2>Auto Fire Suppression</h2>
         <div class="item">
           <h3>Auto Fire Suppression PCB AFS & PCB Fatigue</h3>
+          <DetailAttachments detail-name="PCB AFS" :images="getImagesForName('PCB AFS')" :spreadsheets="getSpreadsheetsForName('PCB AFS')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
       </section>
@@ -74,12 +78,14 @@
         <h2>Idletimer / Turbotimer</h2>
         <div class="item">
           <h3>Idletimer / Turbotimer Heavy Equipment & Dozer</h3>
+          <DetailAttachments detail-name="Idletimer Heavy Equipment & Dozer GT-IIS05D" :images="getImagesForName('Idletimer Heavy Equipment & Dozer GT-IIS05D')" :spreadsheets="getSpreadsheetsForName('Idletimer Heavy Equipment & Dozer GT-IIS05D')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
 
         <!-- Idletimer Lite -->
         <div class="item">
           <h3>Idletimer Lite GT-ITH04A</h3>
+          <DetailAttachments detail-name="Idletimer Lite GT-ITH04A" :images="getImagesForName('Idletimer Lite GT-ITH04A')" :spreadsheets="getSpreadsheetsForName('Idletimer Lite GT-ITH04A')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
       </section>
@@ -89,6 +95,7 @@
         <h2>ISCS Incline Shutdown Control System</h2>
         <div class="item">
           <h3>ISCS GT-IID06A</h3>
+          <DetailAttachments detail-name="ISCS Device GT-IID06A" :images="getImagesForName('ISCS Device GT-IID06A')" :spreadsheets="getSpreadsheetsForName('ISCS Device GT-IID06A')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <h4>Kelengkapan Part</h4>
           <table>
             <thead><tr><th>Komponen</th><th>Jumlah</th><th>Satuan</th><th>Keterangan</th></tr></thead>
@@ -133,6 +140,7 @@
         </div>
         <div class="item">
           <h3>Kabel Body</h3>
+          <DetailAttachments detail-name="Kabel Body ISCS" :images="getImagesForName('Kabel Body ISCS')" :spreadsheets="getSpreadsheetsForName('Kabel Body ISCS')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <table>
             <thead>
               <tr><th>Komponen</th><th>Jumlah</th><th>Satuan</th><th>Keterangan</th></tr>
@@ -159,6 +167,7 @@
         <h2>PIDS</h2>
         <div class="item">
           <h3>PIDS No. KA (GT-NT03PAP)</h3>
+          <DetailAttachments detail-name="PIDS No. KA GT-NT03PAP" :images="getImagesForName('PIDS No. KA GT-NT03PAP')" :spreadsheets="getSpreadsheetsForName('PIDS No. KA GT-NT03PAP')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <h4>Kelengkapan Part — PIDS Indoor No. Ka</h4>
           <table>
             <thead><tr><th>Komponen</th><th>Jumlah</th><th>Satuan</th><th>Keterangan</th></tr></thead>
@@ -189,6 +198,7 @@
         <!-- PIDS Display Temperatur -->
         <div class="item">
           <h3>PIDS Display Temperatur</h3>
+          <DetailAttachments detail-name="PIDS Display Temperatur" :images="getImagesForName('PIDS Display Temperatur')" :spreadsheets="getSpreadsheetsForName('PIDS Display Temperatur')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <h4>Kelengkapan Part — PIDS Indoor Temperatur</h4>
           <table>
             <thead><tr><th>Komponen</th><th>Jumlah</th><th>Satuan</th><th>Keterangan</th></tr></thead>
@@ -219,6 +229,7 @@
         <!-- PIDS Controller Outdoor -->
         <div class="item">
           <h3>PIDS Controller Outdoor (GT-PAP02P2)</h3>
+          <DetailAttachments detail-name="PIDS Controller Outdoor GT-PAP02P2" :images="getImagesForName('PIDS Controller Outdoor GT-PAP02P2')" :spreadsheets="getSpreadsheetsForName('PIDS Controller Outdoor GT-PAP02P2')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <h4>Kelengkapan Part — PIDS Outdoor P10</h4>
           <table>
             <thead><tr><th>Komponen</th><th>Jumlah</th><th>Satuan</th><th>Keterangan</th></tr></thead>
@@ -247,6 +258,7 @@
         <h2>Limiter Cut Controller</h2>
         <div class="item">
           <h3>Limiter Cut Controller</h3>
+          <DetailAttachments detail-name="Limiter Cut Controller Universal" :images="getImagesForName('Limiter Cut Controller Universal')" :spreadsheets="getSpreadsheetsForName('Limiter Cut Controller Universal')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
       </section>
@@ -256,8 +268,10 @@
         <h2>Gyroscope</h2>
         <div class="item">
           <h3>Gyroscope Tanpa Line Driver</h3>
+          <DetailAttachments detail-name="Gyroscope Tanpa Line Driver GT-GY2 GT-GY03A" :images="getImagesForName('Gyroscope Tanpa Line Driver GT-GY2 GT-GY03A')" :spreadsheets="getSpreadsheetsForName('Gyroscope Tanpa Line Driver GT-GY2 GT-GY03A')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <img src="@/assets/images/GT-GY2 & GT-GY03A.jpg" alt="Gyroscope" />
           <h3>Gyroscope Ada Line Driver</h3>
+          <DetailAttachments detail-name="Gyroscope Ada Line Driver GT-GY04A" :images="getImagesForName('Gyroscope Ada Line Driver GT-GY04A')" :spreadsheets="getSpreadsheetsForName('Gyroscope Ada Line Driver GT-GY04A')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
       </section>
@@ -267,6 +281,7 @@
         <h2>IMU</h2>
         <div class="item">
           <h3>IMU GT-IMU01A</h3>
+          <DetailAttachments detail-name="IMU" :images="getImagesForName('IMU')" :spreadsheets="getSpreadsheetsForName('IMU')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
       </section>
@@ -284,6 +299,8 @@
         <h2>Alarm</h2>
         <div class="item">
           <h3>Alarm Bulat Kecil & Besar</h3>
+          <DetailAttachments detail-name="Alarm Bulat Kecil" :images="getImagesForName('Alarm Bulat Kecil')" :spreadsheets="getSpreadsheetsForName('Alarm Bulat Kecil')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
+          <DetailAttachments detail-name="Alarm Bulat Besar" :images="getImagesForName('Alarm Bulat Besar')" :spreadsheets="getSpreadsheetsForName('Alarm Bulat Besar')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
       </section>
@@ -295,12 +312,20 @@
         <!-- Kabel Body Speed -->
         <div class="item">
           <h3>Kabel Body Speed</h3>
+          <DetailAttachments
+            detail-name="Kabel Body Speed"
+            :images="getImagesForName('Kabel Body Speed')"
+            :spreadsheets="getSpreadsheetsForName('Kabel Body Speed')"
+            @remove-image="removeImage"
+            @remove-spreadsheet="removeSpreadsheet"
+          />
           <!-- tambah gambar jika ada -->
         </div>
 
         <!-- Kabel Body Safety Module -->
         <div class="item">
           <h3>Kabel Body Safety Module</h3>
+          <DetailAttachments detail-name="Kabel Body Safety Module" :images="getImagesForName('Kabel Body Safety Module')" :spreadsheets="getSpreadsheetsForName('Kabel Body Safety Module')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <h4>Kelengkapan Part — Kabel Body Safety Module</h4>
           <table>
             <thead><tr><th>Komponen</th><th>Jumlah</th><th>Satuan</th><th>Keterangan</th></tr></thead>
@@ -332,24 +357,28 @@
         <!-- Kabel Body Speed Tracker Logger -->
         <div class="item">
           <h3>Kabel Speed Tracker Logger</h3>
+          <DetailAttachments detail-name="Kabel Speed Tracker Logger" :images="getImagesForName('Kabel Speed Tracker Logger')" :spreadsheets="getSpreadsheetsForName('Kabel Speed Tracker Logger')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
 
         <!-- Kabel Body Speed Limiter Fuso -->
         <div class="item">
           <h3>Kabel Body Speed Limiter Fuso</h3>
+          <DetailAttachments detail-name="Kabel Body Speed Limiter Fuso" :images="getImagesForName('Kabel Body Speed Limiter Fuso')" :spreadsheets="getSpreadsheetsForName('Kabel Body Speed Limiter Fuso')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
 
         <!-- Kabel Body Speed Display Eksternal -->
         <div class="item">
           <h3>Kabel Body Speed Display Eksternal</h3>
+          <DetailAttachments detail-name="Kabel Body Speed Display Eksternal" :images="getImagesForName('Kabel Body Speed Display Eksternal')" :spreadsheets="getSpreadsheetsForName('Kabel Body Speed Display Eksternal')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
 
         <!-- Kabel Body Speed Voice -->
         <div class="item">
           <h3>Kabel Body Speed Voice</h3>
+          <DetailAttachments detail-name="Kabel Body Speed Voice" :images="getImagesForName('Kabel Body Speed Voice')" :spreadsheets="getSpreadsheetsForName('Kabel Body Speed Voice')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <h4>Kelengkapan Part — Kabel Body Speed Voice</h4>
           <table>
             <thead><tr><th>Komponen</th><th>Jumlah</th><th>Satuan</th><th>Keterangan</th></tr></thead>
@@ -374,24 +403,29 @@
         <!-- Kabel Body Fatigue Alarm Gitronik -->
         <div class="item">
           <h3>Kabel Body Fatigue Alarm Gitronik</h3>
+          <DetailAttachments detail-name="Kabel Body Fatigue Alarm Gitronik" :images="getImagesForName('Kabel Body Fatigue Alarm Gitronik')" :spreadsheets="getSpreadsheetsForName('Kabel Body Fatigue Alarm Gitronik')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
 
         <!-- Kabel Body Fatigue Alarm Merah Putih -->
         <div class="item">
           <h3>Kabel Body Fatigue Alarm Merah Putih</h3>
+          <DetailAttachments detail-name="Kabel Body Fatigue Alarm Merah Putih" :images="getImagesForName('Kabel Body Fatigue Alarm Merah Putih')" :spreadsheets="getSpreadsheetsForName('Kabel Body Fatigue Alarm Merah Putih')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
 
         <!-- Kabel Body Idletimer HE & Dozer -->
         <div class="item">
           <h3>Kabel Body Idletimer HE & Dozer</h3>
+          <DetailAttachments detail-name="Kabel Body Idletimer HE & Dozer" :images="getImagesForName('Kabel Body Idletimer HE & Dozer')" :spreadsheets="getSpreadsheetsForName('Kabel Body Idletimer HE & Dozer')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
         </div>
 
         <!-- Kabel Body ISCS -->
         <div class="item">
           <h3>Kabel Body ISCS</h3>
+          <DetailAttachments detail-name="Kabel Body ISCS Shutdown" :images="getImagesForName('Kabel Body ISCS Shutdown')" :spreadsheets="getSpreadsheetsForName('Kabel Body ISCS Shutdown')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
+          <DetailAttachments detail-name="Kabel Body ISCS Safety Dump" :images="getImagesForName('Kabel Body ISCS Safety Dump')" :spreadsheets="getSpreadsheetsForName('Kabel Body ISCS Safety Dump')" @remove-image="removeImage" @remove-spreadsheet="removeSpreadsheet" />
           <!-- tambah gambar jika ada -->
           
           <!-- Tabel Kabel ISCS -->
@@ -451,33 +485,13 @@
             </tbody>
           </table>
 
-          <div
-            v-if="getImagesForDetail(`product:${product.id}`).length || getSpreadsheetsForDetail(`product:${product.id}`).length"
-            class="inline-attachments"
-          >
-            <h4>Lampiran {{ product.name }}</h4>
-            <div v-if="getImagesForDetail(`product:${product.id}`).length" class="image-grid">
-              <article
-                v-for="image in getImagesForDetail(`product:${product.id}`)"
-                :key="image.id"
-                class="image-card"
-              >
-                <img :src="image.url" :alt="image.title" />
-                <div>
-                  <strong>{{ image.title }}</strong>
-                  <span>{{ image.source === 'file' ? 'Upload gambar' : 'Link gambar' }}</span>
-                </div>
-                <button type="button" class="delete-attachment" @click="removeImage(image.id)">Hapus</button>
-              </article>
-            </div>
-
-            <ul v-if="getSpreadsheetsForDetail(`product:${product.id}`).length" class="spreadsheet-list">
-              <li v-for="sheet in getSpreadsheetsForDetail(`product:${product.id}`)" :key="sheet.id">
-                <a :href="sheet.url" target="_blank" rel="noopener noreferrer">{{ sheet.title }}</a>
-                <button type="button" class="delete-attachment" @click="removeSpreadsheet(sheet.id)">Hapus</button>
-              </li>
-            </ul>
-          </div>
+          <DetailAttachments
+            :detail-name="product.name"
+            :images="getImagesForDetail(`product:${product.id}`)"
+            :spreadsheets="getSpreadsheetsForDetail(`product:${product.id}`)"
+            @remove-image="removeImage"
+            @remove-spreadsheet="removeSpreadsheet"
+          />
         </div>
       </section>
 
@@ -544,29 +558,8 @@
           Pilih detail produk untuk melihat atau menambahkan lampiran.
         </div>
 
-        <div v-else-if="!attachmentGroups.length" class="empty-attachments">
+        <div v-else-if="!attachments.images.length && !attachments.spreadsheets.length" class="empty-attachments">
           Belum ada lampiran untuk detail produk di modul ini.
-        </div>
-
-        <div v-for="group in attachmentGroups" :key="group.detail.key" class="attachment-list detail-attachment-block">
-          <h3>{{ group.detail.name }}</h3>
-          <div v-if="group.images.length" class="image-grid">
-            <article v-for="image in group.images" :key="image.id" class="image-card">
-                <img :src="image.url" :alt="image.title" />
-                <div>
-                  <strong>{{ image.title }}</strong>
-                  <span>{{ image.source === 'file' ? 'Upload gambar' : 'Link gambar' }}</span>
-                </div>
-                <button type="button" class="delete-attachment" @click="removeImage(image.id)">Hapus</button>
-              </article>
-            </div>
-
-          <ul v-if="group.spreadsheets.length" class="spreadsheet-list">
-            <li v-for="sheet in group.spreadsheets" :key="sheet.id">
-              <a :href="sheet.url" target="_blank" rel="noopener noreferrer">{{ sheet.title }}</a>
-              <button type="button" class="delete-attachment" @click="removeSpreadsheet(sheet.id)">Hapus</button>
-            </li>
-          </ul>
         </div>
       </section>
 
@@ -579,13 +572,15 @@
 
 <script>
 import AppHeader from '@/components/AppHeader.vue'
+import DetailAttachments from '@/components/DetailAttachments.vue'
 import { loadModuleAttachments, saveModuleAttachments } from '@/data/moduleAttachments'
 import { getModuleTitle } from '@/data/modules'
-import { getModuleDetailOptions, getProductsByModule, loadProducts, onProductsUpdated } from '@/data/products'
+import { getModuleDetailOptions, getProductsByModule, loadProducts, makeSlug, onProductsUpdated } from '@/data/products'
 
 export default {
   components: {
     AppHeader,
+    DetailAttachments,
   },
   data() {
     return {
@@ -799,6 +794,15 @@ export default {
     removeSpreadsheet(id) {
       this.attachments.spreadsheets = this.attachments.spreadsheets.filter((sheet) => sheet.id !== id)
       this.persistAttachments()
+    },
+    detailKeyForName(name) {
+      return `item:${makeSlug(name)}`
+    },
+    getImagesForName(name) {
+      return this.getImagesForDetail(this.detailKeyForName(name))
+    },
+    getSpreadsheetsForName(name) {
+      return this.getSpreadsheetsForDetail(this.detailKeyForName(name))
     },
     getProductComponents(product) {
       if (product.components?.length) return product.components
