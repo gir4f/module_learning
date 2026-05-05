@@ -115,14 +115,97 @@
           </article>
         </div>
       </section>
+
+      <section class="product-panel attachment-panel">
+        <div class="panel-heading">
+          <div>
+            <p>Lampiran</p>
+            <h1>Detail Produk</h1>
+          </div>
+        </div>
+
+        <div class="product-form">
+          <label>
+            Modul Produk
+            <select v-model="attachmentForm.parentSlug" @change="loadSelectedAttachments">
+              <option value="" disabled>Pilih modul</option>
+              <option v-for="module in productModules" :key="module.slug" :value="module.slug">
+                {{ module.name }}
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Detail Produk
+            <select v-model="attachmentForm.detailKey">
+              <option value="" disabled>Pilih detail produk</option>
+              <option v-for="detail in attachmentDetailOptions" :key="detail.key" :value="detail.key">
+                {{ detail.name }}
+              </option>
+            </select>
+          </label>
+
+          <div class="attachment-grid">
+            <form class="attachment-box" @submit.prevent="addImageLink">
+              <h2>Gambar</h2>
+              <label>
+                Upload gambar
+                <input type="file" accept="image/*" @change="uploadImage" />
+              </label>
+              <label>
+                Link gambar (opsional)
+                <input v-model.trim="attachmentForm.imageUrl" type="url" placeholder="https://contoh.com/gambar.jpg" />
+              </label>
+              <label>
+                Judul gambar
+                <input v-model.trim="attachmentForm.imageTitle" type="text" placeholder="Rangkaian, wiring, tabel, dll." />
+              </label>
+              <button type="submit">Simpan Link Gambar</button>
+            </form>
+
+            <form class="attachment-box" @submit.prevent="addSpreadsheetLink">
+              <h2>Spreadsheet</h2>
+              <label>
+                Link spreadsheet
+                <input v-model.trim="attachmentForm.spreadsheetUrl" type="url" placeholder="https://docs.google.com/spreadsheets/..." required />
+              </label>
+              <label>
+                Judul spreadsheet
+                <input v-model.trim="attachmentForm.spreadsheetTitle" type="text" placeholder="Kelengkapan barang" />
+              </label>
+              <button type="submit">Simpan Spreadsheet</button>
+            </form>
+          </div>
+
+          <p v-if="attachmentError" class="form-error">{{ attachmentError }}</p>
+
+          <div v-if="selectedAttachmentImages.length || selectedAttachmentSpreadsheets.length" class="attachment-preview">
+            <h2>{{ selectedAttachmentDetailName }}</h2>
+            <div v-if="selectedAttachmentImages.length" class="preview-list">
+              <article v-for="image in selectedAttachmentImages" :key="image.id">
+                <span>{{ image.title }}</span>
+                <button type="button" class="danger-action" @click="removeImage(image.id)">Hapus</button>
+              </article>
+            </div>
+            <div v-if="selectedAttachmentSpreadsheets.length" class="preview-list">
+              <article v-for="sheet in selectedAttachmentSpreadsheets" :key="sheet.id">
+                <a :href="sheet.url" target="_blank" rel="noopener noreferrer">{{ sheet.title }}</a>
+                <button type="button" class="danger-action" @click="removeSpreadsheet(sheet.id)">Hapus</button>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 </template>
 
 <script>
 import AppHeader from '@/components/AppHeader.vue'
+import { loadModuleAttachments, saveModuleAttachments } from '@/data/moduleAttachments'
 import { modules as staticModules } from '@/data/modules'
 import {
+  getModuleDetailOptions,
   isDuplicateModuleSlug,
   isDuplicateProductName,
   getInferredModulesFromProducts,
@@ -140,9 +223,22 @@ export default {
   data() {
     return {
       products: [],
+      attachments: {
+        images: [],
+        spreadsheets: [],
+      },
       editingId: null,
       error: '',
+      attachmentError: '',
       customModules: [],
+      attachmentForm: {
+        parentSlug: '',
+        detailKey: '',
+        imageUrl: '',
+        imageTitle: '',
+        spreadsheetUrl: '',
+        spreadsheetTitle: '',
+      },
       form: {
         moduleMode: 'existing',
         parentSlug: '',
@@ -171,6 +267,23 @@ export default {
     },
     productModules() {
       return this.modules.filter((module) => module.slug !== 'alur-kerja')
+    },
+    attachmentDetailOptions() {
+      if (!this.attachmentForm.parentSlug) return []
+
+      return getModuleDetailOptions(this.attachmentForm.parentSlug)
+    },
+    selectedAttachmentDetail() {
+      return this.attachmentDetailOptions.find((detail) => detail.key === this.attachmentForm.detailKey)
+    },
+    selectedAttachmentDetailName() {
+      return this.selectedAttachmentDetail?.name || ''
+    },
+    selectedAttachmentImages() {
+      return this.attachments.images.filter((image) => image.detailKey === this.attachmentForm.detailKey)
+    },
+    selectedAttachmentSpreadsheets() {
+      return this.attachments.spreadsheets.filter((sheet) => sheet.detailKey === this.attachmentForm.detailKey)
     },
   },
   methods: {
@@ -296,6 +409,9 @@ export default {
       }
 
       saveProducts(this.products)
+      this.attachmentForm.parentSlug = product.parentSlug
+      this.loadSelectedAttachments()
+      this.attachmentForm.detailKey = `product:${product.id}`
       this.resetForm()
     },
     editProduct(product) {
@@ -346,6 +462,106 @@ export default {
         },
       })
     },
+    loadSelectedAttachments() {
+      this.attachments = loadModuleAttachments(this.attachmentForm.parentSlug)
+      this.attachmentForm.detailKey = this.attachmentDetailOptions[0]?.key || ''
+      this.attachmentError = ''
+    },
+    requireAttachmentTarget() {
+      if (this.attachmentForm.parentSlug && this.attachmentForm.detailKey && this.selectedAttachmentDetail) return true
+
+      this.attachmentError = 'Pilih modul dan detail produk terlebih dahulu.'
+      return false
+    },
+    persistAttachments() {
+      saveModuleAttachments(this.attachmentForm.parentSlug, this.attachments)
+    },
+    makeAttachmentId() {
+      return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    },
+    addImageLink() {
+      this.attachmentError = ''
+      if (!this.requireAttachmentTarget()) return
+      if (!this.attachmentForm.imageUrl) return
+
+      this.attachments.images = [
+        {
+          id: this.makeAttachmentId(),
+          title: this.attachmentForm.imageTitle || 'Gambar detail produk',
+          url: this.attachmentForm.imageUrl,
+          source: 'url',
+          detailKey: this.attachmentForm.detailKey,
+          detailName: this.selectedAttachmentDetailName,
+        },
+        ...this.attachments.images,
+      ]
+      this.persistAttachments()
+      this.attachmentForm.imageUrl = ''
+      this.attachmentForm.imageTitle = ''
+    },
+    uploadImage(event) {
+      this.attachmentError = ''
+      if (!this.requireAttachmentTarget()) {
+        event.target.value = ''
+        return
+      }
+
+      const file = event.target.files?.[0]
+      if (!file) return
+
+      if (!file.type.startsWith('image/')) {
+        this.attachmentError = 'File harus berupa gambar.'
+        event.target.value = ''
+        return
+      }
+
+      const reader = new FileReader()
+      reader.onload = () => {
+        this.attachments.images = [
+          {
+            id: this.makeAttachmentId(),
+            title: this.attachmentForm.imageTitle || file.name,
+            url: reader.result,
+            source: 'file',
+            detailKey: this.attachmentForm.detailKey,
+            detailName: this.selectedAttachmentDetailName,
+          },
+          ...this.attachments.images,
+        ]
+        this.persistAttachments()
+        event.target.value = ''
+      }
+      reader.onerror = () => {
+        this.attachmentError = 'Gambar gagal dibaca.'
+      }
+      reader.readAsDataURL(file)
+    },
+    addSpreadsheetLink() {
+      this.attachmentError = ''
+      if (!this.requireAttachmentTarget()) return
+
+      this.attachments.spreadsheets = [
+        {
+          id: this.makeAttachmentId(),
+          title: this.attachmentForm.spreadsheetTitle || 'Spreadsheet kelengkapan barang',
+          url: this.attachmentForm.spreadsheetUrl,
+          detailKey: this.attachmentForm.detailKey,
+          detailName: this.selectedAttachmentDetailName,
+        },
+        ...this.attachments.spreadsheets,
+      ]
+      this.persistAttachments()
+      this.attachmentForm.spreadsheetUrl = ''
+      this.attachmentForm.spreadsheetTitle = ''
+    },
+    removeImage(id) {
+      this.attachments.images = this.attachments.images.filter((image) => image.id !== id)
+      this.persistAttachments()
+    },
+    removeSpreadsheet(id) {
+      this.attachments.spreadsheets = this.attachments.spreadsheets.filter((sheet) => sheet.id !== id)
+      this.persistAttachments()
+    },
   },
 }
 </script>
@@ -365,6 +581,10 @@ export default {
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   padding: 20px;
+}
+
+.attachment-panel {
+  grid-column: 1 / -1;
 }
 
 .panel-heading {
@@ -467,6 +687,68 @@ export default {
   display: grid;
   gap: 10px;
   padding: 14px;
+}
+
+.attachment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.attachment-box {
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+
+.attachment-box h2,
+.attachment-preview h2 {
+  color: #26323f;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.attachment-box label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.attachment-box button {
+  align-self: flex-start;
+}
+
+.attachment-preview {
+  border: 1px solid #e3e8ef;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.preview-list {
+  display: grid;
+  gap: 8px;
+}
+
+.preview-list article {
+  align-items: center;
+  border: 1px solid #eef2f6;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px;
+}
+
+.preview-list a,
+.preview-list span {
+  color: #1d4f80;
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .editor-heading {
@@ -584,6 +866,7 @@ button {
 }
 
 @media (max-width: 720px) {
+  .attachment-grid,
   .component-grid,
   .component-grid-head {
     grid-template-columns: 1fr;
