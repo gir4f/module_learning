@@ -19,6 +19,13 @@ const route = useRoute()
 const { data: module } = await useFetch<LearningModule>(`/api/modules/${route.params.slug}`)
 
 useHead({
-  title: computed(() => module.value ? `${module.value.title} | Modul Ajar` : 'Module not found'),
+  title: computed(() => module.value ? `${module.value.title} | Modul Ajar` : 'Modul tidak ditemukan'),
+})
+
+useSeoMeta({
+  title: computed(() => module.value ? `${module.value.title} | Modul Ajar` : 'Modul tidak ditemukan'),
+  description: computed(() => module.value?.description || 'Modul pembelajaran internal PT. Gitronik Dimindo Indonesia.'),
+  ogTitle: computed(() => module.value ? `${module.value.title} | Modul Ajar` : 'Modul tidak ditemukan'),
+  ogDescription: computed(() => module.value?.description || 'Modul pembelajaran internal PT. Gitronik Dimindo Indonesia.'),
 })
 </script>

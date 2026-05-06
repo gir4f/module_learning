@@ -33,7 +33,7 @@
           :key="tab.value"
           type="button"
           class="relative shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-4 focus:ring-cyan-100"
-          :class="activeCategory === tab.value ? 'bg-brand-navy text-white dark:bg-brand-dark-navy dark:text-slate-950' : 'bg-white text-slate-600 hover:bg-brand-navy-light dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'"
+          :class="activeCategory === tab.value ? 'bg-brand-navy text-white shadow-sm dark:bg-cyan-400 dark:text-slate-950' : 'bg-white text-slate-600 hover:bg-brand-navy-light dark:bg-slate-900 dark:text-slate-300 dark:ring-1 dark:ring-slate-800 dark:hover:bg-slate-800 dark:hover:text-white'"
           @click="$emit('update:category', tab.value)"
         >
           {{ tab.label }}

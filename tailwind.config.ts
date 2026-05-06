@@ -18,6 +18,7 @@ export default {
           navy: '#1d4f80',
           'navy-light': '#e7f1fb',
           teal: '#10b7c5',
+          'teal-50': '#ecfeff',
           'teal-dark': '#078996',
           ink: '#26323f',
           dark: {

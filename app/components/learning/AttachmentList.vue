@@ -53,32 +53,13 @@
       </article>
     </div>
 
-    <div
-      v-if="lightboxAttachment"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 no-print"
-      role="dialog"
-      aria-modal="true"
-      @click.self="lightboxAttachment = null"
-    >
-      <div class="w-full max-w-5xl">
-        <div class="mb-3 flex items-center justify-between gap-3 text-white">
-          <h2 class="font-bold">{{ lightboxAttachment.title }}</h2>
-          <button type="button" class="rounded-md p-2 hover:bg-white/10" aria-label="Tutup preview" @click="lightboxAttachment = null">
-            <i class="pi pi-times" aria-hidden="true" />
-          </button>
-        </div>
-        <img
-          :src="lightboxAttachment.url"
-          :alt="lightboxAttachment.title"
-          class="max-h-[80vh] w-full rounded-lg bg-white object-contain"
-        >
-      </div>
-    </div>
+    <ImageLightbox :image="lightboxAttachment" @close="lightboxAttachment = null" />
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Attachment } from '~/types/learning'
+import ImageLightbox from '~/components/shared/ImageLightbox.vue'
 
 const props = defineProps<{
   attachments: Attachment[]
@@ -88,8 +69,9 @@ const lightboxAttachment = ref<Attachment | null>(null)
 const sortedAttachments = computed(() => [...props.attachments].sort((a, b) => a.sortOrder - b.sortOrder))
 
 function iconFor(type: string) {
+  if (type === 'IMAGE') return 'pi pi-image'
   if (type === 'SPREADSHEET') return 'pi pi-table'
-  if (type === 'LINK') return 'pi pi-link'
+  if (type === 'LINK') return 'pi pi-external-link'
   return 'pi pi-file'
 }
 

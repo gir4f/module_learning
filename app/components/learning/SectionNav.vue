@@ -1,5 +1,8 @@
 <template>
-  <nav class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 no-print">
+  <nav class="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 no-print">
+    <div class="absolute left-0 top-0 h-full w-1 bg-slate-100 dark:bg-slate-800" aria-hidden="true">
+      <div class="w-full bg-brand-teal transition-all" :style="{ height: `${progress}%` }" />
+    </div>
     <label class="grid gap-2 lg:hidden">
       <span class="text-xs font-bold uppercase text-slate-500">Lompat ke section</span>
       <select
@@ -22,7 +25,7 @@
       <div class="mb-3 h-1 rounded-full bg-slate-100 dark:bg-slate-800">
         <div class="h-1 rounded-full bg-brand-teal transition-all" :style="{ width: `${progress}%` }" />
       </div>
-      <ol v-if="!collapsed" class="relative space-y-1 border-l border-slate-200 pl-3 text-sm dark:border-slate-800">
+      <ol v-if="!collapsed" class="toc-scrollbar relative max-h-[62vh] space-y-1 overflow-y-auto border-l border-slate-200 pl-3 pr-1 text-sm dark:border-slate-800">
         <li v-for="detail in details" :key="detail.slug" class="relative">
           <span
             v-if="activeId === detail.slug"

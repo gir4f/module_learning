@@ -1,5 +1,5 @@
 <template>
-  <article class="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
+  <article class="mx-auto grid max-w-7xl gap-6 px-4 py-6 text-slate-900 dark:text-slate-100 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
     <aside class="lg:sticky lg:top-24 lg:self-start">
       <SectionNav :details="module.details" />
     </aside>
@@ -8,7 +8,7 @@
       <nav class="text-sm text-slate-500 dark:text-slate-400 no-print" aria-label="Breadcrumb">
         <NuxtLink to="/" class="font-semibold hover:text-brand-navy dark:hover:text-white">Beranda</NuxtLink>
         <span class="mx-2">/</span>
-        <button type="button" class="font-semibold text-brand-navy dark:text-brand-dark-navy" @click="scrollTop">{{ module.title }}</button>
+        <button type="button" class="font-semibold text-brand-navy hover:text-brand-teal dark:text-cyan-200 dark:hover:text-cyan-100" @click="scrollTop">{{ module.title }}</button>
       </nav>
       <DocumentHeader :module="module" />
       <section
@@ -23,7 +23,7 @@
         </div>
 
         <ComponentTable v-if="detail.components.length" :components="detail.components" />
-        <p v-else class="rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-500">
+        <p v-else class="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
           Belum ada tabel komponen untuk detail ini.
         </p>
 
@@ -32,16 +32,6 @@
         </div>
       </section>
     </div>
-
-    <button
-      v-if="showTopButton"
-      type="button"
-      class="fixed bottom-5 right-5 z-30 rounded-full bg-brand-teal p-3 text-white shadow-lg transition hover:bg-brand-teal-dark focus:outline-none focus:ring-4 focus:ring-cyan-100 no-print"
-      aria-label="Kembali ke atas"
-      @click="scrollTop"
-    >
-      <i class="pi pi-arrow-up" aria-hidden="true" />
-    </button>
   </article>
 </template>
 
@@ -55,21 +45,6 @@ import SectionNav from '~/components/learning/SectionNav.vue'
 defineProps<{
   module: LearningModule
 }>()
-
-const showTopButton = ref(false)
-
-onMounted(() => {
-  window.addEventListener('scroll', updateTopButton, { passive: true })
-  updateTopButton()
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', updateTopButton)
-})
-
-function updateTopButton() {
-  showTopButton.value = window.scrollY > 300
-}
 
 function scrollTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' })

@@ -103,6 +103,10 @@ const heroStats = computed(() => [
   { label: 'Lampiran', value: attachmentCount.value },
 ])
 
+useHead({
+  title: 'Modul Ajar — PT. Gitronik Dimindo Indonesia',
+})
+
 onMounted(() => {
   window.addEventListener('keydown', focusShortcut)
 })

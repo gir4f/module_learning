@@ -13,7 +13,7 @@
           @click="shareModule"
         >
           <i class="pi pi-share-alt text-xs" aria-hidden="true" />
-          Bagikan
+          {{ copied ? 'Disalin' : 'Bagikan' }}
         </button>
         <button
           type="button"
@@ -62,6 +62,7 @@ const categoryName = computed(() => categoryLabel(category.value))
 const categoryClass = computed(() => categoryClasses(category.value))
 const readingTime = computed(() => Math.max(1, Math.ceil((props.module.details.length * 90 + componentCount.value * 18) / 220)))
 const updatedAt = computed(() => props.module.updatedAt ? new Date(props.module.updatedAt).toLocaleDateString() : '-')
+const copied = ref(false)
 
 function printModule() {
   window.print()
@@ -74,5 +75,9 @@ async function shareModule() {
     return
   }
   await navigator.clipboard.writeText(url)
+  copied.value = true
+  window.setTimeout(() => {
+    copied.value = false
+  }, 1800)
 }
 </script>

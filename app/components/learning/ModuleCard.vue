@@ -1,8 +1,7 @@
 <template>
   <NuxtLink
     :to="`/modules/${module.slug}`"
-    class="group flex min-h-52 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-teal hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:border-slate-800 dark:bg-slate-900 dark:focus:ring-cyan-950"
-    :class="animationClass"
+    class="card-enter group flex min-h-52 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-brand-teal hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/20 dark:hover:border-cyan-400 dark:hover:bg-slate-800/70 dark:focus:ring-cyan-950"
     :style="{ animationDelay: `${Math.min(index || 0, 12) * 45}ms` }"
   >
     <div class="h-1.5" :class="accentClass" />
@@ -14,7 +13,7 @@
           </span>
           <div>
             <p class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{{ label }}</p>
-            <h2 class="mt-1 text-lg font-bold text-brand-navy dark:text-brand-dark-navy">
+            <h2 class="mt-1 text-lg font-bold text-brand-navy dark:text-cyan-200">
               <template v-for="(part, partIndex) in highlightedTitle" :key="`${part.text}-${partIndex}`">
                 <mark v-if="part.match" class="rounded bg-cyan-100 px-0.5 text-brand-navy dark:bg-cyan-900 dark:text-cyan-100">{{ part.text }}</mark>
                 <span v-else>{{ part.text }}</span>
@@ -51,7 +50,7 @@
 
       <div class="mt-auto flex items-center justify-between pt-5 text-sm">
         <span class="text-slate-500 dark:text-slate-400">Diperbarui {{ updatedAt }}</span>
-        <span class="font-semibold text-brand-teal group-hover:text-brand-navy dark:group-hover:text-brand-dark-navy">
+        <span class="font-semibold text-brand-teal group-hover:text-brand-navy dark:text-cyan-300 dark:group-hover:text-cyan-100">
           Buka
           <i class="pi pi-arrow-right ml-1 text-xs" aria-hidden="true" />
         </span>
@@ -83,7 +82,6 @@ const accentClass = computed(() => {
 })
 const icon = computed(() => moduleIcon(props.module))
 const updatedAt = computed(() => props.module.updatedAt ? new Date(props.module.updatedAt).toLocaleDateString() : '-')
-const animationClass = computed(() => 'animate-fade-up')
 const description = computed(() => props.module.description || props.module.keywords || 'Dokumentasi produk dan komponen tersedia di dalam modul.')
 const highlightedTitle = computed(() => highlightParts(props.module.title, props.search || ''))
 const highlightedDescription = computed(() => highlightParts(description.value, props.search || ''))
