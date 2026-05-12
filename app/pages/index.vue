@@ -23,27 +23,27 @@
                 ref="heroSearchInput"
                 v-model="search"
                 type="search"
-                class="w-full rounded-lg border-0 bg-white py-4 pl-11 pr-24 text-base text-slate-900 outline-none focus:ring-4 focus:ring-cyan-100"
+                class="w-full rounded-lg border-0 bg-white py-4 pl-11 pr-12 text-base text-slate-900 outline-none focus:ring-4 focus:ring-cyan-100 sm:pr-24"
                 placeholder="Cari modul, produk, atau komponen..."
                 aria-label="Cari modul"
               >
               <button
                 v-if="search"
                 type="button"
-                class="absolute right-16 top-1/2 -translate-y-1/2 rounded-md p-2 text-slate-500 hover:bg-slate-100"
+                class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-2 text-slate-500 hover:bg-slate-100 sm:right-16"
                 aria-label="Bersihkan pencarian"
                 @click="search = ''"
               >
                 <i class="pi pi-times" aria-hidden="true" />
               </button>
-              <kbd class="absolute right-4 top-1/2 -translate-y-1/2 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">Ctrl K</kbd>
+              <kbd class="absolute right-4 top-1/2 hidden -translate-y-1/2 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 sm:block">Ctrl K</kbd>
             </div>
           </div>
         </div>
-        <dl class="grid grid-cols-3 gap-3 overflow-x-auto rounded-xl bg-white/10 p-4 backdrop-blur">
-          <div v-for="stat in heroStats" :key="stat.label" class="min-w-24 rounded-lg bg-white/12 p-3">
+        <dl class="grid grid-cols-1 gap-3 rounded-xl bg-white/10 p-4 backdrop-blur min-[360px]:grid-cols-3">
+          <div v-for="stat in heroStats" :key="stat.label" class="min-w-0 rounded-lg bg-white/12 p-3">
             <dt class="text-xs font-semibold uppercase text-cyan-100">{{ stat.label }}</dt>
-            <dd class="mt-2 text-3xl font-extrabold">{{ stat.value }}</dd>
+            <dd class="mt-2 text-2xl font-extrabold sm:text-3xl">{{ stat.value }}</dd>
           </div>
         </dl>
       </div>
@@ -104,7 +104,7 @@ const heroStats = computed(() => [
 ])
 
 useHead({
-  title: 'Modul Ajar — PT. Gitronik Dimindo Indonesia',
+  title: 'Modul Ajar - PT. Gitronik Dimindo Indonesia',
 })
 
 onMounted(() => {

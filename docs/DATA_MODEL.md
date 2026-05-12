@@ -1,92 +1,21 @@
 # Data Model
 
-This is the recommended first-pass data model for the shared learning module system.
+The Prisma schema is the source of truth. The main ownership model is:
 
-## Prisma Model Sketch
+- `Profile`: user identity, role, and optional `passwordHash`.
+- `Module`: top-level learning module.
+- `ModuleDetail`: document section inside a module.
+- `ComponentItem`: component/parts row belonging to a detail.
+- `Attachment`: link or uploaded-file metadata belonging to a detail.
 
-```prisma
-model Profile {
-  id        String   @id
-  email     String   @unique
-  fullName  String?
-  role      UserRole @default(VIEWER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+## Attachment Fields
 
-model Module {
-  id          String         @id @default(cuid())
-  slug        String         @unique
-  title       String
-  description String?
-  keywords    String?
-  status      PublishStatus  @default(DRAFT)
-  sortOrder   Int            @default(0)
-  details     ModuleDetail[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-}
+Uploaded files are stored on disk, not in PostgreSQL. Attachments store:
 
-model ModuleDetail {
-  id          String          @id @default(cuid())
-  moduleId    String
-  slug        String
-  title       String
-  summary     String?
-  keywords    String?
-  sortOrder   Int             @default(0)
-  module      Module          @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  components  ComponentItem[]
-  attachments Attachment[]
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-
-  @@unique([moduleId, slug])
-}
-
-model ComponentItem {
-  id        String       @id @default(cuid())
-  detailId  String
-  category  String?
-  name      String
-  quantity  String
-  unit      String
-  note      String?
-  sortOrder Int          @default(0)
-  detail    ModuleDetail @relation(fields: [detailId], references: [id], onDelete: Cascade)
-}
-
-model Attachment {
-  id          String         @id @default(cuid())
-  detailId    String
-  type        AttachmentType
-  title       String
-  url         String
-  storagePath String?
-  mimeType    String?
-  sizeBytes   Int?
-  sortOrder   Int            @default(0)
-  detail      ModuleDetail   @relation(fields: [detailId], references: [id], onDelete: Cascade)
-  createdAt   DateTime       @default(now())
-}
-
-enum UserRole {
-  ADMIN
-  VIEWER
-}
-
-enum PublishStatus {
-  DRAFT
-  PUBLISHED
-}
-
-enum AttachmentType {
-  IMAGE
-  SPREADSHEET
-  FILE
-  LINK
-}
-```
+- `url`: public route such as `/api/uploads/file-name.pdf`, or an external link.
+- `filePath`: local path under `UPLOAD_DIR` for uploaded files.
+- `mimeType`
+- `sizeBytes`
 
 ## Validation Rules
 
@@ -97,29 +26,17 @@ enum AttachmentType {
 - Component rows require `name`, `quantity`, and `unit`.
 - Attachment title and URL are required.
 - Uploaded files must use allowed MIME types.
-- Images should have size limits and be stored in Supabase Storage, not directly in PostgreSQL.
 
 ## Seed Data
 
-Existing module content should be migrated into seed data. Keep seed scripts idempotent so they can run repeatedly in development.
+Seed scripts should stay idempotent. Recommended order:
 
-Recommended seed order:
-
-1. Modules
-2. Details
-3. Component items
-4. Attachments with static asset URLs or storage paths
+1. Default admin profile
+2. Modules
+3. Details
+4. Component items
+5. Attachments
 
 ## Search
 
-Search should be derived from:
-
-- module title
-- module keywords
-- detail title
-- detail keywords
-- component names
-- attachment titles
-
-Avoid manually maintaining a separate search table unless search becomes slow.
-
+Search should be derived from module title, module keywords, detail title, detail keywords, component names, and attachment titles.

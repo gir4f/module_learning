@@ -1,49 +1,44 @@
 <template>
   <form class="grid gap-5" @submit.prevent="submit">
-    <div class="admin-surface-enter rounded-xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-900">
-      <div class="grid gap-4">
-        <label class="grid gap-2">
-          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Title <span class="text-red-500">*</span></span>
-          <InputText v-model="form.title" :invalid="Boolean(errors.title)" placeholder="Example: Device Speed" />
-          <small v-if="errors.title" class="text-red-600 dark:text-red-300">{{ errors.title }}</small>
-        </label>
+    <AdminSurface compact>
+      <AdminSectionHeader title="Identity" description="Keep title human-readable; slug stays URL-friendly." />
+      <div class="grid gap-4 p-4">
+        <AdminFieldGroup label="Title" :error="displayErrors.title" required>
+          <InputText v-model="form.title" :invalid="Boolean(displayErrors.title)" placeholder="Example: Device Speed" />
+        </AdminFieldGroup>
 
-        <label class="grid gap-2">
-          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Slug</span>
-          <InputText v-model="form.slug" placeholder="Auto-generated when empty" />
-          <small class="text-xs text-slate-500 dark:text-slate-400">Used in learner URLs. Leave empty to generate from title.</small>
-        </label>
+        <AdminFieldGroup label="Slug" help="Used in learner URLs. Leave empty to generate from title." :error="displayErrors.slug">
+          <InputText v-model="form.slug" :invalid="Boolean(displayErrors.slug)" placeholder="Auto-generated when empty" />
+        </AdminFieldGroup>
       </div>
-    </div>
+    </AdminSurface>
 
-    <div class="admin-surface-enter rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 [animation-delay:60ms]">
-      <div class="grid gap-4">
-        <label class="grid gap-2">
-          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Description</span>
+    <AdminSurface compact class="[animation-delay:60ms]">
+      <AdminSectionHeader title="Search and summary" description="This text helps learners find the right module quickly." />
+      <div class="grid gap-4 p-4">
+        <AdminFieldGroup label="Description">
           <Textarea v-model="form.description" rows="3" placeholder="Short learner-facing summary" />
-        </label>
+        </AdminFieldGroup>
 
-        <label class="grid gap-2">
-          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Keywords</span>
+        <AdminFieldGroup label="Keywords" help="Separate common search words with commas.">
           <InputText v-model="form.keywords" placeholder="speed, safety, cable" />
-        </label>
+        </AdminFieldGroup>
       </div>
-    </div>
+    </AdminSurface>
 
-    <div class="admin-surface-enter rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 [animation-delay:120ms]">
-      <div class="grid gap-4 sm:grid-cols-2">
-        <label class="grid gap-2">
-          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Status</span>
+    <AdminSurface compact class="[animation-delay:120ms]">
+      <AdminSectionHeader title="Publishing" description="Drafts stay hidden until the module is ready." />
+      <div class="grid gap-4 p-4 sm:grid-cols-2">
+        <AdminFieldGroup label="Status">
           <Select v-model="form.status" :options="statuses" />
-        </label>
-        <label class="grid gap-2">
-          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Sort Order</span>
+        </AdminFieldGroup>
+        <AdminFieldGroup label="Sort Order" help="Lower numbers appear earlier in the module library.">
           <InputNumber v-model="form.sortOrder" input-id="sortOrder" />
-        </label>
+        </AdminFieldGroup>
       </div>
-    </div>
+    </AdminSurface>
 
-    <div class="sticky bottom-0 -mx-1 flex justify-end gap-2 border-t border-slate-200 bg-white/95 px-1 pt-4 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95">
+    <div class="sticky bottom-0 -mx-1 flex flex-col-reverse gap-2 border-t border-slate-200 bg-white/95 px-1 pt-4 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 sm:flex-row sm:justify-end">
       <Button type="button" label="Cancel" severity="secondary" outlined @click="$emit('cancel')" />
       <Button type="submit" label="Save Module" icon="pi pi-save" class="transition-transform hover:-translate-y-0.5" />
     </div>
@@ -52,9 +47,13 @@
 
 <script setup lang="ts">
 import type { LearningModule, PublishStatus } from '~/types/learning'
+import AdminFieldGroup from '~/components/admin/AdminFieldGroup.vue'
+import AdminSectionHeader from '~/components/admin/AdminSectionHeader.vue'
+import AdminSurface from '~/components/admin/AdminSurface.vue'
 
 const props = defineProps<{
   module?: Partial<LearningModule> | null
+  fieldErrors?: Record<string, string>
 }>()
 
 const emit = defineEmits<{
@@ -64,6 +63,10 @@ const emit = defineEmits<{
 
 const statuses: PublishStatus[] = ['DRAFT', 'PUBLISHED']
 const errors = reactive<Record<string, string>>({})
+const displayErrors = computed(() => ({
+  ...props.fieldErrors,
+  ...Object.fromEntries(Object.entries(errors).filter(([, value]) => value)),
+}))
 const form = reactive({
   title: '',
   slug: '',

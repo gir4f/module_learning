@@ -30,7 +30,7 @@ export interface Attachment {
   type: AttachmentType
   title: string
   url: string
-  storagePath?: string | null
+  filePath?: string | null
   mimeType?: string | null
   sizeBytes?: number | null
   sortOrder: number

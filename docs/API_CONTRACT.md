@@ -1,6 +1,6 @@
 # API Contract
 
-Nuxt server routes should expose a small REST-like API for the frontend. These routes should validate input, check auth/role, and call Prisma.
+Nuxt server routes expose a small REST-like API. Mutating routes validate input, require admin auth, and call Prisma.
 
 ## Modules
 
@@ -20,17 +20,7 @@ PATCH  /api/details/:detailId
 DELETE /api/details/:detailId
 ```
 
-## Component Items
-
-For simplicity, update component rows as part of the detail update payload first.
-
-Optional later:
-
-```txt
-POST   /api/details/:detailId/components
-PATCH  /api/components/:componentId
-DELETE /api/components/:componentId
-```
+Component rows are saved as part of the detail payload.
 
 ## Attachments
 
@@ -42,24 +32,26 @@ DELETE /api/attachments/:attachmentId
 
 ## Uploads
 
-Use Supabase Storage for file bytes. The API stores metadata after upload.
-
 ```txt
-POST /api/uploads/sign
-POST /api/details/:detailId/attachments
+POST /api/uploads
+GET  /api/uploads/:path
 ```
 
-If using direct Supabase client uploads from the browser, keep storage rules strict and still save attachment metadata through a Nuxt server route.
+`POST /api/uploads` accepts multipart form data with a `file` part, requires admin auth, saves to `UPLOAD_DIR`, and returns `{ url, filePath, mimeType, sizeBytes, fileName }`.
 
-## Authorization
+## Auth
 
-- `GET /api/modules` may return only published modules for viewers.
-- Admin-only routes: create, update, delete, upload metadata changes.
-- Server routes must verify the Supabase user and role before mutations.
+```txt
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/me
+```
+
+Login checks `Profile.passwordHash` with bcryptjs and stores `userId` in an h3 session.
 
 ## Error Shape
 
-Use a predictable error shape:
+Use readable errors because they appear in admin forms:
 
 ```json
 {
@@ -69,6 +61,3 @@ Use a predictable error shape:
   }
 }
 ```
-
-Keep errors readable because they are shown in admin forms.
-

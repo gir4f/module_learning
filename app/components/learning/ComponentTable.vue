@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-3">
     <div class="flex flex-wrap items-center justify-between gap-2 no-print">
-      <h3 class="text-sm font-bold uppercase text-slate-500">Tabel Komponen</h3>
+      <h3 class="text-sm font-bold uppercase text-slate-500 dark:text-slate-400">Tabel Komponen</h3>
       <button
         type="button"
         class="inline-flex items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:border-brand-teal focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:text-slate-200"
@@ -26,7 +26,7 @@
         <tbody class="divide-y divide-slate-100 bg-white dark:divide-slate-800 dark:bg-slate-900">
           <template v-for="group in groupedComponents" :key="group.category">
             <tr class="bg-slate-50 dark:bg-slate-800/70">
-              <th colspan="4" scope="rowgroup" class="px-4 py-2 text-left text-xs font-bold uppercase text-brand-navy dark:text-brand-dark-navy">
+              <th colspan="4" scope="rowgroup" class="px-4 py-2 text-left text-xs font-bold uppercase text-brand-navy dark:text-cyan-200">
                 {{ group.category }}
               </th>
             </tr>
@@ -52,7 +52,7 @@
         open
         class="rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
       >
-        <summary class="cursor-pointer px-4 py-3 text-sm font-bold uppercase text-brand-navy dark:text-brand-dark-navy">
+        <summary class="cursor-pointer px-4 py-3 text-sm font-bold uppercase text-brand-navy dark:text-cyan-200">
           {{ group.category }}
         </summary>
         <div class="grid gap-2 border-t border-slate-100 p-3 dark:border-slate-800">

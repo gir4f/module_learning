@@ -1,30 +1,26 @@
 <template>
-  <section class="mx-auto flex min-h-[calc(100vh-80px)] max-w-md items-center px-4 py-12">
-    <div class="w-full rounded-lg bg-white p-6 shadow-sm ring-1 ring-slate-200">
-      <p class="text-sm font-bold uppercase text-brand-teal">Internal Access</p>
-      <h1 class="mt-2 text-2xl font-bold text-brand-navy">Login</h1>
-      <p class="mt-2 text-sm text-slate-600">
-        Sign in with your Supabase account. Admin access is controlled by the Profile role in the database.
+  <section class="mx-auto flex min-h-[calc(100vh-80px)] max-w-md items-center px-3 py-8 sm:px-4 sm:py-12">
+    <div class="w-full rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-colors duration-150 dark:bg-slate-900 dark:ring-slate-800 sm:p-6">
+      <p class="text-xs font-black uppercase tracking-[0.16em] text-brand-teal dark:text-cyan-300">Internal Access</p>
+      <h1 class="mt-2 text-2xl font-black text-brand-navy dark:text-cyan-200">Login</h1>
+      <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+        Sign in with your internal learning module account.
       </p>
 
       <form class="mt-6 grid gap-4" @submit.prevent="loginWithPassword">
         <label class="grid gap-2">
-          <span class="text-sm font-semibold text-slate-700">Email</span>
-          <input v-model.trim="email" type="email" class="rounded-md border border-slate-300 px-3 py-2" required>
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Email</span>
+          <input v-model.trim="email" type="email" class="min-h-11 rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition duration-150 focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-950" required autocomplete="email">
         </label>
         <label class="grid gap-2">
-          <span class="text-sm font-semibold text-slate-700">Password</span>
-          <input v-model="password" type="password" class="rounded-md border border-slate-300 px-3 py-2">
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Password</span>
+          <input v-model="password" type="password" class="min-h-11 rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none transition duration-150 focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-950" required autocomplete="current-password">
         </label>
 
-        <p v-if="message" class="rounded-md bg-cyan-50 px-3 py-2 text-sm text-brand-navy">{{ message }}</p>
-        <p v-if="error" class="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{{ error }}</p>
+        <p v-if="auth.error" class="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-100">{{ auth.error }}</p>
 
-        <button class="rounded-md bg-brand-teal px-4 py-2 font-semibold text-white disabled:opacity-60" type="submit" :disabled="pending">
-          {{ pending ? 'Signing in...' : 'Sign in' }}
-        </button>
-        <button class="rounded-md border border-slate-300 px-4 py-2 font-semibold text-slate-700 disabled:opacity-60" type="button" :disabled="pending || !email" @click="sendMagicLink">
-          Send magic link
+        <button class="min-h-11 rounded-xl bg-brand-teal px-4 py-2 font-black text-white transition duration-150 hover:bg-brand-teal-dark active:scale-[0.99] disabled:opacity-60" type="submit" :disabled="auth.pending">
+          {{ auth.pending ? 'Signing in...' : 'Sign in' }}
         </button>
       </form>
     </div>
@@ -34,58 +30,16 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 
-const supabase = useSupabaseClient()
 const auth = useAuthStore()
 const email = ref('')
 const password = ref('')
-const pending = ref(false)
-const error = ref('')
-const message = ref('')
-
-async function afterLogin() {
-  const profile = await auth.fetchProfile()
-  await navigateTo(profile?.role === 'ADMIN' ? '/admin/modules' : '/')
-}
 
 async function loginWithPassword() {
-  pending.value = true
-  error.value = ''
-  message.value = ''
-
   try {
-    const { error: loginError } = await supabase.auth.signInWithPassword({
-      email: email.value,
-      password: password.value,
-    })
-
-    if (loginError) throw loginError
-    await afterLogin()
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Login failed.'
-  } finally {
-    pending.value = false
-  }
-}
-
-async function sendMagicLink() {
-  pending.value = true
-  error.value = ''
-  message.value = ''
-
-  try {
-    const { error: linkError } = await supabase.auth.signInWithOtp({
-      email: email.value,
-      options: {
-        emailRedirectTo: window.location.origin,
-      },
-    })
-
-    if (linkError) throw linkError
-    message.value = 'Magic link sent. Check your email.'
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to send magic link.'
-  } finally {
-    pending.value = false
+    await auth.login(email.value, password.value)
+    await navigateTo('/admin/modules')
+  } catch {
+    // The store owns the user-facing error message.
   }
 }
 </script>

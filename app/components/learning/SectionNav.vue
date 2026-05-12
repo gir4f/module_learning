@@ -6,7 +6,7 @@
     <label class="grid gap-2 lg:hidden">
       <span class="text-xs font-bold uppercase text-slate-500">Lompat ke section</span>
       <select
-        class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        class="min-h-12 rounded-xl border border-slate-300 bg-white px-3 py-3 text-base font-semibold text-slate-900 outline-none focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         @change="jumpTo(($event.target as HTMLSelectElement).value)"
       >
         <option v-for="detail in details" :key="detail.slug" :value="detail.slug">
@@ -34,7 +34,7 @@
           />
           <a
             class="flex items-center justify-between gap-2 rounded-md px-3 py-2 text-slate-600 transition hover:bg-slate-50 hover:text-brand-navy dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
-            :class="activeId === detail.slug ? 'bg-cyan-50 font-semibold text-brand-navy dark:bg-cyan-950/40 dark:text-brand-dark-navy' : ''"
+            :class="activeId === detail.slug ? 'bg-cyan-50 font-semibold text-brand-navy dark:bg-cyan-950/40 dark:text-cyan-200' : ''"
             :href="`#${detail.slug}`"
             @click="activeId = detail.slug"
           >

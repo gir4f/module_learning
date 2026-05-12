@@ -6,11 +6,16 @@ export const useModulesStore = defineStore('modules', () => {
   const pending = ref(false)
   const error = ref('')
 
+  function requestHeaders() {
+    return import.meta.server ? useRequestHeaders(['cookie']) : undefined
+  }
+
   async function fetchModules(search = '') {
     pending.value = true
     error.value = ''
     try {
       modules.value = await $fetch<LearningModule[]>('/api/modules' as string, {
+        headers: requestHeaders(),
         query: search ? { search } : undefined,
       })
     } catch (err) {
@@ -23,6 +28,7 @@ export const useModulesStore = defineStore('modules', () => {
   async function createModule(payload: Partial<LearningModule>) {
     const module = await $fetch<LearningModule>('/api/modules', {
       method: 'POST',
+      headers: requestHeaders(),
       body: payload,
     })
     modules.value = [module, ...modules.value]
@@ -32,6 +38,7 @@ export const useModulesStore = defineStore('modules', () => {
   async function updateModule(id: string, payload: Partial<LearningModule>) {
     const module = await $fetch<LearningModule>(`/api/modules/${id}`, {
       method: 'PATCH',
+      headers: requestHeaders(),
       body: payload,
     })
     modules.value = modules.value.map((item) => item.id === id ? module : item)
@@ -41,6 +48,7 @@ export const useModulesStore = defineStore('modules', () => {
   async function deleteModule(id: string) {
     await $fetch(`/api/modules/${id}`, {
       method: 'DELETE',
+      headers: requestHeaders(),
     })
     modules.value = modules.value.filter((module) => module.id !== id)
   }

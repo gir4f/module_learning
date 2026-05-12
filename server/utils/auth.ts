@@ -1,5 +1,4 @@
-import { createError, type H3Event } from 'h3'
-import { serverSupabaseUser } from '#supabase/server'
+import { createError, getRequestProtocol, type H3Event, useSession } from 'h3'
 import { prisma } from './prisma'
 
 export type ServerRole = 'ADMIN' | 'VIEWER'
@@ -11,54 +10,28 @@ export interface RequestProfile {
   role: ServerRole
 }
 
-function authDisabled() {
-  return process.env.NUXT_AUTH_DISABLED === 'true'
+async function getSession(event: H3Event) {
+  const config = useRuntimeConfig()
+  const secure = getRequestProtocol(event, { xForwardedProto: true }) === 'https'
+
+  return useSession(event, {
+    password: config.sessionSecret,
+    cookie: {
+      httpOnly: true,
+      path: '/',
+      sameSite: 'lax',
+      secure,
+    },
+  })
 }
 
 export async function getRequestProfile(event: H3Event): Promise<RequestProfile | null> {
-  if (authDisabled()) {
-    return {
-      id: 'local-admin',
-      email: 'local-admin@example.com',
-      fullName: 'Local Admin',
-      role: 'ADMIN',
-    }
-  }
+  const session = await getSession(event)
+  const userId = session.data?.userId as string | undefined
+  if (!userId) return null
 
-  const user = await serverSupabaseUser(event).catch(() => null)
-  if (!user?.email) return null
-
-  if (!process.env.DATABASE_URL) {
-    return {
-      id: user.id,
-      email: user.email,
-      fullName: user.user_metadata?.full_name || user.user_metadata?.name || null,
-      role: 'VIEWER',
-    }
-  }
-
-  const existingProfile = await prisma.profile.findUnique({
-    where: { id: user.id },
-  })
-  const adminCount = await prisma.profile.count({
-    where: { role: 'ADMIN' },
-  })
-  const bootstrapRole = adminCount === 0 ? 'ADMIN' : 'VIEWER'
-
-  const profile = await prisma.profile.upsert({
-    where: { id: user.id },
-    update: {
-      email: user.email,
-      fullName: user.user_metadata?.full_name || user.user_metadata?.name || null,
-      ...(existingProfile?.role === 'VIEWER' && adminCount === 0 ? { role: 'ADMIN' as const } : {}),
-    },
-    create: {
-      id: user.id,
-      email: user.email,
-      fullName: user.user_metadata?.full_name || user.user_metadata?.name || null,
-      role: bootstrapRole,
-    },
-  })
+  const profile = await prisma.profile.findUnique({ where: { id: userId } })
+  if (!profile) return null
 
   return {
     id: profile.id,
@@ -75,22 +48,22 @@ export async function getRequestRole(event: H3Event): Promise<ServerRole> {
 
 export async function requireUser(event: H3Event) {
   const profile = await getRequestProfile(event)
-  if (!profile) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Login is required.',
-    })
-  }
+  if (!profile) throw createError({ statusCode: 401, statusMessage: 'Login is required.' })
   return profile
 }
 
 export async function requireAdmin(event: H3Event) {
   const profile = await requireUser(event)
-  if (profile.role !== 'ADMIN') {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Admin role is required.',
-    })
-  }
+  if (profile.role !== 'ADMIN') throw createError({ statusCode: 403, statusMessage: 'Admin role is required.' })
   return profile
+}
+
+export async function setSessionUser(event: H3Event, userId: string) {
+  const session = await getSession(event)
+  await session.update({ userId })
+}
+
+export async function clearAuthSession(event: H3Event) {
+  const session = await getSession(event)
+  await session.clear()
 }

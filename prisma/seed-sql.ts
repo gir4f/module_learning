@@ -57,11 +57,10 @@ VALUES (${sql(componentId(module.slug, detail.slug, index))}, ${sql(currentDetai
     statements.push(`DELETE FROM "Attachment" WHERE "detailId" = ${sql(currentDetailId)};`)
     detail.attachments.forEach((attachment, index) => {
       statements.push(`
-INSERT INTO "Attachment" ("id", "detailId", "type", "title", "url", "storagePath", "mimeType", "sizeBytes", "sortOrder")
-VALUES (${sql(attachmentId(module.slug, detail.slug, index))}, ${sql(currentDetailId)}, '${attachment.type}', ${sql(attachment.title)}, ${sql(attachment.url)}, ${sql(attachment.storagePath)}, ${sql(attachment.mimeType)}, ${attachment.sizeBytes ?? 'NULL'}, ${attachment.sortOrder ?? index});`)
+INSERT INTO "Attachment" ("id", "detailId", "type", "title", "url", "filePath", "mimeType", "sizeBytes", "sortOrder")
+VALUES (${sql(attachmentId(module.slug, detail.slug, index))}, ${sql(currentDetailId)}, '${attachment.type}', ${sql(attachment.title)}, ${sql(attachment.url)}, ${sql(attachment.filePath)}, ${sql(attachment.mimeType)}, ${attachment.sizeBytes ?? 'NULL'}, ${attachment.sortOrder ?? index});`)
     })
   }
 }
 
 console.log(statements.join('\n'))
-

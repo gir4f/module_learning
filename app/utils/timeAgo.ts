@@ -15,5 +15,10 @@ export function timeAgo(dateString?: string | null) {
   if (diffMs < day) return `${Math.floor(diffMs / hour)} hours ago`
   if (diffMs < month) return `${Math.floor(diffMs / day)} days ago`
 
-  return date.toLocaleDateString()
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date)
 }

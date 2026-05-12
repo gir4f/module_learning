@@ -1,6 +1,6 @@
 <template>
   <div v-if="attachments.length" class="space-y-3">
-    <h3 class="text-sm font-bold uppercase text-slate-500">Lampiran</h3>
+    <h3 class="text-sm font-bold uppercase text-slate-500 dark:text-slate-400">Lampiran</h3>
     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <article
         v-for="attachment in sortedAttachments"
@@ -26,7 +26,7 @@
           :href="attachment.url"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex aspect-[4/3] items-center justify-center rounded-md bg-slate-50 text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:bg-slate-800 dark:text-brand-dark-navy"
+          class="flex aspect-[4/3] items-center justify-center rounded-md bg-slate-50 text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:bg-slate-800 dark:text-cyan-200 dark:focus:ring-cyan-950"
           :aria-label="`Buka ${attachment.title}`"
         >
           <i :class="iconFor(attachment.type)" class="text-3xl" aria-hidden="true" />
@@ -44,7 +44,7 @@
             :download="attachment.type === 'IMAGE' ? attachment.title : undefined"
             target="_blank"
             rel="noopener noreferrer"
-            class="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:hover:bg-slate-800"
+            class="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-cyan-200 dark:focus:ring-cyan-950"
             :aria-label="attachment.type === 'IMAGE' ? `Unduh ${attachment.title}` : `Buka ${attachment.title}`"
           >
             <i :class="attachment.type === 'IMAGE' ? 'pi pi-download' : 'pi pi-external-link'" aria-hidden="true" />

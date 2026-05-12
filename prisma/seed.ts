@@ -1,9 +1,23 @@
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 import { seedModules } from '../app/data/seedModules'
 
 const prisma = new PrismaClient()
 
 async function main() {
+  const adminHash = await bcrypt.hash('admin123', 12)
+  await prisma.profile.upsert({
+    where: { email: 'admin@gitronik.co.id' },
+    update: { passwordHash: adminHash, role: 'ADMIN' },
+    create: {
+      id: 'seed-admin',
+      email: 'admin@gitronik.co.id',
+      fullName: 'Admin',
+      passwordHash: adminHash,
+      role: 'ADMIN',
+    },
+  })
+
   for (const module of seedModules) {
     const savedModule = await prisma.module.upsert({
       where: { slug: module.slug },
@@ -72,7 +86,7 @@ async function main() {
             type: attachment.type,
             title: attachment.title,
             url: attachment.url,
-            storagePath: attachment.storagePath || null,
+            filePath: attachment.filePath || null,
             mimeType: attachment.mimeType || null,
             sizeBytes: attachment.sizeBytes || null,
             sortOrder: attachment.sortOrder ?? index,

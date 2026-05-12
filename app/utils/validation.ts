@@ -1,6 +1,16 @@
 import { z } from 'zod'
 import { makeSlug } from './slug'
 
+const attachmentUrlSchema = z.string().trim().min(1, 'Required').refine((value) => {
+  if (value.startsWith('/api/uploads/')) return true
+  try {
+    new URL(value)
+    return true
+  } catch {
+    return false
+  }
+}, 'Must be a valid URL')
+
 export const modulePayloadSchema = z.object({
   title: z.string().trim().min(1, 'Required'),
   slug: z.string().trim().optional(),
@@ -30,8 +40,8 @@ export const detailPayloadSchema = z.object({
 export const attachmentPayloadSchema = z.object({
   type: z.enum(['IMAGE', 'SPREADSHEET', 'FILE', 'LINK']),
   title: z.string().trim().min(1, 'Required'),
-  url: z.string().trim().url('Must be a valid URL'),
-  storagePath: z.string().trim().optional().nullable(),
+  url: attachmentUrlSchema,
+  filePath: z.string().trim().optional().nullable(),
   mimeType: z.string().trim().optional().nullable(),
   sizeBytes: z.coerce.number().int().optional().nullable(),
   sortOrder: z.coerce.number().int().default(0),

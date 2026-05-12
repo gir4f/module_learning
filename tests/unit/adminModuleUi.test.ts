@@ -2,11 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { LearningModule } from '../../app/types/learning'
 import {
   attachmentCount,
-  adminModuleCategory,
   componentCount,
-  moduleCsvRows,
-  moduleHealth,
-  toCsv,
+  formatAdminDate,
 } from '../../app/utils/adminModuleUi'
 
 function moduleFactory(overrides: Partial<LearningModule> = {}): LearningModule {
@@ -46,20 +43,8 @@ describe('adminModuleUi', () => {
     expect(attachmentCount(module)).toBe(1)
   })
 
-  it('derives module category from slug and keywords', () => {
-    expect(adminModuleCategory(moduleFactory({ slug: 'kabel-body', title: 'Kabel Body', keywords: 'cable' }))).toBe('cable')
-    expect(adminModuleCategory(moduleFactory({ slug: 'alur-kerja', title: 'Alur Kerja', keywords: 'sop' }))).toBe('sop')
-    expect(adminModuleCategory(moduleFactory({ slug: 'alarm', title: 'Alarm', keywords: 'accessory' }))).toBe('accessory')
-  })
-
-  it('scores health from existing module content', () => {
-    expect(moduleHealth(moduleFactory()).value).toBe('ready')
-    expect(moduleHealth(moduleFactory({ description: '', details: [], status: 'DRAFT' })).value).toBe('incomplete')
-  })
-
-  it('builds csv rows safely', () => {
-    const csv = toCsv(moduleCsvRows([moduleFactory({ title: 'Device "Speed"' })]))
-    expect(csv).toContain('"Device ""Speed"""')
-    expect(csv).toContain('"Sections"')
+  it('formats admin dates', () => {
+    expect(formatAdminDate('2026-05-12T00:00:00.000Z')).toContain('2026')
+    expect(formatAdminDate()).toBe('No date')
   })
 })

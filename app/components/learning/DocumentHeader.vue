@@ -3,7 +3,7 @@
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div>
         <span class="inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase" :class="categoryClass">{{ categoryName }}</span>
-        <h1 class="mt-3 text-3xl font-bold text-brand-navy dark:text-brand-dark-navy">{{ module.title }}</h1>
+        <h1 class="mt-3 text-3xl font-bold text-brand-navy dark:text-cyan-200">{{ module.title }}</h1>
         <p v-if="module.description" class="mt-3 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">{{ module.description }}</p>
       </div>
       <div class="flex flex-wrap gap-2 no-print">
@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <dl class="mt-5 grid gap-3 border-t border-slate-100 pt-4 sm:grid-cols-4">
+    <dl class="mt-5 grid gap-3 border-t border-slate-100 pt-4 dark:border-slate-800 sm:grid-cols-4">
       <div>
         <dt class="text-xs font-semibold uppercase text-slate-500">Status</dt>
         <dd class="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100">{{ module.status }}</dd>
@@ -61,7 +61,16 @@ const category = computed(() => moduleCategory(props.module))
 const categoryName = computed(() => categoryLabel(category.value))
 const categoryClass = computed(() => categoryClasses(category.value))
 const readingTime = computed(() => Math.max(1, Math.ceil((props.module.details.length * 90 + componentCount.value * 18) / 220)))
-const updatedAt = computed(() => props.module.updatedAt ? new Date(props.module.updatedAt).toLocaleDateString() : '-')
+const updatedAt = computed(() => props.module.updatedAt ? formatStableDate(props.module.updatedAt) : '-')
+
+function formatStableDate(value: string) {
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(value))
+}
 const copied = ref(false)
 
 function printModule() {

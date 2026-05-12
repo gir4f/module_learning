@@ -81,7 +81,16 @@ const accentClass = computed(() => {
   return 'bg-category-device'
 })
 const icon = computed(() => moduleIcon(props.module))
-const updatedAt = computed(() => props.module.updatedAt ? new Date(props.module.updatedAt).toLocaleDateString() : '-')
+const updatedAt = computed(() => props.module.updatedAt ? formatStableDate(props.module.updatedAt) : '-')
+
+function formatStableDate(value: string) {
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(value))
+}
 const description = computed(() => props.module.description || props.module.keywords || 'Dokumentasi produk dan komponen tersedia di dalam modul.')
 const highlightedTitle = computed(() => highlightParts(props.module.title, props.search || ''))
 const highlightedDescription = computed(() => highlightParts(description.value, props.search || ''))
