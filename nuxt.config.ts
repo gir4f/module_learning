@@ -1,10 +1,7 @@
 import Aura from '@primeuix/themes/aura'
 
 export default defineNuxtConfig({
-  compatibilityDate: '2026-05-05',
   devtools: { enabled: false },
-  srcDir: 'app',
-  serverDir: 'server',
   experimental: {
     appManifest: false,
     viewTransition: true,
