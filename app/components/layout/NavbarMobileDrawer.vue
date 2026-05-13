@@ -8,7 +8,7 @@
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="modelValue" class="fixed inset-0 z-[70] bg-slate-950/55 backdrop-blur-[2px] lg:hidden" @click.self="$emit('update:modelValue', false)" />
+      <div v-if="modelValue" class="fixed inset-0 z-70 bg-slate-950/55 backdrop-blur-[2px] lg:hidden" @click.self="$emit('update:modelValue', false)" />
     </Transition>
 
     <Transition
@@ -21,7 +21,7 @@
     >
       <aside
         v-if="modelValue"
-        class="fixed inset-y-0 right-0 z-[80] flex h-dvh w-full max-w-sm flex-col overflow-hidden border-l border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950 sm:w-[24rem] lg:hidden"
+        class="fixed inset-y-0 right-0 z-80 flex h-dvh w-full max-w-sm flex-col overflow-hidden border-l border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950 sm:w-[24rem] lg:hidden"
         aria-label="Menu mobile"
       >
         <!-- Header -->
@@ -48,7 +48,7 @@
               <InputText
                 v-model="searchQuery"
                 type="search"
-                class="w-full !rounded-xl !border-slate-300 !bg-white !py-3 !pl-10 !pr-10 !text-sm !text-slate-900 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-100"
+                class="w-full rounded-xl! border-slate-300! bg-white! py-3! pl-10! pr-10! text-sm! text-slate-900! dark:border-slate-700! dark:bg-slate-900! dark:text-slate-100!"
                 placeholder="Cari modul..."
               />
               <button

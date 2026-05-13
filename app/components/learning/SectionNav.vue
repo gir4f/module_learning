@@ -17,7 +17,7 @@
         <li v-for="detail in details" :key="detail.slug" class="relative">
           <span
             v-if="activeId === detail.slug"
-            class="absolute -left-[17px] top-2 h-5 w-1 rounded-full bg-brand-teal"
+            class="absolute left-[-17px] top-2 h-5 w-1 rounded-full bg-brand-teal"
             aria-hidden="true"
           />
           <a

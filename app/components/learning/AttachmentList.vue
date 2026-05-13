@@ -18,7 +18,7 @@
             :src="attachment.url"
             :alt="attachment.title"
             format="webp"
-            class="aspect-[4/3] w-full rounded-md bg-slate-50 object-contain dark:bg-slate-800"
+            class="aspect-4/3 w-full rounded-md bg-slate-50 object-contain dark:bg-slate-800"
             loading="lazy"
           />
         </button>
@@ -27,7 +27,7 @@
           :href="attachment.url"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex aspect-[4/3] items-center justify-center rounded-md bg-slate-50 text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:bg-slate-800 dark:text-cyan-200 dark:focus:ring-cyan-950"
+          class="flex aspect-4/3 items-center justify-center rounded-md bg-slate-50 text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:bg-slate-800 dark:text-cyan-200 dark:focus:ring-cyan-950"
           :aria-label="`Buka ${attachment.title}`"
         >
           <i :class="iconFor(attachment.type)" class="text-3xl" aria-hidden="true" />

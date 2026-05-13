@@ -1,4 +1,5 @@
 import Aura from '@primeuix/themes/aura'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   devtools: { enabled: false },
@@ -17,8 +18,10 @@ export default defineNuxtConfig({
     },
     pageTransition: { name: 'page', mode: 'out-in' },
   },
+  vite: {
+    plugins: [tailwindcss()],
+  },
   modules: [
-    '@nuxtjs/tailwindcss',
     '@primevue/nuxt-module',
     '@formkit/auto-animate/nuxt',
     '@nuxt/image',
@@ -34,6 +37,10 @@ export default defineNuxtConfig({
         preset: Aura,
         options: {
           darkModeSelector: '.dark',
+          cssLayer: {
+            name: 'primevue',
+            order: 'base, primevue, theme, components, utilities',
+          },
         }
       }
     },

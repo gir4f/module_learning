@@ -1,6 +1,34 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "tailwindcss-primeui";
+
+@theme {
+  --font-sans: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-navy: #1d4f80;
+  --color-brand-navy-light: #e7f1fb;
+  --color-brand-teal: #10b7c5;
+  --color-brand-teal-50: #ecfeff;
+  --color-brand-teal-dark: #078996;
+  --color-brand-ink: #26323f;
+  --color-brand-dark-navy: #8dc6ff;
+  --color-brand-dark-teal: #48dce6;
+  --color-brand-dark-ink: #e5edf5;
+  --color-category-device: #10b7c5;
+  --color-category-cable: #f59e0b;
+  --color-category-accessory: #64748b;
+  --color-category-sop: #ef4444;
+  --animate-fade-up: fade-up 420ms ease-out both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+}
+
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -220% 0; }
+  100% { background-position: 220% 0; }
+}
 
 html {
   scroll-behavior: smooth;

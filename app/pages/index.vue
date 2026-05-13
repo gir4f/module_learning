@@ -1,7 +1,7 @@
 <template>
   <PageShell>
     <section class="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-2xl sm:p-10">
-      <div class="absolute inset-0 bg-gradient-to-br from-brand-navy via-brand-teal-dark to-brand-teal opacity-90" aria-hidden="true" />
+      <div class="absolute inset-0 bg-linear-to-br from-brand-navy via-brand-teal-dark to-brand-teal opacity-90" aria-hidden="true" />
       <div class="absolute inset-0 bg-[url('/grid.svg')] opacity-20" aria-hidden="true" />
       
       <div class="relative grid gap-8 lg:grid-cols-[1fr_340px] lg:items-center">

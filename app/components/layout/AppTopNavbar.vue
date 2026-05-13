@@ -22,7 +22,7 @@
             ref="searchInput"
             v-model="query"
             type="search"
-            class="w-full !rounded-xl !border-slate-300 !bg-slate-50 !py-2.5 !pl-9 !pr-20 !text-sm !text-slate-900 !shadow-none placeholder:!text-slate-400 focus:!border-brand-teal focus:!ring-4 focus:!ring-cyan-100 dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-100 dark:placeholder:!text-slate-500 dark:focus:!ring-cyan-950"
+            class="w-full rounded-xl! border-slate-300! bg-slate-50! py-2.5! pl-9! pr-20! text-sm! text-slate-900! shadow-none! placeholder:text-slate-400! focus:border-brand-teal! focus:ring-4! focus:ring-cyan-100! dark:border-slate-700! dark:bg-slate-900! dark:text-slate-100! dark:placeholder:text-slate-500! dark:focus:ring-cyan-950!"
             placeholder="Cari modul, komponen, atau produk..."
             aria-label="Cari modul"
             @focus="searchOpen = true"

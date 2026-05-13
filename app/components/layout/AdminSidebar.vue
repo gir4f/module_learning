@@ -14,7 +14,7 @@
     </header>
 
     <!-- Mobile Drawer -->
-    <Drawer v-model:visible="drawerOpen" header="Admin Panel" class="!w-72 lg:!hidden" :pt="{ root: { class: 'dark:bg-slate-950' } }">
+    <Drawer v-model:visible="drawerOpen" header="Admin Panel" class="w-72! lg:hidden!" :pt="{ root: { class: 'dark:bg-slate-950' } }">
       <div class="flex h-full flex-col justify-between py-4">
         <nav class="flex flex-col gap-2">
           <NuxtLink v-for="item in navItems" :key="item.to" :to="item.to" class="flex items-center gap-3 rounded-xl px-4 py-3 font-bold transition-colors" :class="isActive(item.to) ? 'bg-brand-teal/10 text-brand-teal dark:bg-cyan-900/20 dark:text-cyan-300' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900'" @click="drawerOpen = false">
