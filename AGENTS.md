@@ -92,3 +92,88 @@ npm.cmd run build
 ```
 
 Use `npm.cmd test` for unit tests when changing utilities, validation, or data behavior.
+
+## Migration Roadmap
+
+The project is planned for a 3-phase stack upgrade. Execute phases sequentially; do not proceed to the next phase if the current phase has build errors.
+
+### Phase 1: Nuxt 3 → Nuxt 4 (Low Risk)
+
+The project structure already uses the `app/` directory convention (`srcDir: 'app'`), so structural migration is minimal.
+
+Steps:
+
+1. Run `npx nuxt upgrade --dedupe` to upgrade Nuxt to v4.
+2. Remove `compatibilityDate`, `srcDir: 'app'`, and `serverDir: 'server'` from `nuxt.config.ts` (these are Nuxt 4 defaults).
+3. Audit all `useFetch` / `useAsyncData` calls — `data.value` defaults to `undefined` instead of `null` in Nuxt 4. Change any `=== null` checks to `== null` or `!data.value`.
+4. Verify `definePageMeta` middleware references still resolve.
+5. Run `npm.cmd run build` and fix any errors.
+
+### Phase 2: Tailwind CSS v3 → v4 (Medium Risk)
+
+Tailwind v4 replaces JS config with CSS-first configuration and uses the Oxide (Rust) engine.
+
+Steps:
+
+1. Replace dependencies:
+   ```sh
+   npm uninstall @nuxtjs/tailwindcss
+   npm install tailwindcss@latest @tailwindcss/vite@latest tailwindcss-primeui@latest
+   ```
+2. Remove `@nuxtjs/tailwindcss` from `modules` in `nuxt.config.ts`. Add Tailwind as a Vite plugin:
+   ```typescript
+   import tailwindcss from '@tailwindcss/vite'
+   export default defineNuxtConfig({
+     vite: { plugins: [tailwindcss()] },
+   })
+   ```
+3. Delete `tailwind.config.ts`. Migrate all custom tokens to `@theme` in `app/assets/css/main.css`.
+4. Replace the top of `main.css`:
+   ```css
+   @import "tailwindcss";
+   @plugin "tailwindcss-primeui";
+
+   @theme {
+     --font-sans: "Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+     --color-brand-navy: #1d4f80;
+     --color-brand-navy-light: #e7f1fb;
+     --color-brand-teal: #10b7c5;
+     --color-brand-teal-50: #ecfeff;
+     --color-brand-teal-dark: #078996;
+     --color-brand-ink: #26323f;
+     --color-brand-dark-navy: #8dc6ff;
+     --color-brand-dark-teal: #48dce6;
+     --color-brand-dark-ink: #e5edf5;
+     --color-category-device: #10b7c5;
+     --color-category-cable: #f59e0b;
+     --color-category-accessory: #64748b;
+     --color-category-sop: #ef4444;
+     --animate-fade-up: fade-up 420ms ease-out both;
+     --animate-shimmer: shimmer 1.6s linear infinite;
+   }
+   ```
+5. Update PrimeVue theme config with CSS layer ordering:
+   ```typescript
+   cssLayer: {
+     name: 'primevue',
+     order: 'base, primevue, theme, components, utilities',
+   }
+   ```
+6. Run `npx @tailwindcss/upgrade` to auto-migrate deprecated utility classes in `.vue` files.
+7. Run `npm.cmd run build` and fix any errors.
+
+### Phase 3: Vue 3.5 Feature Adoption (Very Low Risk)
+
+Vue 3.5 is already installed via Nuxt. This phase adopts new APIs for cleaner code:
+
+- **Reactive Props Destructure**: Replace `const props = defineProps<{...}>()` + `props.xxx` with `const { xxx } = defineProps<{...}>()` in components like `ComponentTable`, `DocumentHeader`, `SectionNav`, `AttachmentList`.
+- **`useTemplateRef()`**: Replace `const el = ref<HTMLElement | null>(null)` with `const el = useTemplateRef<HTMLElement>('el')` in `ImageLightbox.vue`.
+- **`useId()`**: Use for SSR-safe unique IDs where applicable.
+
+### Migration Safety Rules
+
+- Commit after each phase so you can revert independently.
+- Do NOT modify Prisma schema, seed data, or server API routes during migration.
+- Do NOT add new dependencies beyond what is specified.
+- Preserve ALL existing custom CSS (dark mode overrides, PrimeVue styles, print styles, animations).
+- If `npx @tailwindcss/upgrade` fails, migrate utility classes manually.

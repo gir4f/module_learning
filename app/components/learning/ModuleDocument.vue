@@ -1,6 +1,6 @@
 <template>
-  <article class="mx-auto grid max-w-7xl gap-6 px-4 py-6 text-slate-900 dark:text-slate-100 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
-    <aside class="lg:sticky lg:top-24 lg:self-start">
+  <article class="mx-auto grid max-w-5xl gap-6 px-4 py-6 text-slate-900 dark:text-slate-100 sm:px-6 lg:grid-cols-[240px_1fr] lg:px-8">
+    <aside class="sticky top-20 z-20 self-start lg:top-24">
       <SectionNav :details="module.details" />
     </aside>
 
@@ -19,7 +19,7 @@
       >
         <div class="mb-5">
           <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ detail.title }}</h2>
-          <p v-if="detail.summary" class="mt-2 max-w-4xl text-sm leading-6 text-slate-600 dark:text-slate-300">{{ detail.summary }}</p>
+          <p v-if="detail.summary" class="mt-2 max-w-4xl text-base leading-relaxed text-slate-600 dark:text-slate-300">{{ detail.summary }}</p>
         </div>
 
         <ComponentTable v-if="detail.components.length" :components="detail.components" />

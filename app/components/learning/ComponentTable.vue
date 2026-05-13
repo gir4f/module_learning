@@ -7,33 +7,33 @@
         class="inline-flex items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:border-brand-teal focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:text-slate-200"
         @click="copyTable"
       >
-        <i class="pi pi-copy text-xs" aria-hidden="true" />
-        Salin tabel
+        <i :class="copied ? 'pi pi-check text-emerald-500' : 'pi pi-copy'" class="text-xs" aria-hidden="true" />
+        {{ copied ? 'Disalin' : 'Salin tabel' }}
       </button>
     </div>
 
-    <div class="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 sm:block">
+    <div class="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:block">
       <table class="min-w-[720px] divide-y divide-slate-200 text-sm dark:divide-slate-800">
         <caption class="sr-only">Daftar komponen dan parts</caption>
-        <thead class="sticky top-0 z-10 bg-sky-50 text-left text-slate-700 shadow-sm dark:bg-slate-800 dark:text-slate-100">
+        <thead class="sticky top-0 z-10 bg-slate-50 text-left text-xs font-bold uppercase tracking-wider text-slate-500 shadow-sm dark:bg-slate-800/80 dark:text-slate-400">
           <tr>
-            <th scope="col" class="px-4 py-3 font-semibold">Komponen</th>
-            <th scope="col" class="w-28 px-4 py-3 font-semibold">Jumlah</th>
-            <th scope="col" class="w-28 px-4 py-3 font-semibold">Satuan</th>
-            <th scope="col" class="px-4 py-3 font-semibold">Keterangan</th>
+            <th scope="col" class="px-4 py-3">Komponen</th>
+            <th scope="col" class="w-28 px-4 py-3">Jumlah</th>
+            <th scope="col" class="w-28 px-4 py-3">Satuan</th>
+            <th scope="col" class="px-4 py-3">Keterangan</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 bg-white dark:divide-slate-800 dark:bg-slate-900">
           <template v-for="group in groupedComponents" :key="group.category">
-            <tr class="bg-slate-50 dark:bg-slate-800/70">
-              <th colspan="4" scope="rowgroup" class="px-4 py-2 text-left text-xs font-bold uppercase text-brand-navy dark:text-cyan-200">
+            <tr class="bg-white dark:bg-slate-900">
+              <th colspan="4" scope="rowgroup" class="border-b border-slate-100 px-4 py-2 pt-4 text-left text-xs font-bold uppercase text-brand-teal dark:border-slate-800 dark:text-cyan-400">
                 {{ group.category }}
               </th>
             </tr>
             <tr
               v-for="(component, index) in group.items"
               :key="component.id || `${component.name}-${index}`"
-              class="even:bg-slate-50/70 hover:bg-cyan-50/70 dark:even:bg-slate-800/35 dark:hover:bg-cyan-950/30"
+              class="group transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
             >
               <th scope="row" class="px-4 py-3 text-left font-medium text-slate-900 dark:text-slate-100">{{ component.name }}</th>
               <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ component.quantity }}</td>
@@ -50,6 +50,7 @@
         v-for="group in groupedComponents"
         :key="group.category"
         open
+        v-auto-animate
         class="rounded-lg border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
       >
         <summary class="cursor-pointer px-4 py-3 text-sm font-bold uppercase text-brand-navy dark:text-cyan-200">
@@ -99,6 +100,8 @@ const groupedComponents = computed(() => {
   return [...groups.entries()].map(([category, items]) => ({ category, items }))
 })
 
+const copied = ref(false)
+
 async function copyTable() {
   const rows = [
     ['Komponen', 'Jumlah', 'Satuan', 'Keterangan'],
@@ -110,5 +113,7 @@ async function copyTable() {
     ]),
   ]
   await navigator.clipboard.writeText(rows.map((row) => row.join('\t')).join('\n'))
+  copied.value = true
+  setTimeout(() => copied.value = false, 2000)
 }
 </script>

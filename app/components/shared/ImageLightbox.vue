@@ -1,8 +1,16 @@
 <template>
   <Teleport to="body">
-    <div
-      v-if="image"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 no-print"
+    <Transition
+      enter-active-class="transition duration-300 ease-out"
+      enter-from-class="opacity-0 backdrop-blur-none"
+      enter-to-class="opacity-100 backdrop-blur-sm"
+      leave-active-class="transition duration-200 ease-in"
+      leave-from-class="opacity-100 backdrop-blur-sm"
+      leave-to-class="opacity-0 backdrop-blur-none"
+    >
+      <div
+        v-if="image"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 no-print backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       :aria-label="image.title"
@@ -21,13 +29,15 @@
             <i class="pi pi-times" aria-hidden="true" />
           </button>
         </div>
-        <img
+        <NuxtImg
           :src="image.url"
           :alt="image.title"
+          format="webp"
           class="max-h-[80vh] w-full rounded-lg bg-white object-contain"
-        >
+        />
       </div>
-    </div>
+      </div>
+    </Transition>
   </Teleport>
 </template>
 

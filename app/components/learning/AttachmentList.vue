@@ -14,12 +14,13 @@
           :aria-label="`Perbesar ${attachment.title}`"
           @click="lightboxAttachment = attachment"
         >
-          <img
+          <NuxtImg
             :src="attachment.url"
             :alt="attachment.title"
+            format="webp"
             class="aspect-[4/3] w-full rounded-md bg-slate-50 object-contain dark:bg-slate-800"
             loading="lazy"
-          >
+          />
         </button>
         <a
           v-else
@@ -59,7 +60,7 @@
 
 <script setup lang="ts">
 import type { Attachment } from '~/types/learning'
-import ImageLightbox from '~/components/shared/ImageLightbox.vue'
+const ImageLightbox = defineAsyncComponent(() => import('~/components/shared/ImageLightbox.vue'))
 
 const props = defineProps<{
   attachments: Attachment[]

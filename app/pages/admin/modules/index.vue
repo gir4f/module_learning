@@ -1,9 +1,9 @@
 <template>
-  <section class="space-y-5">
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <section class="mx-auto max-w-7xl space-y-6 pb-12">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 class="text-2xl font-black text-brand-navy dark:text-cyan-200 sm:text-3xl">Learning Modules</h1>
-        <p class="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-400">Create, edit, publish, and remove learning documents.</p>
+        <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Create, edit, publish, and remove learning documents.</p>
       </div>
       <Button label="New Module" icon="pi pi-plus" class="w-full sm:w-auto" @click="navigateTo('/admin/modules/new')" />
     </div>

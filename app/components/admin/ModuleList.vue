@@ -33,23 +33,31 @@
       </EmptyState>
     </div>
 
-    <div v-else class="lg:hidden">
-      <div class="grid gap-3 p-4 md:grid-cols-2">
-        <article v-for="module in filteredModules" :key="module.id || module.slug" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <h2 class="truncate text-base font-black text-slate-950 dark:text-white">{{ module.title }}</h2>
-              <p class="mt-1 truncate text-xs font-semibold text-slate-500 dark:text-slate-400">/{{ module.slug }}</p>
+    <div v-else class="lg:hidden p-4">
+      <div v-auto-animate class="grid gap-4 md:grid-cols-2">
+        <article v-for="module in filteredModules" :key="module.id || module.slug" class="group flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50">
+          <div>
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <h2 class="truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">{{ module.title }}</h2>
+                <p class="mt-0.5 truncate text-sm font-medium text-slate-500 dark:text-slate-400">/{{ module.slug }}</p>
+              </div>
+              <button type="button" class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02]" :class="statusClass(module.status)" @click="$emit('toggle-status', module)">
+                {{ module.status === 'PUBLISHED' ? 'Published' : 'Draft' }}
+              </button>
             </div>
-            <button type="button" class="shrink-0 rounded-full px-2.5 py-1 text-xs font-black" :class="statusClass(module.status)" @click="$emit('toggle-status', module)">
-              {{ module.status === 'PUBLISHED' ? 'Published' : 'Draft' }}
-            </button>
+            <div class="mt-4 flex items-center justify-between text-sm">
+              <div class="flex flex-col">
+                <span class="font-bold text-slate-700 dark:text-slate-200">{{ module.details.length }}</span>
+                <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Sections</span>
+              </div>
+              <div class="flex flex-col items-end">
+                <span class="font-bold text-slate-700 dark:text-slate-200">{{ formatAdminDate(module.updatedAt) }}</span>
+                <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Updated</span>
+              </div>
+            </div>
           </div>
-          <div class="mt-4 flex items-center justify-between text-sm">
-            <span class="font-semibold text-slate-600 dark:text-slate-300">{{ module.details.length }} sections</span>
-            <span class="text-xs font-semibold text-slate-400">{{ formatAdminDate(module.updatedAt) }}</span>
-          </div>
-          <div class="mt-4 grid grid-cols-2 gap-2">
+          <div class="mt-5 grid grid-cols-2 gap-2">
             <Button label="Edit" icon="pi pi-pencil" size="small" class="w-full" @click="$emit('edit', module)" />
             <Button label="Delete" icon="pi pi-trash" size="small" severity="danger" outlined class="w-full" @click="$emit('delete', module)" />
           </div>
@@ -57,42 +65,40 @@
       </div>
     </div>
 
-    <div v-if="filteredModules.length" class="hidden overflow-x-auto lg:block">
-      <table class="w-full min-w-[760px] text-left text-sm">
-        <thead class="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
-          <tr>
-            <th class="px-4 py-3 font-black">Title</th>
-            <th class="px-4 py-3 font-black">Status</th>
-            <th class="px-4 py-3 font-black">Sections</th>
-            <th class="px-4 py-3 font-black">Updated</th>
-            <th class="px-4 py-3 text-right font-black">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-          <tr v-for="module in filteredModules" :key="module.id || module.slug" class="bg-white dark:bg-slate-900">
-            <td class="px-4 py-4">
-              <p class="font-black text-slate-950 dark:text-white">{{ module.title }}</p>
-              <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">/{{ module.slug }}</p>
-            </td>
-            <td class="px-4 py-4">
-              <button type="button" class="rounded-full px-2.5 py-1 text-xs font-black transition hover:scale-[1.02]" :class="statusClass(module.status)" @click="$emit('toggle-status', module)">
-                {{ module.status === 'PUBLISHED' ? 'Published' : 'Draft' }}
-              </button>
-            </td>
-            <td class="px-4 py-4 font-semibold text-slate-700 dark:text-slate-200">{{ module.details.length }}</td>
-            <td class="px-4 py-4 text-slate-600 dark:text-slate-300">{{ formatAdminDate(module.updatedAt) }}</td>
-            <td class="px-4 py-4">
-              <div class="flex justify-end gap-2">
-                <Button label="Edit" icon="pi pi-pencil" size="small" @click="$emit('edit', module)" />
-                <Button label="Delete" icon="pi pi-trash" size="small" severity="danger" outlined @click="$emit('delete', module)" />
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div v-if="filteredModules.length" v-auto-animate class="hidden lg:block p-4 space-y-3">
+      <div v-for="module in filteredModules" :key="module.id || module.slug" class="group flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3">
+            <h2 class="truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">
+              {{ module.title }}
+            </h2>
+            <button type="button" class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02]" :class="statusClass(module.status)" @click="$emit('toggle-status', module)">
+              {{ module.status === 'PUBLISHED' ? 'Published' : 'Draft' }}
+            </button>
+          </div>
+          <p class="mt-1 truncate text-sm font-medium text-slate-500 dark:text-slate-400">/{{ module.slug }}</p>
+        </div>
+        
+        <div class="flex items-center gap-8 text-sm">
+          <div class="flex flex-col items-end">
+            <span class="font-bold text-slate-700 dark:text-slate-200">{{ module.details.length }}</span>
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Sections</span>
+          </div>
+          <div class="flex flex-col items-end">
+            <span class="font-bold text-slate-700 dark:text-slate-200">{{ formatAdminDate(module.updatedAt) }}</span>
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Updated</span>
+          </div>
+          <div class="flex items-center gap-2 transition-opacity">
+            <Button label="Edit" icon="pi pi-pencil" size="small" @click="$emit('edit', module)" />
+            <Button label="Delete" icon="pi pi-trash" size="small" severity="danger" outlined @click="$emit('delete', module)" />
+          </div>
+        </div>
+      </div>
     </div>
   </AdminSurface>
 </template>
+
+
 
 <script setup lang="ts">
 import type { LearningModule, PublishStatus } from '~/types/learning'

@@ -1,46 +1,49 @@
 <template>
   <PageShell>
-    <section class="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-navy via-brand-navy to-brand-teal p-5 text-white shadow-xl sm:p-8">
-      <div class="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-center">
+    <section class="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-2xl sm:p-10">
+      <div class="absolute inset-0 bg-gradient-to-br from-brand-navy via-brand-teal-dark to-brand-teal opacity-90" aria-hidden="true" />
+      <div class="absolute inset-0 bg-[url('/grid.svg')] opacity-20" aria-hidden="true" />
+      
+      <div class="relative grid gap-8 lg:grid-cols-[1fr_340px] lg:items-center">
         <div>
           <img
             :src="'/module-assets/Gitronikbgputih.jpg'"
             alt="PT. Gitronik Dimindo Indonesia"
-            class="h-14 w-auto rounded-md bg-white"
+            class="h-16 w-auto rounded-lg bg-white shadow-md ring-4 ring-white/10"
             loading="lazy"
           >
-          <p class="mt-6 text-sm font-bold uppercase text-cyan-100">PT. Gitronik Dimindo Indonesia</p>
-          <h1 class="mt-2 max-w-3xl text-3xl font-extrabold sm:text-5xl">
+          <p class="mt-8 text-sm font-black uppercase tracking-wider text-cyan-200">PT. Gitronik Dimindo Indonesia</p>
+          <h1 class="mt-3 max-w-3xl text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl text-balance">
           Modul pembelajaran safety device
           </h1>
-          <p class="mt-4 max-w-3xl text-base leading-7 text-cyan-50">
-            Library teknis untuk membaca dokumentasi produk, komponen, dan lampiran internal dengan cepat.
+          <p class="mt-5 max-w-2xl text-lg leading-relaxed text-cyan-50 opacity-90">
+            Library teknis untuk membaca dokumentasi produk, komponen, dan lampiran internal dengan cepat dan responsif.
           </p>
-          <div class="mt-6 max-w-2xl rounded-xl bg-white/95 p-2 shadow-lg">
-            <div class="relative">
-              <i class="pi pi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+          <div class="mt-8 max-w-2xl rounded-2xl bg-white/10 p-1.5 shadow-2xl ring-1 ring-white/20 backdrop-blur-md">
+            <div class="relative flex items-center bg-white rounded-xl">
+              <i class="pi pi-search absolute left-5 text-slate-400" aria-hidden="true" />
               <input
                 ref="heroSearchInput"
                 v-model="search"
                 type="search"
-                class="w-full rounded-lg border-0 bg-white py-4 pl-11 pr-12 text-base text-slate-900 outline-none focus:ring-4 focus:ring-cyan-100 sm:pr-24"
+                class="w-full flex-1 rounded-xl border-0 bg-transparent py-4 pl-12 pr-12 text-base font-medium text-slate-900 outline-none focus:ring-0 placeholder:text-slate-400"
                 placeholder="Cari modul, produk, atau komponen..."
                 aria-label="Cari modul"
               >
               <button
                 v-if="search"
                 type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-2 text-slate-500 hover:bg-slate-100 sm:right-16"
+                class="absolute right-4 rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 sm:right-20"
                 aria-label="Bersihkan pencarian"
                 @click="search = ''"
               >
                 <i class="pi pi-times" aria-hidden="true" />
               </button>
-              <kbd class="absolute right-4 top-1/2 hidden -translate-y-1/2 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 sm:block">Ctrl K</kbd>
+              <kbd class="absolute right-4 hidden rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-500 sm:block">Ctrl K</kbd>
             </div>
           </div>
         </div>
-        <dl class="grid grid-cols-1 gap-3 rounded-xl bg-white/10 p-4 backdrop-blur min-[360px]:grid-cols-3">
+        <dl class="grid grid-cols-1 gap-4 rounded-2xl bg-white/10 p-5 backdrop-blur-md ring-1 ring-white/20 min-[360px]:grid-cols-3">
           <div v-for="stat in heroStats" :key="stat.label" class="min-w-0 rounded-lg bg-white/12 p-3">
             <dt class="text-xs font-semibold uppercase text-cyan-100">{{ stat.label }}</dt>
             <dd class="mt-2 text-2xl font-extrabold sm:text-3xl">{{ stat.value }}</dd>

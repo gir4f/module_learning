@@ -1,17 +1,21 @@
 <template>
-  <section v-if="module" class="space-y-5">
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div class="min-w-0">
-        <h1 class="truncate text-2xl font-black text-brand-navy dark:text-cyan-200 sm:text-3xl">{{ module.title }}</h1>
-        <p class="mt-1 break-all text-sm font-semibold text-slate-500 dark:text-slate-400">/{{ module.slug }}</p>
+  <section v-if="module" class="space-y-6 pb-12">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div class="flex items-start gap-4 min-w-0">
+        <button type="button" class="mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white" @click="navigateTo('/admin/modules')">
+          <i class="pi pi-arrow-left" aria-hidden="true" />
+        </button>
+        <div class="min-w-0 flex-1">
+          <h1 class="truncate text-2xl font-black text-brand-navy dark:text-cyan-200 sm:text-3xl">{{ module.title }}</h1>
+          <p class="mt-1 break-all text-sm font-medium text-slate-500 dark:text-slate-400">/{{ module.slug }}</p>
+        </div>
       </div>
-      <div class="flex flex-col gap-2 sm:flex-row">
-        <Button label="Preview" icon="pi pi-eye" severity="secondary" outlined @click="navigateTo(`/modules/${module.slug}`)" />
-        <Button label="Back" icon="pi pi-arrow-left" severity="secondary" outlined @click="navigateTo('/admin/modules')" />
+      <div class="flex shrink-0 items-center gap-2 pl-14 sm:pl-0">
+        <Button label="Preview Learner View" icon="pi pi-eye" severity="secondary" outlined class="w-full sm:w-auto" @click="navigateTo(`/modules/${module.slug}`)" />
       </div>
     </div>
 
-    <AdminSurface padded>
+    <AdminSurface class="p-6 sm:p-8">
       <form class="grid gap-4" @submit.prevent="saveModule">
         <AdminSectionHeader title="Module metadata" description="This appears on the learner dashboard and document header." />
         <div class="grid gap-4 md:grid-cols-2">
@@ -30,10 +34,7 @@
             <InputText v-model.trim="moduleForm.keywords" class="w-full" />
           </AdminFieldGroup>
           <AdminFieldGroup label="Status" :error="moduleFieldErrors.status">
-            <select v-model="moduleForm.status" class="min-h-11 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-950">
-              <option value="DRAFT">Draft</option>
-              <option value="PUBLISHED">Published</option>
-            </select>
+            <Select v-model="moduleForm.status" :options="statusOptions" optionLabel="label" optionValue="value" class="w-full" />
           </AdminFieldGroup>
         </div>
         <p v-if="moduleError" class="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-100">{{ moduleError }}</p>
@@ -43,19 +44,26 @@
       </form>
     </AdminSurface>
 
-    <div class="space-y-4">
+    <div class="space-y-4" v-auto-animate>
       <div class="flex items-center justify-between gap-3">
         <h2 class="text-xl font-black text-slate-950 dark:text-white">Sections</h2>
         <Button label="Add Section" icon="pi pi-plus" @click="addSection" />
       </div>
 
-      <AdminSurface v-for="(section, index) in sectionForms" :key="section.localKey">
-        <button type="button" class="flex w-full items-center justify-between gap-3 border-b border-slate-200 p-4 text-left dark:border-slate-800" @click="toggleSection(section.localKey)">
-          <span class="min-w-0">
-            <span class="block truncate text-base font-black text-slate-950 dark:text-white">{{ section.title || 'Untitled section' }}</span>
-            <span class="mt-1 block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">/{{ section.slug || 'section-slug' }}</span>
+      <AdminSurface v-for="(section, index) in sectionForms" :key="section.localKey" v-auto-animate>
+        <button type="button" class="group flex w-full items-center justify-between gap-4 border-b border-slate-200 p-5 text-left transition-colors hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50" @click="toggleSection(section.localKey)">
+          <div class="flex items-center gap-4 min-w-0">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors group-hover:bg-brand-teal group-hover:text-white dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-brand-teal-dark">
+              <i class="pi font-bold" :class="expandedSections.has(section.localKey) ? 'pi-folder-open' : 'pi-folder'" aria-hidden="true" />
+            </span>
+            <span class="min-w-0">
+              <span class="block truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">{{ section.title || 'Untitled section' }}</span>
+              <span class="block truncate text-sm font-semibold text-slate-500 dark:text-slate-400">/{{ section.slug || 'section-slug' }}</span>
+            </span>
+          </div>
+          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 shadow-sm transition-transform duration-200 dark:border-slate-700 dark:bg-slate-900" :class="{ 'rotate-180': expandedSections.has(section.localKey) }">
+            <i class="pi pi-chevron-down text-sm font-bold" aria-hidden="true" />
           </span>
-          <i :class="expandedSections.has(section.localKey) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" aria-hidden="true" />
         </button>
 
         <div v-if="expandedSections.has(section.localKey)" class="grid gap-5 p-4 sm:p-5">
@@ -81,7 +89,7 @@
 
           <div class="space-y-3">
             <AdminSectionHeader title="Attachments" description="Add reference links or upload local files." />
-            <div v-if="section.attachments.length" class="grid gap-2">
+            <div v-if="section.attachments.length" class="grid gap-2" v-auto-animate>
               <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex flex-col gap-2 rounded-xl border border-slate-200 p-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
                 <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="min-w-0 font-bold text-brand-teal hover:underline">
                   <span class="block truncate">{{ attachment.title }}</span>
@@ -102,9 +110,18 @@
               <Button label="Add Link" icon="pi pi-link" severity="secondary" outlined @click="addLink(section)" />
             </div>
 
-            <div class="grid gap-3 rounded-2xl border border-dashed border-slate-300 p-3 dark:border-slate-700 sm:grid-cols-[1fr_auto] sm:items-center">
-              <input type="file" class="min-h-11 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950" @change="uploadAttachment($event, section)">
-              <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Images, PDF, CSV, or spreadsheets.</span>
+            <div class="relative flex items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-8 transition-colors hover:border-brand-teal hover:bg-cyan-50/50 dark:border-slate-700 dark:bg-slate-900/50 dark:hover:border-brand-teal-dark dark:hover:bg-slate-900">
+              <div class="text-center">
+                <i class="pi pi-cloud-upload mx-auto text-4xl text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                <div class="mt-4 flex text-sm leading-6 text-slate-600 dark:text-slate-400">
+                  <label :for="`file-upload-${section.localKey}`" class="relative cursor-pointer rounded-md bg-transparent font-semibold text-brand-teal focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-teal focus-within:ring-offset-2 hover:text-brand-teal-dark">
+                    <span>Upload a file</span>
+                    <input :id="`file-upload-${section.localKey}`" name="file-upload" type="file" class="sr-only" @change="uploadAttachment($event, section)">
+                  </label>
+                  <p class="pl-1">or click to browse</p>
+                </div>
+                <p class="text-xs leading-5 text-slate-500">Images, PDF, CSV, or spreadsheets</p>
+              </div>
             </div>
           </div>
 
@@ -139,6 +156,11 @@ import { apiErrorMessage, apiFieldErrors, assignFieldErrors } from '~/utils/apiE
 import { attachmentTypeFromMimeType, normalizedUploadMimeType, uploadFile } from '~/utils/upload'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
+
+const statusOptions = [
+  { label: 'Draft', value: 'DRAFT' },
+  { label: 'Published', value: 'PUBLISHED' },
+]
 
 type SectionForm = {
   localKey: string

@@ -15,10 +15,15 @@
     "test": "vitest run --pool=threads"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.9.0",
+    "@nuxt/image": "^2.0.0",
     "@pinia/nuxt": "^0.11.2",
-    "@prisma/client": "^6.19.0",
+    "@primeuix/themes": "^2.0.3",
     "@primevue/nuxt-module": "^4.5.5",
+    "@primevue/themes": "^4.5.4",
+    "@prisma/client": "^6.19.0",
     "bcryptjs": "^3.0.3",
+    "h3-formidable": "^1.0.0",
     "nuxt": "^3.18.0",
     "pinia": "^3.0.4",
     "primeicons": "^7.0.0",

@@ -1,21 +1,9 @@
 <template>
-  <nav class="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 no-print">
+  <nav class="hidden lg:block relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 no-print">
     <div class="absolute left-0 top-0 h-full w-1 bg-slate-100 dark:bg-slate-800" aria-hidden="true">
       <div class="w-full bg-brand-teal transition-all" :style="{ height: `${progress}%` }" />
     </div>
-    <label class="grid gap-2 lg:hidden">
-      <span class="text-xs font-bold uppercase text-slate-500">Lompat ke section</span>
-      <select
-        class="min-h-12 rounded-xl border border-slate-300 bg-white px-3 py-3 text-base font-semibold text-slate-900 outline-none focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-        @change="jumpTo(($event.target as HTMLSelectElement).value)"
-      >
-        <option v-for="detail in details" :key="detail.slug" :value="detail.slug">
-          {{ detail.title }}
-        </option>
-      </select>
-    </label>
-
-    <div class="hidden lg:block">
+    <div v-auto-animate>
       <div class="mb-3 flex items-center justify-between gap-2">
         <p class="text-xs font-bold uppercase text-slate-500">Daftar isi</p>
         <button type="button" class="rounded p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" :aria-label="collapsed ? 'Buka daftar isi' : 'Tutup daftar isi'" @click="collapsed = !collapsed">
@@ -43,15 +31,27 @@
           </a>
         </li>
       </ol>
-      <button
-        type="button"
-        class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:border-brand-teal focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:text-slate-200"
-        @click="scrollTop"
-      >
-        <i class="pi pi-arrow-up text-xs" aria-hidden="true" />
-        Kembali ke atas
-      </button>
     </div>
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition duration-300 ease-out"
+        enter-from-class="translate-y-8 opacity-0"
+        enter-to-class="translate-y-0 opacity-100"
+        leave-active-class="transition duration-200 ease-in"
+        leave-from-class="translate-y-0 opacity-100"
+        leave-to-class="translate-y-8 opacity-0"
+      >
+        <button
+          v-if="progress > 10"
+          type="button"
+          class="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-brand-navy text-white shadow-lg transition hover:-translate-y-1 hover:bg-brand-teal hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-200 dark:bg-cyan-900 dark:hover:bg-cyan-700 no-print"
+          aria-label="Kembali ke atas"
+          @click="scrollTop"
+        >
+          <i class="pi pi-arrow-up" aria-hidden="true" />
+        </button>
+      </Transition>
+    </Teleport>
   </nav>
 </template>
 

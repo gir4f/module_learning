@@ -55,5 +55,6 @@ export async function uploadFile(file: File, title?: string): Promise<{ url: str
   const formData = new FormData()
   formData.append('file', file)
   if (title) formData.append('title', title)
-  return $fetch('/api/uploads', { method: 'POST', body: formData })
+  const res = await $fetch<{ files: any[] }>('/api/files/upload', { method: 'POST', body: formData })
+  return res.files[0]
 }

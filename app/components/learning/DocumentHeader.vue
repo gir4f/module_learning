@@ -4,7 +4,7 @@
       <div>
         <span class="inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase" :class="categoryClass">{{ categoryName }}</span>
         <h1 class="mt-3 text-3xl font-bold text-brand-navy dark:text-cyan-200">{{ module.title }}</h1>
-        <p v-if="module.description" class="mt-3 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">{{ module.description }}</p>
+        <p v-if="module.description" class="mt-3 max-w-3xl text-base leading-relaxed text-slate-600 dark:text-slate-300">{{ module.description }}</p>
       </div>
       <div class="flex flex-wrap gap-2 no-print">
         <button

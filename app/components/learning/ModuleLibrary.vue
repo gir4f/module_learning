@@ -12,7 +12,7 @@
     </div>
 
     <div class="space-y-3">
-      <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-3" v-auto-animate>
         <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">
           Menampilkan {{ modules.length }} dari {{ totalCount }} modul<span v-if="searchModel"> untuk "{{ searchModel }}"</span>
         </p>
@@ -32,7 +32,7 @@
           v-for="tab in categoryTabs"
           :key="tab.value"
           type="button"
-          class="relative shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-4 focus:ring-cyan-100"
+          class="relative shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 dark:focus-visible:ring-cyan-400 dark:focus-visible:ring-offset-slate-950"
           :class="activeCategory === tab.value ? 'bg-brand-navy text-white shadow-sm dark:bg-cyan-400 dark:text-slate-950' : 'bg-white text-slate-600 hover:bg-brand-navy-light dark:bg-slate-900 dark:text-slate-300 dark:ring-1 dark:ring-slate-800 dark:hover:bg-slate-800 dark:hover:text-white'"
           @click="$emit('update:category', tab.value)"
         >
@@ -50,7 +50,11 @@
       icon="pi pi-search"
     />
 
-    <div v-else class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+    <div
+      v-else
+      v-auto-animate
+      class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+    >
       <ModuleCard
         v-for="(module, index) in modules"
         :key="module.slug"
@@ -61,6 +65,10 @@
     </div>
   </div>
 </template>
+
+
+
+
 
 <script setup lang="ts">
 import type { LearningModule } from '~/types/learning'

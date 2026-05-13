@@ -1,3 +1,5 @@
+import Aura from '@primeuix/themes/aura'
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-05-05',
   devtools: { enabled: false },
@@ -5,6 +7,7 @@ export default defineNuxtConfig({
   serverDir: 'server',
   experimental: {
     appManifest: false,
+    viewTransition: true,
   },
   app: {
     head: {
@@ -20,6 +23,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     '@primevue/nuxt-module',
+    '@formkit/auto-animate/nuxt',
+    '@nuxt/image',
   ],
   css: [
     'primeicons/primeicons.css',
@@ -28,6 +33,12 @@ export default defineNuxtConfig({
   primevue: {
     options: {
       ripple: true,
+      theme: {
+        preset: Aura,
+        options: {
+          darkModeSelector: '.dark',
+        }
+      }
     },
     components: {
       include: [
