@@ -52,16 +52,16 @@
 import type { LearningModule } from '~/types/learning'
 import { categoryClasses, categoryLabel, moduleCategory } from '~/utils/moduleUi'
 
-const props = defineProps<{
+const { module } = defineProps<{
   module: LearningModule
 }>()
 
-const componentCount = computed(() => props.module.details.reduce((total, detail) => total + detail.components.length, 0))
-const category = computed(() => moduleCategory(props.module))
+const componentCount = computed(() => module.details.reduce((total, detail) => total + detail.components.length, 0))
+const category = computed(() => moduleCategory(module))
 const categoryName = computed(() => categoryLabel(category.value))
 const categoryClass = computed(() => categoryClasses(category.value))
-const readingTime = computed(() => Math.max(1, Math.ceil((props.module.details.length * 90 + componentCount.value * 18) / 220)))
-const updatedAt = computed(() => props.module.updatedAt ? formatStableDate(props.module.updatedAt) : '-')
+const readingTime = computed(() => Math.max(1, Math.ceil((module.details.length * 90 + componentCount.value * 18) / 220)))
+const updatedAt = computed(() => module.updatedAt ? formatStableDate(module.updatedAt) : '-')
 
 function formatStableDate(value: string) {
   return new Intl.DateTimeFormat('id-ID', {
@@ -80,7 +80,7 @@ function printModule() {
 async function shareModule() {
   const url = window.location.href
   if (navigator.share) {
-    await navigator.share({ title: props.module.title, url })
+    await navigator.share({ title: module.title, url })
     return
   }
   await navigator.clipboard.writeText(url)

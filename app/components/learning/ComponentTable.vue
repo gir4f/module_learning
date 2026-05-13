@@ -87,13 +87,13 @@
 <script setup lang="ts">
 import type { ComponentItem } from '~/types/learning'
 
-const props = defineProps<{
+const { components } = defineProps<{
   components: ComponentItem[]
 }>()
 
 const groupedComponents = computed(() => {
   const groups = new Map<string, ComponentItem[]>()
-  props.components.forEach((component) => {
+  components.forEach((component) => {
     const category = component.category || 'Umum'
     groups.set(category, [...(groups.get(category) || []), component])
   })
@@ -105,7 +105,7 @@ const copied = ref(false)
 async function copyTable() {
   const rows = [
     ['Komponen', 'Jumlah', 'Satuan', 'Keterangan'],
-    ...props.components.map((component) => [
+    ...components.map((component) => [
       component.name,
       component.quantity,
       component.unit,

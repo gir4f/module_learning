@@ -52,7 +52,7 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const closeButton = ref<HTMLButtonElement | null>(null)
+const closeButton = useTemplateRef<HTMLButtonElement>('closeButton')
 
 onMounted(() => {
   window.addEventListener('keydown', onKeydown)

@@ -79,7 +79,7 @@ import ModuleCard from '~/components/learning/ModuleCard.vue'
 import ModuleSearch from '~/components/learning/ModuleSearch.vue'
 import { categoryTabs, type ModuleCategory } from '~/utils/moduleUi'
 
-const props = defineProps<{
+const { modules, totalCount, activeCategory, pending, error, showSearch } = defineProps<{
   modules: LearningModule[]
   totalCount: number
   activeCategory: ModuleCategory
@@ -94,8 +94,8 @@ defineEmits<{
   'update:category': [category: ModuleCategory]
 }>()
 
-const sectionCount = computed(() => props.modules.reduce((total, module) => total + module.details.length, 0))
-const attachmentCount = computed(() => props.modules.reduce((total, module) => {
+const sectionCount = computed(() => modules.reduce((total, module) => total + module.details.length, 0))
+const attachmentCount = computed(() => modules.reduce((total, module) => {
   return total + module.details.reduce((subtotal, detail) => subtotal + detail.attachments.length, 0)
 }, 0))
 </script>

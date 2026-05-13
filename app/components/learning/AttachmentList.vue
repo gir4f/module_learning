@@ -62,12 +62,12 @@
 import type { Attachment } from '~/types/learning'
 const ImageLightbox = defineAsyncComponent(() => import('~/components/shared/ImageLightbox.vue'))
 
-const props = defineProps<{
+const { attachments } = defineProps<{
   attachments: Attachment[]
 }>()
 
 const lightboxAttachment = ref<Attachment | null>(null)
-const sortedAttachments = computed(() => [...props.attachments].sort((a, b) => a.sortOrder - b.sortOrder))
+const sortedAttachments = computed(() => [...attachments].sort((a, b) => a.sortOrder - b.sortOrder))
 
 function iconFor(type: string) {
   if (type === 'IMAGE') return 'pi pi-image'

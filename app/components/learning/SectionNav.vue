@@ -58,11 +58,11 @@
 <script setup lang="ts">
 import type { ModuleDetail } from '~/types/learning'
 
-const props = defineProps<{
+const { details } = defineProps<{
   details: ModuleDetail[]
 }>()
 
-const activeId = ref(props.details[0]?.slug || '')
+const activeId = ref(details[0]?.slug || '')
 const collapsed = ref(false)
 const progress = ref(0)
 
@@ -74,7 +74,7 @@ onMounted(() => {
     if (visible?.target.id) activeId.value = visible.target.id
   }, { rootMargin: '-120px 0px -65% 0px', threshold: [0.1, 0.4, 0.8] })
 
-  props.details.forEach((detail) => {
+  details.forEach((detail) => {
     const element = document.getElementById(detail.slug)
     if (element) observer.observe(element)
   })
