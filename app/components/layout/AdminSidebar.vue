@@ -1,23 +1,26 @@
 <template>
   <div>
     <!-- Mobile Header -->
-    <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-950 lg:hidden">
-      <NuxtLink to="/admin/modules" class="flex items-center gap-3">
-        <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
+    <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-3 dark:border-slate-800 dark:bg-slate-950 sm:px-6 lg:hidden">
+      <NuxtLink to="/admin/modules" class="flex min-w-0 items-center gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
           <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
         </span>
-        <span class="font-black text-brand-navy dark:text-cyan-200">Admin</span>
+        <span class="min-w-0">
+          <span class="block truncate text-sm font-black text-brand-navy dark:text-cyan-200">Gitronik Modul Ajar</span>
+          <span class="block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">Admin</span>
+        </span>
       </NuxtLink>
       <div class="flex items-center gap-2">
         <button
           type="button"
-          class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-colors hover:border-brand-teal hover:text-brand-teal dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-cyan-400 dark:hover:text-cyan-300"
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:border-brand-teal hover:bg-slate-50 hover:text-brand-teal dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-cyan-400 dark:hover:bg-slate-800 dark:hover:text-cyan-300"
           :aria-label="isDark ? 'Gunakan mode terang' : 'Gunakan mode gelap'"
           @click="toggleDark"
         >
           <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" />
         </button>
-        <button type="button" class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400" @click="drawerOpen = true">
+        <button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 transition-colors hover:border-brand-teal hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Buka menu admin" @click="drawerOpen = true">
           <i class="pi pi-bars" />
         </button>
       </div>
