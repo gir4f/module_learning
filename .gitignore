@@ -18,13 +18,12 @@ coverage
 *.local
 .env
 .env.*
-.env.example
-
+!.env.example
 
 # Editor directories and files
 .vscode/*
-.vscode
 !.vscode/extensions.json
+
 .idea
 *.suo
 *.ntvs*
