@@ -350,29 +350,54 @@ async function saveSection(section: SectionForm, index: number) {
     syncForms()
     toast.success('Tersimpan', { description: 'Bagian modul disimpan.' })
   } catch (error) {
-    sectionErrors[section.localKey] = apiErrorMessage(error, 'Gagal menyimpan bagian.')
+    sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menyimpan bagian.')
   } finally {
     savingSectionKey.value = ''
   }
 }
 
 function sectionBody(section: SectionForm, index: number) {
+  const components = section.components
+    .map(row => ({
+      category: row.category?.trim() || '',
+      name: row.name?.trim() || '',
+      quantity: row.quantity?.trim() || '',
+      unit: row.unit?.trim() || '',
+      note: row.note?.trim() || '',
+    }))
+    .filter(row => row.name || row.quantity || row.unit || row.category || row.note)
+    .filter(row => row.name)
+    .map((row, rowIndex) => ({
+      category: row.category || null,
+      name: row.name,
+      quantity: row.quantity || '1',
+      unit: row.unit || 'pcs',
+      note: row.note || null,
+      sortOrder: rowIndex,
+    }))
+
   return {
-    title: section.title,
-    summary: section.summary,
-    keywords: section.keywords,
+    title: section.title.trim() || 'Bagian tanpa judul',
+    summary: section.summary.trim() || null,
+    keywords: section.keywords.trim() || null,
     sortOrder: index,
-    components: section.components
-      .filter(row => row.name.trim() || row.quantity.trim() || row.unit.trim() || row.category || row.note)
-      .map((row, rowIndex) => ({
-        category: row.category || null,
-        name: row.name,
-        quantity: row.quantity,
-        unit: row.unit,
-        note: row.note || null,
-        sortOrder: rowIndex,
-      })),
+    components,
   }
+}
+
+function sectionErrorMessage(error: unknown, fallback: string) {
+  const fieldErrors = apiFieldErrors(error)
+  const componentErrors = Object.entries(fieldErrors)
+    .filter(([field]) => field.startsWith('components.'))
+    .map(([, message]) => message)
+
+  if (componentErrors.length) {
+    return `Cek daftar komponen: ${Array.from(new Set(componentErrors)).join(', ')}.`
+  }
+
+  if (fieldErrors.title) return `Judul bagian: ${fieldErrors.title}.`
+  if (Object.keys(fieldErrors).length) return Object.values(fieldErrors)[0] || fallback
+  return apiErrorMessage(error, fallback)
 }
 
 function confirmDeleteSection(section: SectionForm) {
@@ -412,7 +437,7 @@ async function addLink(section: SectionForm) {
     syncForms()
     toast.success('Tersimpan', { description: 'Link ditambahkan.' })
   } catch (error) {
-    sectionErrors[section.localKey] = apiErrorMessage(error, 'Gagal menambah link.')
+    sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menambah link.')
   }
 }
 
@@ -522,7 +547,7 @@ async function uploadFiles(files: File[], section: SectionForm, index: number) {
       description: files.length === 1 ? 'Lampiran file ditambahkan.' : `${files.length} lampiran file ditambahkan.`,
     })
   } catch (error) {
-    sectionErrors[targetSection.localKey] = apiErrorMessage(error, 'Gagal mengunggah file.')
+    sectionErrors[targetSection.localKey] = sectionErrorMessage(error, 'Gagal mengunggah file.')
   } finally {
     if (uploadingSectionKey.value === targetSection.localKey) uploadingSectionKey.value = ''
     delete uploadProgress[targetSection.localKey]
@@ -556,7 +581,7 @@ async function ensureSectionSavedForAttachments(section: SectionForm, index: num
       components: data.components,
     }
   } catch (error) {
-    sectionErrors[section.localKey] = apiErrorMessage(error, 'Gagal menyimpan bagian sebelum upload.')
+    sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menyimpan bagian sebelum upload.')
     return null
   } finally {
     savingSectionKey.value = ''
