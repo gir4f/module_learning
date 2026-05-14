@@ -1,8 +1,8 @@
 import { defineEventHandler, getRouterParam } from 'h3'
-import { promises as fs } from 'node:fs'
 import { resolve } from 'node:path'
 import { requireAdmin } from '../../../utils/auth'
 import { prisma } from '../../../utils/prisma'
+import { deleteUploadedFileWithPreview } from '../../../utils/uploads'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
@@ -14,10 +14,7 @@ export default defineEventHandler(async (event) => {
   if (attachment?.filePath) {
     const config = useRuntimeConfig()
     const uploadRoot = resolve(config.uploadDir)
-    const targetPath = resolve(uploadRoot, attachment.filePath)
-    if (targetPath.startsWith(uploadRoot)) {
-      await fs.unlink(targetPath).catch(() => undefined)
-    }
+    await deleteUploadedFileWithPreview(uploadRoot, attachment.filePath)
   }
 
   return { ok: true }

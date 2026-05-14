@@ -1,3 +1,5 @@
+import type { Attachment } from '~/types/learning'
+
 const ALLOWED_UPLOAD_MIME_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -51,11 +53,37 @@ export function attachmentTypeFromMimeType(mimeType: string) {
   return 'FILE'
 }
 
-export async function uploadFile(file: File, title?: string): Promise<{ url: string, filePath: string, mimeType: string, sizeBytes: number, fileName: string }> {
+export function previewFilePathFor(filePath: string) {
+  const extensionStart = filePath.lastIndexOf('.')
+  if (extensionStart === -1) return `${filePath}.preview.webp`
+  return `${filePath.slice(0, extensionStart)}.preview.webp`
+}
+
+export function previewUrlForAttachment(attachment: Attachment) {
+  if (attachment.type !== 'IMAGE' || !attachment.filePath || attachment.mimeType === 'image/gif') {
+    return attachment.url
+  }
+
+  return `/api/uploads/${encodeURIComponent(previewFilePathFor(attachment.filePath))}`
+}
+
+type UploadResponse = {
+  url: string
+  filePath: string
+  mimeType: string
+  sizeBytes: number
+  fileName: string
+  previewUrl?: string
+  previewFilePath?: string
+  previewMimeType?: string
+  previewSizeBytes?: number
+}
+
+export async function uploadFile(file: File, title?: string): Promise<UploadResponse> {
   const formData = new FormData()
   formData.append('file', file)
   if (title) formData.append('title', title)
   const api = useApiClient()
-  const { data } = await api.post<{ url: string, filePath: string, mimeType: string, sizeBytes: number, fileName: string }>('/api/uploads', formData)
+  const { data } = await api.post<UploadResponse>('/api/uploads', formData)
   return data
 }

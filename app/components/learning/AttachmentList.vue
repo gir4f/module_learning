@@ -15,10 +15,11 @@
           @click="lightboxAttachment = attachment"
         >
           <img
-            :src="attachment.url"
+            :src="previewUrlForAttachment(attachment)"
             :alt="attachment.title"
             class="aspect-4/3 w-full rounded-md bg-slate-50 object-contain dark:bg-slate-800"
             loading="lazy"
+            @error="fallbackToOriginal($event, attachment)"
           />
         </button>
         <a
@@ -59,6 +60,7 @@
 
 <script setup lang="ts">
 import type { Attachment } from '~/types/learning'
+import { previewUrlForAttachment } from '~/utils/upload'
 const ImageLightbox = defineAsyncComponent(() => import('~/components/shared/ImageLightbox.vue'))
 
 const { attachments } = defineProps<{
@@ -93,5 +95,11 @@ function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function fallbackToOriginal(event: Event, attachment: Attachment) {
+  const image = event.currentTarget as HTMLImageElement | null
+  if (!image || image.src.endsWith(attachment.url)) return
+  image.src = attachment.url
 }
 </script>

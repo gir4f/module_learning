@@ -29,6 +29,7 @@
     "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.5",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.3.0",
     "tailwindcss-primeui": "^0.6.1",
     "vue-sonner": "^2.0.9",

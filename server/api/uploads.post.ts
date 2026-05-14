@@ -1,7 +1,9 @@
 import { createError, defineEventHandler, readMultipartFormData } from 'h3'
 import { promises as fs } from 'node:fs'
 import { extname, resolve } from 'node:path'
+import sharp from 'sharp'
 import { requireAdmin } from '../utils/auth'
+import { previewFilePathFor } from '../utils/uploads'
 
 const allowedMimeTypes = new Set([
   'image/jpeg',
@@ -44,6 +46,12 @@ function mimeTypeFromFileName(fileName: string) {
 
 /** Maximum upload size: 10 MB */
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+const PREVIEW_MAX_WIDTH = 960
+const PREVIEW_WEBP_QUALITY = 80
+
+function shouldGeneratePreview(mimeType: string) {
+  return mimeType === 'image/jpeg' || mimeType === 'image/png' || mimeType === 'image/webp'
+}
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
@@ -81,11 +89,36 @@ export default defineEventHandler(async (event) => {
 
   await fs.writeFile(targetPath, file.data)
 
+  let previewFilePath: string | undefined
+  let previewSizeBytes: number | undefined
+  if (shouldGeneratePreview(mimeType)) {
+    previewFilePath = previewFilePathFor(fileName)
+    const previewPath = resolve(uploadRoot, previewFilePath)
+    if (previewPath.startsWith(uploadRoot)) {
+      try {
+        await sharp(file.data)
+          .rotate()
+          .resize({ width: PREVIEW_MAX_WIDTH, withoutEnlargement: true })
+          .webp({ quality: PREVIEW_WEBP_QUALITY })
+          .toFile(previewPath)
+        const previewStat = await fs.stat(previewPath)
+        previewSizeBytes = previewStat.size
+      } catch {
+        previewFilePath = undefined
+        previewSizeBytes = undefined
+      }
+    }
+  }
+
   return {
     url: `/api/uploads/${encodeURIComponent(fileName)}`,
     filePath: fileName,
     mimeType,
     sizeBytes: file.data.byteLength,
     fileName: originalName,
+    previewUrl: previewFilePath ? `/api/uploads/${encodeURIComponent(previewFilePath)}` : undefined,
+    previewFilePath,
+    previewMimeType: previewFilePath ? 'image/webp' : undefined,
+    previewSizeBytes,
   }
 })
