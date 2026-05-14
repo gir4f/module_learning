@@ -54,7 +54,11 @@ import type { LearningModule } from '~/types/learning'
 import ModuleDocument from '~/components/learning/ModuleDocument.vue'
 
 const route = useRoute()
-const { data: module, pending, error } = await useFetch<LearningModule>(`/api/modules/${route.params.slug}`)
+const api = useApiClient()
+const { data: module, pending, error } = await useAsyncData<LearningModule>(`module-${route.params.slug}`, async () => {
+  const { data } = await api.get<LearningModule>(`/api/modules/${route.params.slug}`)
+  return data
+})
 
 useHead({
   title: computed(() => module.value ? `${module.value.title} | Modul Ajar` : 'Modul tidak ditemukan'),

@@ -9,8 +9,22 @@ export function useDarkMode() {
   function init() {
     if (!import.meta.client) return
     const stored = localStorage.getItem('dark-mode')
-    isDark.value = stored ? stored === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches
+    if (stored !== null) {
+      // User pernah pilih manual → pakai pilihannya
+      isDark.value = stored === 'true'
+    } else {
+      // Belum pernah pilih → ikut OS
+      isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+    }
     apply()
+
+    // Listen perubahan OS preference (kalau user belum pernah pilih manual)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (localStorage.getItem('dark-mode') === null) {
+        isDark.value = e.matches
+        apply()
+      }
+    })
   }
 
   function toggle() {
@@ -21,5 +35,12 @@ export function useDarkMode() {
     }
   }
 
-  return { isDark, init, toggle }
+  function resetToSystem() {
+    if (!import.meta.client) return
+    localStorage.removeItem('dark-mode')
+    isDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+    apply()
+  }
+
+  return { isDark, init, toggle, resetToSystem }
 }

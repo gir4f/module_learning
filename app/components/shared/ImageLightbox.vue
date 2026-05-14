@@ -29,10 +29,9 @@
             <i class="pi pi-times" aria-hidden="true" />
           </button>
         </div>
-        <NuxtImg
+        <img
           :src="image.url"
           :alt="image.title"
-          format="webp"
           class="max-h-[80vh] w-full rounded-lg bg-white object-contain"
         />
       </div>

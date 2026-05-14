@@ -27,9 +27,11 @@
         <!-- Header -->
         <div class="flex items-center justify-between gap-3 border-b border-slate-200 p-4 dark:border-slate-800">
           <div class="flex min-w-0 items-center gap-3">
-            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-navy text-sm font-black text-white dark:bg-brand-teal-dark">G</span>
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
+              <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
+            </span>
             <div class="min-w-0">
-              <p class="truncate font-black text-brand-navy dark:text-cyan-200">Gitronik Learning</p>
+              <p class="truncate font-black text-brand-navy dark:text-cyan-200">Gitronik Modul Ajar</p>
               <p class="truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{{ subtitle }}</p>
             </div>
           </div>
@@ -104,7 +106,9 @@
         <div class="border-t border-slate-200 p-4 dark:border-slate-800">
           <button
             type="button"
-            class="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-brand-teal px-4 py-3 text-sm font-black text-white shadow-sm transition duration-150 hover:bg-brand-teal-dark active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:focus:ring-cyan-950"
+            class="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-brand-teal px-4 py-3 text-sm font-black text-white shadow-sm transition duration-150 hover:bg-brand-teal-dark active:scale-[0.99] focus:outline-none focus:ring-4 focus:ring-cyan-100 disabled:cursor-wait disabled:opacity-70 dark:focus:ring-cyan-950"
+            :aria-busy="authPending"
+            :disabled="authPending"
             @click="$emit('auth-action')"
           >
             {{ authLabel }}
@@ -118,19 +122,21 @@
 <script setup lang="ts">
 import type { LearningModule } from '~/types/learning'
 
-const props = defineProps<{
+const { modelValue, subtitle, navItems, isDark, authLabel, authPending = false, mode } = defineProps<{
   modelValue: boolean
   subtitle: string
   navItems: Array<{ label: string; to: string }>
   isDark: boolean
   authLabel: string
+  authPending?: boolean
   mode: 'learning' | 'admin'
 }>()
+const logoSrc = '/module-assets/LogoGitronikPolos.png'
 
 defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-  (e: 'toggle-dark'): void
-  (e: 'auth-action'): void
+  'update:modelValue': [value: boolean]
+  'toggle-dark': []
+  'auth-action': []
 }>()
 
 const searchQuery = ref('')
@@ -144,9 +150,15 @@ watch(searchQuery, (value) => {
   }, 180)
 })
 
-const { data: searchModules, pending: searchPending } = await useFetch<LearningModule[]>('/api/modules', {
-  query: computed(() => debouncedQuery.value ? { search: debouncedQuery.value } : {}),
+const api = useApiClient()
+const { data: searchModules, pending: searchPending } = await useAsyncData<LearningModule[]>('mobile-drawer-module-search', async () => {
+  const { data } = await api.get<LearningModule[]>('/api/modules', {
+    params: debouncedQuery.value ? { search: debouncedQuery.value } : undefined,
+  })
+  return data
+}, {
   default: () => [],
+  watch: [debouncedQuery],
 })
 const searchResults = computed(() => searchQuery.value ? (searchModules.value || []).slice(0, 6) : [])
 
@@ -156,7 +168,7 @@ watch(() => route.fullPath, () => {
 })
 
 function moduleTarget(module: LearningModule) {
-  if (props.mode === 'admin') return `/admin/modules/${module.id || module.slug}`
+  if (mode === 'admin') return `/admin/modules/${module.id || module.slug}`
   return `/modules/${module.slug}`
 }
 

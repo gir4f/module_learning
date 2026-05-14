@@ -7,7 +7,7 @@
         :value="modelValue"
         type="search"
         class="w-full rounded-lg border border-slate-300 bg-white py-3 pl-4 pr-24 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-cyan-950"
-        placeholder="Cari modul, produk, komponen, atau keyword..."
+        placeholder="Cari modul, produk, komponen, atau kata kunci..."
         @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       >
       <button
@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-const inputEl = ref<HTMLInputElement | null>(null)
+const inputEl = useTemplateRef<HTMLInputElement>('inputEl')
 
 defineProps<{
   modelValue: string

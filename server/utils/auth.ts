@@ -12,10 +12,27 @@ export interface RequestProfile {
 
 async function getSession(event: H3Event) {
   const config = useRuntimeConfig()
+  const sessionSecret = String(config.sessionSecret || '')
+  const invalidProductionSecrets = new Set([
+    '',
+    'change-this-to-a-random-64-char-string',
+    'dev-secret-change-me',
+    'dev-secret-must-be-at-least-32-characters-long!',
+  ])
+
+  if (process.env.NODE_ENV === 'production' && (sessionSecret.length < 48 || invalidProductionSecrets.has(sessionSecret))) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'SESSION_SECRET must be set to a strong random value in production.',
+    })
+  }
+
   const secure = getRequestProtocol(event, { xForwardedProto: true }) === 'https'
 
   return useSession(event, {
-    password: config.sessionSecret,
+    password: sessionSecret,
+    name: 'h3-session',
+    maxAge: 60 * 60 * 24 * 7, // 1 week
     cookie: {
       httpOnly: true,
       path: '/',

@@ -20,7 +20,24 @@ export default defineEventHandler(async (event) => {
       ...searchWhere,
     },
     orderBy: [{ sortOrder: 'asc' }, { title: 'asc' }],
-    include: moduleInclude,
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      description: true,
+      keywords: true,
+      status: true,
+      sortOrder: true,
+      createdAt: true,
+      updatedAt: true,
+      details: {
+        select: {
+          id: true,
+          components: { select: { id: true } },
+          attachments: { select: { id: true } }
+        }
+      }
+    }
   })
 
   return modules

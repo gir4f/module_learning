@@ -6,10 +6,6 @@
         <AdminFieldGroup label="Title" :error="displayErrors.title" required>
           <InputText v-model="form.title" :invalid="Boolean(displayErrors.title)" placeholder="Example: Device Speed" />
         </AdminFieldGroup>
-
-        <AdminFieldGroup label="Slug" help="Used in learner URLs. Leave empty to generate from title." :error="displayErrors.slug">
-          <InputText v-model="form.slug" :invalid="Boolean(displayErrors.slug)" placeholder="Auto-generated when empty" />
-        </AdminFieldGroup>
       </div>
     </AdminSurface>
 
@@ -51,7 +47,7 @@ import AdminFieldGroup from '~/components/admin/AdminFieldGroup.vue'
 import AdminSectionHeader from '~/components/admin/AdminSectionHeader.vue'
 import AdminSurface from '~/components/admin/AdminSurface.vue'
 
-const props = defineProps<{
+const { module, fieldErrors } = defineProps<{
   module?: Partial<LearningModule> | null
   fieldErrors?: Record<string, string>
 }>()
@@ -64,21 +60,19 @@ const emit = defineEmits<{
 const statuses: PublishStatus[] = ['DRAFT', 'PUBLISHED']
 const errors = reactive<Record<string, string>>({})
 const displayErrors = computed(() => ({
-  ...props.fieldErrors,
+  ...fieldErrors,
   ...Object.fromEntries(Object.entries(errors).filter(([, value]) => value)),
 }))
 const form = reactive({
   title: '',
-  slug: '',
   description: '',
   keywords: '',
   status: 'DRAFT' as PublishStatus,
   sortOrder: 0,
 })
 
-watch(() => props.module, (module) => {
+watch(() => module, (module) => {
   form.title = module?.title || ''
-  form.slug = module?.slug || ''
   form.description = module?.description || ''
   form.keywords = module?.keywords || ''
   form.status = module?.status || 'DRAFT'

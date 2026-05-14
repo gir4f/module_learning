@@ -1,21 +1,21 @@
 <template>
   <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 text-slate-900 shadow-sm shadow-slate-900/5 backdrop-blur-xl transition-colors duration-150 dark:border-slate-800 dark:bg-slate-950/90 dark:text-slate-100">
-    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-3 sm:gap-4 sm:px-6 lg:h-[72px] lg:px-8">
+    <div class="mx-auto grid h-16 w-full max-w-[88rem] grid-cols-[1fr_auto] items-center gap-3 px-3 sm:gap-4 sm:px-6 lg:h-[72px] lg:grid-cols-[minmax(0,1fr)_minmax(24rem,36rem)_minmax(0,1fr)] lg:px-8">
       <!-- Brand -->
-      <NuxtLink :to="mode === 'admin' ? '/admin/modules' : '/'" class="group flex min-w-0 items-center gap-3" aria-label="Beranda Gitronik Learning">
-        <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-brand-navy text-white shadow-sm ring-1 ring-slate-900/5 transition duration-150 group-hover:scale-105 dark:bg-brand-teal-dark">
-          <span class="text-sm font-black">G</span>
+      <NuxtLink :to="mode === 'admin' ? '/admin/modules' : '/'" class="group flex min-w-0 items-center gap-3" aria-label="Beranda Gitronik Modul Ajar">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-slate-900/10 transition duration-150 group-hover:scale-105 dark:ring-white/10">
+          <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
         </span>
         <span class="min-w-0">
-          <span class="block truncate text-sm font-black text-brand-navy dark:text-cyan-200">Gitronik Learning</span>
+          <span class="block truncate text-sm font-black text-brand-navy dark:text-cyan-200">Gitronik Modul Ajar</span>
           <span class="block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{{ subtitle }}</span>
         </span>
       </NuxtLink>
 
       <!-- Desktop search -->
-      <div class="relative hidden min-w-0 flex-1 lg:block">
+      <div class="relative hidden min-w-0 lg:block">
         <label class="sr-only" for="global-module-search">Cari modul</label>
-        <div class="relative mx-auto max-w-xl">
+        <div class="relative mx-auto w-full">
           <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true" />
           <InputText
             id="global-module-search"
@@ -54,7 +54,7 @@
         </div>
       </div>
 
-      <div class="flex shrink-0 items-center gap-2">
+      <div class="flex shrink-0 items-center justify-end gap-2">
         <!-- Desktop nav -->
         <nav class="hidden items-center gap-2 text-sm lg:flex" aria-label="Navigasi utama">
           <NuxtLink
@@ -68,7 +68,7 @@
           </NuxtLink>
         </nav>
 
-        <!-- Dark mode toggle (All screens) -->
+        <!-- Dark mode toggle -->
         <button
           type="button"
           class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition duration-150 hover:border-brand-teal hover:bg-slate-50 hover:text-brand-teal focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-700 dark:text-slate-300 dark:hover:border-cyan-400 dark:hover:bg-slate-800 dark:hover:text-cyan-400 dark:focus-visible:ring-cyan-950"
@@ -81,7 +81,9 @@
         <!-- Desktop Auth button -->
         <button
           type="button"
-          class="hidden h-11 items-center rounded-xl bg-brand-teal px-4 text-sm font-black text-white shadow-sm transition hover:bg-brand-teal-dark focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:focus-visible:ring-cyan-950 lg:inline-flex"
+          class="hidden h-11 items-center rounded-xl bg-brand-teal px-4 text-sm font-black text-white shadow-sm transition hover:bg-brand-teal-dark focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 disabled:cursor-wait disabled:opacity-70 dark:focus-visible:ring-cyan-950 lg:inline-flex"
+          :aria-busy="authPending"
+          :disabled="authPending"
           @click="handleAuthAction"
         >
           {{ authLabel }}
@@ -107,6 +109,7 @@
       :nav-items="navItems"
       :is-dark="isDark"
       :auth-label="authLabel"
+      :auth-pending="authPending"
       :mode="mode"
       @toggle-dark="toggle"
       @auth-action="handleAuthAction"
@@ -119,11 +122,9 @@ import type { LearningModule } from '~/types/learning'
 import { useAuthStore } from '~/stores/auth'
 import NavbarMobileDrawer from '~/components/layout/NavbarMobileDrawer.vue'
 
-const props = withDefaults(defineProps<{
+const { mode = 'learning' } = defineProps<{
   mode?: 'learning' | 'admin'
-}>(), {
-  mode: 'learning',
-})
+}>()
 
 const route = useRoute()
 const query = ref('')
@@ -133,22 +134,34 @@ const drawerOpen = ref(false)
 const searchInput = ref<any>(null)
 const auth = useAuthStore()
 const { isDark, init, toggle } = useDarkMode()
+const logoSrc = '/module-assets/LogoGitronikPolos.png'
+
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
-const subtitle = computed(() => props.mode === 'admin' ? 'Content operations' : 'Safety device modules')
-const authLabel = computed(() => auth.profile ? 'Logout' : 'Login')
-const navItems = computed(() => props.mode === 'admin'
+const subtitle = computed(() => mode === 'admin' ? 'Kelola modul ajar' : 'Modul safety device')
+const authPending = computed(() => !auth.initialized && auth.pending)
+const authLabel = computed(() => {
+  if (authPending.value) return '...'
+  return auth.profile ? 'Logout' : 'Login'
+})
+const navItems = computed(() => mode === 'admin'
   ? [
-      { label: 'Modules', to: '/admin/modules' },
-      { label: 'Learner View', to: '/' },
+      { label: 'Modul Ajar', to: '/admin/modules' },
+      { label: 'Halaman Modul', to: '/' },
     ]
   : [
       { label: 'Modul', to: '/' },
       { label: 'Admin', to: '/admin/modules' },
     ])
-const { data: modules, pending } = await useFetch<LearningModule[]>('/api/modules', {
-  query: computed(() => debouncedQuery.value ? { search: debouncedQuery.value } : {}),
+const api = useApiClient()
+const { data: modules, pending } = await useAsyncData<LearningModule[]>('top-navbar-module-search', async () => {
+  const { data } = await api.get<LearningModule[]>('/api/modules', {
+    params: debouncedQuery.value ? { search: debouncedQuery.value } : undefined,
+  })
+  return data
+}, {
   default: () => [],
+  watch: [debouncedQuery],
 })
 
 const suggestions = computed(() => query.value ? (modules.value || []).slice(0, 6) : [])
@@ -172,7 +185,9 @@ watch(drawerOpen, (isOpen) => {
 
 onMounted(() => {
   init()
-  auth.fetchProfile()
+  if (!auth.initialized) {
+    void auth.ensureProfile()
+  }
   window.addEventListener('keydown', handleShortcut)
   window.addEventListener('keydown', closeOnEscape)
 })
@@ -184,7 +199,7 @@ onBeforeUnmount(() => {
 })
 
 function moduleTarget(module: LearningModule) {
-  if (props.mode === 'admin') return `/admin/modules/${module.id || module.slug}`
+  if (mode === 'admin') return `/admin/modules/${module.id || module.slug}`
   return `/modules/${module.slug}`
 }
 
@@ -208,6 +223,7 @@ function closeOnEscape(event: KeyboardEvent) {
 }
 
 async function handleAuthAction() {
+  if (authPending.value) return
   drawerOpen.value = false
   if (auth.profile) {
     await auth.logout()

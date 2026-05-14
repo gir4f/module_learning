@@ -5,14 +5,14 @@
         <ModuleSearch v-model="searchModel" />
         <div class="flex gap-2 overflow-x-auto text-sm text-slate-600">
           <span class="shrink-0 rounded-md bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ modules.length }} modul</span>
-          <span class="shrink-0 rounded-md bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ sectionCount }} section</span>
+          <span class="shrink-0 rounded-md bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ sectionCount }} bagian</span>
           <span class="shrink-0 rounded-md bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ attachmentCount }} lampiran</span>
         </div>
       </div>
     </div>
 
     <div class="space-y-3">
-      <div class="flex flex-wrap items-center justify-between gap-3" v-auto-animate>
+      <div class="flex flex-wrap items-center justify-between gap-3 xl:flex-nowrap">
         <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">
           Menampilkan {{ modules.length }} dari {{ totalCount }} modul<span v-if="searchModel"> untuk "{{ searchModel }}"</span>
         </p>
@@ -27,7 +27,7 @@
         </button>
       </div>
 
-      <div class="flex gap-2 overflow-x-auto pb-1">
+      <div class="flex gap-2 overflow-x-auto pb-1 xl:justify-start">
         <button
           v-for="tab in categoryTabs"
           :key="tab.value"
@@ -42,18 +42,18 @@
     </div>
 
     <LoadingBlock v-if="pending" :rows="6" />
-    <ErrorNotice v-else-if="error" title="Unable to load modules" :message="String(error)" />
+    <ErrorNotice v-else-if="error" title="Modul gagal dimuat" :message="String(error)" />
     <EmptyState
       v-else-if="!modules.length"
-      title="No modules found"
-      description="Try a different search term or clear the filter."
+      title="Modul tidak ditemukan"
+      description="Coba kata kunci lain atau bersihkan filter."
       icon="pi pi-search"
     />
 
     <div
       v-else
-      v-auto-animate
-      class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+     
+      class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 min-[96rem]:grid-cols-5"
     >
       <ModuleCard
         v-for="(module, index) in modules"

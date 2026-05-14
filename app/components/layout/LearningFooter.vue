@@ -4,7 +4,7 @@
       <div class="flex flex-col items-center justify-center gap-2.5">
         <div class="flex items-center gap-2 text-slate-800 dark:text-slate-200">
           <i class="pi pi-book text-lg text-brand-teal" aria-hidden="true" />
-          <span class="text-base font-black tracking-tight">Gitronik Learning Module</span>
+          <span class="text-base font-black tracking-tight">Gitronik Modul Ajar</span>
         </div>
         <p class="text-center text-sm font-medium text-slate-500 dark:text-slate-400">
           &copy; {{ currentYear }} PT. Gitronik Dimindo Indonesia. Hak cipta dilindungi undang-undang.

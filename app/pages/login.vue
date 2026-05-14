@@ -77,6 +77,12 @@ const loading = ref(false)
 
 const auth = useAuthStore()
 
+useHead({
+  bodyAttrs: {
+    class: 'app-shell-admin',
+  },
+})
+
 definePageMeta({
   layout: false
 })

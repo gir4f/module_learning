@@ -1,10 +1,10 @@
 <template>
-  <PageShell>
-    <section class="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-2xl sm:p-10">
+  <PageShell wide>
+    <section class="relative overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-2xl sm:p-10 xl:p-12">
       <div class="absolute inset-0 bg-linear-to-br from-brand-navy via-brand-teal-dark to-brand-teal opacity-90" aria-hidden="true" />
       <div class="absolute inset-0 bg-[url('/grid.svg')] opacity-20" aria-hidden="true" />
       
-      <div class="relative grid gap-8 lg:grid-cols-[1fr_340px] lg:items-center">
+      <div class="relative grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-center 2xl:grid-cols-[minmax(0,1fr)_420px]">
         <div>
           <img
             :src="'/module-assets/Gitronikbgputih.jpg'"
@@ -17,7 +17,7 @@
           Modul pembelajaran safety device
           </h1>
           <p class="mt-5 max-w-2xl text-lg leading-relaxed text-cyan-50 opacity-90">
-            Library teknis untuk membaca dokumentasi produk, komponen, dan lampiran internal dengan cepat dan responsif.
+            Kumpulan modul teknis untuk membaca dokumentasi produk, komponen, dan lampiran internal dengan cepat dan responsif.
           </p>
           <div class="mt-8 max-w-2xl rounded-2xl bg-white/10 p-1.5 shadow-2xl ring-1 ring-white/20 backdrop-blur-md">
             <div class="relative flex items-center bg-white rounded-xl">
@@ -43,8 +43,8 @@
             </div>
           </div>
         </div>
-        <dl class="grid grid-cols-1 gap-4 rounded-2xl bg-white/10 p-5 backdrop-blur-md ring-1 ring-white/20 min-[360px]:grid-cols-3">
-          <div v-for="stat in heroStats" :key="stat.label" class="min-w-0 rounded-lg bg-white/12 p-3">
+        <dl class="grid grid-cols-1 gap-4 rounded-2xl bg-white/10 p-5 backdrop-blur-md ring-1 ring-white/20 min-[360px]:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+          <div v-for="stat in heroStats" :key="stat.label" class="min-w-0 rounded-lg bg-white/12 p-3 xl:p-4">
             <dt class="text-xs font-semibold uppercase text-cyan-100">{{ stat.label }}</dt>
             <dd class="mt-2 text-2xl font-extrabold sm:text-3xl">{{ stat.value }}</dd>
           </div>
@@ -76,7 +76,7 @@ import { moduleCategory, type ModuleCategory } from '~/utils/moduleUi'
 const search = ref('')
 const debouncedSearch = ref('')
 const activeCategory = ref<ModuleCategory>('semua')
-const heroSearchInput = ref<HTMLInputElement | null>(null)
+const heroSearchInput = useTemplateRef<HTMLInputElement>('heroSearchInput')
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(search, (value) => {
@@ -86,9 +86,15 @@ watch(search, (value) => {
   }, 200)
 })
 
-const { data, pending, error } = await useFetch<LearningModule[]>('/api/modules', {
-  query: computed(() => debouncedSearch.value ? { search: debouncedSearch.value } : {}),
+const api = useApiClient()
+const { data, pending, error } = await useAsyncData<LearningModule[]>('home-modules', async () => {
+  const { data } = await api.get<LearningModule[]>('/api/modules', {
+    params: debouncedSearch.value ? { search: debouncedSearch.value } : undefined,
+  })
+  return data
+}, {
   default: () => [],
+  watch: [debouncedSearch],
 })
 
 const modules = computed(() => data.value || [])
@@ -102,7 +108,7 @@ const attachmentCount = computed(() => modules.value.reduce((total, module) => {
 }, 0))
 const heroStats = computed(() => [
   { label: 'Modul', value: modules.value.length },
-  { label: 'Section', value: sectionCount.value },
+  { label: 'Bagian', value: sectionCount.value },
   { label: 'Lampiran', value: attachmentCount.value },
 ])
 
@@ -132,8 +138,8 @@ function clearFilters() {
 
 useSeoMeta({
   title: 'Modul Pembelajaran Safety Device | Gitronik',
-  description: 'Library modul pembelajaran internal PT. Gitronik Dimindo Indonesia untuk dokumentasi safety device, komponen, dan lampiran teknis.',
+  description: 'Kumpulan modul ajar internal PT. Gitronik Dimindo Indonesia untuk dokumentasi safety device, komponen, dan lampiran teknis.',
   ogTitle: 'Modul Pembelajaran Safety Device',
-  ogDescription: 'Library teknis internal PT. Gitronik Dimindo Indonesia.',
+  ogDescription: 'Kumpulan modul teknis internal PT. Gitronik Dimindo Indonesia.',
 })
 </script>

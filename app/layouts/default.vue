@@ -5,12 +5,16 @@
       <slot />
     </main>
     <LearningFooter />
-    <ScrollToTop />
   </div>
 </template>
 
 <script setup lang="ts">
 import LearningFooter from '~/components/layout/LearningFooter.vue'
 import LearningHeader from '~/components/layout/LearningHeader.vue'
-import ScrollToTop from '~/components/shared/ScrollToTop.vue'
+
+useHead({
+  bodyAttrs: {
+    class: 'app-shell-learning',
+  },
+})
 </script>

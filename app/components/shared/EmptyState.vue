@@ -12,11 +12,9 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
+const { title, description, icon = 'pi pi-inbox' } = defineProps<{
   title: string
   description?: string
   icon?: string
-}>(), {
-  icon: 'pi pi-inbox',
-})
+}>()
 </script>

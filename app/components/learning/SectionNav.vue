@@ -3,7 +3,7 @@
     <div class="absolute left-0 top-0 h-full w-1 bg-slate-100 dark:bg-slate-800" aria-hidden="true">
       <div class="w-full bg-brand-teal transition-all" :style="{ height: `${progress}%` }" />
     </div>
-    <div v-auto-animate>
+    <div>
       <div class="mb-3 flex items-center justify-between gap-2">
         <p class="text-xs font-bold uppercase text-slate-500">Daftar isi</p>
         <button type="button" class="rounded p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" :aria-label="collapsed ? 'Buka daftar isi' : 'Tutup daftar isi'" @click="collapsed = !collapsed">
@@ -32,26 +32,6 @@
         </li>
       </ol>
     </div>
-    <Teleport to="body">
-      <Transition
-        enter-active-class="transition duration-300 ease-out"
-        enter-from-class="translate-y-8 opacity-0"
-        enter-to-class="translate-y-0 opacity-100"
-        leave-active-class="transition duration-200 ease-in"
-        leave-from-class="translate-y-0 opacity-100"
-        leave-to-class="translate-y-8 opacity-0"
-      >
-        <button
-          v-if="progress > 10"
-          type="button"
-          class="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-brand-navy text-white shadow-lg transition hover:-translate-y-1 hover:bg-brand-teal hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-200 dark:bg-cyan-900 dark:hover:bg-cyan-700 no-print"
-          aria-label="Kembali ke atas"
-          @click="scrollTop"
-        >
-          <i class="pi pi-arrow-up" aria-hidden="true" />
-        </button>
-      </Transition>
-    </Teleport>
   </nav>
 </template>
 
@@ -88,10 +68,6 @@ onMounted(() => {
 function jumpTo(slug: string) {
   activeId.value = slug
   document.getElementById(slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
-
-function scrollTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 function updateProgress() {

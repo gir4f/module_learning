@@ -9,16 +9,12 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
+const { as = 'div', padded = false, compact = false } = defineProps<{
   as?: string
   padded?: boolean
   compact?: boolean
-}>(), {
-  as: 'div',
-  padded: false,
-  compact: false,
-})
+}>()
 
-const radiusClass = computed(() => props.compact ? 'rounded-2xl' : 'rounded-[24px]')
-const paddingClass = computed(() => props.padded ? (props.compact ? 'p-4' : 'p-5 sm:p-6') : '')
+const radiusClass = computed(() => compact ? 'rounded-2xl' : 'rounded-[24px]')
+const paddingClass = computed(() => padded ? (compact ? 'p-4' : 'p-5 sm:p-6') : '')
 </script>

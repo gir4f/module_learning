@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
-  const session = await getUserSession(event)
-  if (!session.data.userId) {
+  const profile = await getRequestProfile(event)
+  if (!profile) {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
-  return { profile: session.data }
+  return { profile }
 })

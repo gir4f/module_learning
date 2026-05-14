@@ -14,10 +14,9 @@
           :aria-label="`Perbesar ${attachment.title}`"
           @click="lightboxAttachment = attachment"
         >
-          <NuxtImg
+          <img
             :src="attachment.url"
             :alt="attachment.title"
-            format="webp"
             class="aspect-4/3 w-full rounded-md bg-slate-50 object-contain dark:bg-slate-800"
             loading="lazy"
           />
@@ -33,7 +32,7 @@
           <i :class="iconFor(attachment.type)" class="text-3xl" aria-hidden="true" />
         </a>
         <span class="absolute right-5 top-5 rounded-full bg-slate-950/70 px-2 py-1 text-[10px] font-bold text-white">
-          {{ attachment.type }}
+          {{ typeLabelFor(attachment.type) }}
         </span>
         <div class="mt-3 flex items-start justify-between gap-3">
           <div>
@@ -76,8 +75,15 @@ function iconFor(type: string) {
   return 'pi pi-file'
 }
 
+function typeLabelFor(type: string) {
+  if (type === 'IMAGE') return 'Gambar'
+  if (type === 'SPREADSHEET') return 'Spreadsheet'
+  if (type === 'LINK') return 'Link'
+  return 'File'
+}
+
 function metaFor(attachment: Attachment) {
-  const parts: string[] = [attachment.type]
+  const parts: string[] = [typeLabelFor(attachment.type)]
   if (attachment.mimeType) parts.push(attachment.mimeType)
   if (attachment.sizeBytes) parts.push(formatBytes(attachment.sizeBytes))
   return parts.join(' | ')

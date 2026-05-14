@@ -3,8 +3,8 @@
     <!-- Mobile Header -->
     <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90 lg:hidden">
       <NuxtLink to="/admin/modules" class="flex items-center gap-3">
-        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-navy text-white dark:bg-brand-teal-dark">
-          <span class="text-xs font-black">G</span>
+        <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
+          <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
         </span>
         <span class="font-black text-brand-navy dark:text-cyan-200">Admin</span>
       </NuxtLink>
@@ -14,7 +14,7 @@
     </header>
 
     <!-- Mobile Drawer -->
-    <Drawer v-model:visible="drawerOpen" header="Admin Panel" class="w-72! lg:hidden!" :pt="{ root: { class: 'dark:bg-slate-950' } }">
+    <Drawer v-model:visible="drawerOpen" header="Admin" class="w-72! lg:hidden!" :pt="{ root: { class: 'dark:bg-slate-950' } }">
       <div class="flex h-full flex-col justify-between py-4">
         <nav class="flex flex-col gap-2">
           <NuxtLink v-for="item in navItems" :key="item.to" :to="item.to" class="flex items-center gap-3 rounded-xl px-4 py-3 font-bold transition-colors" :class="isActive(item.to) ? 'bg-brand-teal/10 text-brand-teal dark:bg-cyan-900/20 dark:text-cyan-300' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900'" @click="drawerOpen = false">
@@ -38,10 +38,10 @@
     <!-- Desktop Sidebar -->
     <aside class="hidden h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex sticky top-0">
       <div class="flex h-16 items-center gap-3 border-b border-slate-200 px-6 dark:border-slate-800">
-        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-navy text-white shadow-sm dark:bg-brand-teal-dark">
-          <span class="text-xs font-black">G</span>
+        <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
+          <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
         </span>
-        <span class="font-black text-brand-navy dark:text-cyan-200">Admin Panel</span>
+        <span class="font-black text-brand-navy dark:text-cyan-200">Admin</span>
       </div>
       
       <div class="flex flex-1 flex-col justify-between overflow-y-auto p-4">
@@ -55,7 +55,7 @@
         <div class="flex flex-col gap-2 border-t border-slate-200 pt-4 dark:border-slate-800">
           <button type="button" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900" @click="toggleDark">
             <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" />
-            {{ isDark ? 'Light Mode' : 'Dark Mode' }}
+            {{ isDark ? 'Mode Terang' : 'Mode Gelap' }}
           </button>
           <button type="button" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" @click="handleLogout">
             <i class="pi pi-sign-out" />
@@ -74,15 +74,17 @@ const route = useRoute()
 const auth = useAuthStore()
 const { isDark, init, toggle: toggleDark } = useDarkMode()
 const drawerOpen = ref(false)
+const logoSrc = '/module-assets/LogoGitronikPolos.png'
 
 const navItems = [
-  { label: 'Modules', to: '/admin/modules', icon: 'pi pi-book' },
-  { label: 'Learner View', to: '/', icon: 'pi pi-external-link' },
+  { label: 'Modul Ajar', to: '/admin/modules', icon: 'pi pi-book' },
+  { label: 'Halaman Modul', to: '/', icon: 'pi pi-external-link' },
 ]
 
 onMounted(() => {
   init()
 })
+
 
 function isActive(path: string) {
   if (path === '/') return false

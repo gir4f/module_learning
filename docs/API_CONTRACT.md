@@ -39,6 +39,8 @@ GET  /api/uploads/:path
 
 `POST /api/uploads` accepts multipart form data with a `file` part, requires admin auth, saves to `UPLOAD_DIR`, and returns `{ url, filePath, mimeType, sizeBytes, fileName }`.
 
+Legacy `/api/files/*` upload routes are not part of the contract.
+
 ## Auth
 
 ```txt
@@ -48,6 +50,7 @@ GET  /api/auth/me
 ```
 
 Login checks `Profile.passwordHash` with bcryptjs and stores `userId` in an h3 session.
+Repeated failed login attempts are rate-limited.
 
 ## Error Shape
 

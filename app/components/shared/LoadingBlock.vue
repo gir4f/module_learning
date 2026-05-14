@@ -27,9 +27,7 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
+const { rows = 3 } = defineProps<{
   rows?: number
-}>(), {
-  rows: 3,
-})
+}>()
 </script>

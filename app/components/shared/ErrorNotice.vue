@@ -6,10 +6,8 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(defineProps<{
+const { title = 'Something went wrong', message } = defineProps<{
   title?: string
   message?: string
-}>(), {
-  title: 'Something went wrong',
-})
+}>()
 </script>
