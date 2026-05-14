@@ -1,6 +1,6 @@
 <template>
   <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 text-slate-900 shadow-sm shadow-slate-900/5 backdrop-blur-xl transition-colors duration-150 dark:border-slate-800 dark:bg-slate-950/90 dark:text-slate-100">
-    <div class="mx-auto grid h-16 w-full max-w-[88rem] grid-cols-[1fr_auto] items-center gap-3 px-3 sm:gap-4 sm:px-6 lg:h-[72px] lg:grid-cols-[minmax(0,1fr)_minmax(24rem,36rem)_minmax(0,1fr)] lg:px-8">
+    <div class="mx-auto grid h-16 w-full max-w-[88rem] grid-cols-[1fr_auto] items-center gap-3 px-3 sm:gap-4 sm:px-6 xl:h-[72px] xl:grid-cols-[minmax(0,1fr)_minmax(24rem,36rem)_minmax(0,1fr)] xl:px-8">
       <!-- Brand -->
       <NuxtLink :to="mode === 'admin' ? '/admin/modules' : '/'" class="group flex min-w-0 items-center gap-3" aria-label="Beranda Gitronik Modul Ajar">
         <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-slate-900/10 transition duration-150 group-hover:scale-105 dark:ring-white/10">
@@ -13,7 +13,7 @@
       </NuxtLink>
 
       <!-- Desktop search -->
-      <div class="relative hidden min-w-0 lg:block">
+      <div class="relative hidden min-w-0 xl:block">
         <label class="sr-only" for="global-module-search">Cari modul</label>
         <div class="relative mx-auto w-full">
           <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true" />
@@ -56,7 +56,7 @@
 
       <div class="flex shrink-0 items-center justify-end gap-2">
         <!-- Desktop nav -->
-        <nav class="hidden items-center gap-2 text-sm lg:flex" aria-label="Navigasi utama">
+        <nav class="hidden items-center gap-2 text-sm xl:flex" aria-label="Navigasi utama">
           <NuxtLink
             v-for="item in navItems"
             :key="item.to"
@@ -81,7 +81,7 @@
         <!-- Desktop Auth button -->
         <button
           type="button"
-          class="hidden h-11 items-center rounded-xl bg-brand-teal px-4 text-sm font-black text-white shadow-sm transition hover:bg-brand-teal-dark focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 disabled:cursor-wait disabled:opacity-70 dark:focus-visible:ring-cyan-950 lg:inline-flex"
+          class="hidden h-11 items-center rounded-xl bg-brand-teal px-4 text-sm font-black text-white shadow-sm transition hover:bg-brand-teal-dark focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 disabled:cursor-wait disabled:opacity-70 dark:focus-visible:ring-cyan-950 xl:inline-flex"
           :aria-busy="authPending"
           :disabled="authPending"
           @click="handleAuthAction"
@@ -92,7 +92,7 @@
         <!-- Mobile hamburger -->
         <button
           type="button"
-          class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 transition duration-150 hover:border-brand-teal hover:bg-slate-50 active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus-visible:ring-cyan-950 lg:hidden"
+          class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 transition duration-150 hover:border-brand-teal hover:bg-slate-50 active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus-visible:ring-cyan-950 xl:hidden"
           :aria-expanded="drawerOpen"
           :aria-label="drawerOpen ? 'Tutup menu' : 'Buka menu'"
           @click="drawerOpen = !drawerOpen"
