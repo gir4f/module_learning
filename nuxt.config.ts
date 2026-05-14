@@ -81,6 +81,12 @@ export default defineNuxtConfig({
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap' },
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
       ],
+      script: [
+        {
+          innerHTML: `(function(){try{var stored=localStorage.getItem('dark-mode');var prefers=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;if(stored==='true'||(stored===null&&prefers)){document.documentElement.classList.add('dark')}else{document.documentElement.classList.remove('dark')}}catch(e){}})();`,
+          tagPosition: 'head',
+        },
+      ],
     },
     pageTransition: false,
   },

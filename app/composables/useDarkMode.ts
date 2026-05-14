@@ -1,5 +1,7 @@
 export function useDarkMode() {
-  const isDark = useState('dark-mode', () => false)
+  const isDark = useState('dark-mode', () => import.meta.client
+    ? document.documentElement.classList.contains('dark')
+    : false)
 
   function apply(value = isDark.value) {
     if (!import.meta.client) return
