@@ -2,7 +2,7 @@
 
 Internal learning module CMS for PT. Gitronik Dimindo Indonesia.
 
-- Learner pages use Nuxt 3, Vue 3, TypeScript, and Tailwind CSS.
+- Learner pages use Nuxt, Vue, TypeScript, and Tailwind CSS.
 - Admin CRUD uses simple full-page editors with PrimeVue controls where useful.
 - API routes live in Nuxt server routes.
 - Prisma connects to PostgreSQL.
