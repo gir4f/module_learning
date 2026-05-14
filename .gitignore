@@ -11,7 +11,7 @@ node_modules
 .DS_Store
 dist
 dist-ssr
-uploads/
+/uploads/
 .nuxt
 .output
 coverage
@@ -46,4 +46,3 @@ __screenshots__/
 
 /docs
 AGENTS.md
-
