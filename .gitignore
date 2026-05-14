@@ -45,3 +45,5 @@ __screenshots__/
 *.timestamp-*-*.mjs
 
 /docs
+AGENTS.md
+
