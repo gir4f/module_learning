@@ -8,7 +8,7 @@
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="modelValue" class="fixed inset-0 z-70 bg-slate-950/55 backdrop-blur-[2px] xl:hidden" @click.self="$emit('update:modelValue', false)" />
+      <div v-if="modelValue" class="fixed inset-0 z-70 bg-slate-950/55 xl:hidden" @click.self="$emit('update:modelValue', false)" />
     </Transition>
 
     <Transition
@@ -21,7 +21,7 @@
     >
       <aside
         v-if="modelValue"
-        class="fixed inset-y-0 right-0 z-80 flex h-dvh w-full max-w-sm flex-col overflow-hidden border-l border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950 sm:w-[24rem] xl:hidden"
+        class="fixed inset-y-0 right-0 z-80 flex h-dvh w-full max-w-sm flex-col overflow-hidden border-l border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950 sm:w-[24rem] xl:hidden"
         aria-label="Menu mobile"
       >
         <!-- Header -->
@@ -146,25 +146,33 @@ let searchTimer: ReturnType<typeof setTimeout> | null = null
 watch(searchQuery, (value) => {
   if (searchTimer) clearTimeout(searchTimer)
   searchTimer = setTimeout(() => {
-    debouncedQuery.value = value.trim()
+    debouncedQuery.value = modelValue ? value.trim() : ''
   }, 180)
 })
 
 const api = useApiClient()
 const { data: searchModules, pending: searchPending } = await useAsyncData<LearningModule[]>('mobile-drawer-module-search', async () => {
+  if (!modelValue || !debouncedQuery.value) return []
   const { data } = await api.get<LearningModule[]>('/api/modules', {
-    params: debouncedQuery.value ? { search: debouncedQuery.value } : undefined,
+    params: { search: debouncedQuery.value },
   })
   return data
 }, {
   default: () => [],
-  watch: [debouncedQuery],
+  watch: [debouncedQuery, () => modelValue],
 })
 const searchResults = computed(() => searchQuery.value ? (searchModules.value || []).slice(0, 6) : [])
 
 const route = useRoute()
 watch(() => route.fullPath, () => {
   searchQuery.value = ''
+})
+
+watch(() => modelValue, (isOpen) => {
+  if (!isOpen) {
+    searchQuery.value = ''
+    debouncedQuery.value = ''
+  }
 })
 
 function moduleTarget(module: LearningModule) {

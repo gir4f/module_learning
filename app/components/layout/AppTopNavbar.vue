@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 text-slate-900 shadow-sm shadow-slate-900/5 backdrop-blur-xl transition-colors duration-150 dark:border-slate-800 dark:bg-slate-950/90 dark:text-slate-100">
+  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white text-slate-900 shadow-sm shadow-slate-900/5 transition-colors duration-150 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 sm:bg-white/90 sm:backdrop-blur-xl sm:dark:bg-slate-950/90">
     <div class="mx-auto grid h-16 w-full max-w-[88rem] grid-cols-[1fr_auto] items-center gap-3 px-3 sm:gap-4 sm:px-6 xl:h-[72px] xl:grid-cols-[minmax(0,1fr)_minmax(24rem,36rem)_minmax(0,1fr)] xl:px-8">
       <!-- Brand -->
       <NuxtLink :to="mode === 'admin' ? '/admin/modules' : '/'" class="group flex min-w-0 items-center gap-3" aria-label="Beranda Gitronik Modul Ajar">
@@ -34,7 +34,7 @@
         <!-- Desktop search dropdown -->
         <div
           v-if="searchOpen && query"
-          class="absolute left-1/2 top-full mt-2 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/12 dark:border-slate-800 dark:bg-slate-900"
+          class="absolute left-1/2 top-full mt-2 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/12 dark:border-slate-800 dark:bg-slate-900"
         >
           <NuxtLink
             v-for="module in suggestions"
@@ -155,8 +155,9 @@ const navItems = computed(() => mode === 'admin'
     ])
 const api = useApiClient()
 const { data: modules, pending } = await useAsyncData<LearningModule[]>('top-navbar-module-search', async () => {
+  if (!debouncedQuery.value) return []
   const { data } = await api.get<LearningModule[]>('/api/modules', {
-    params: debouncedQuery.value ? { search: debouncedQuery.value } : undefined,
+    params: { search: debouncedQuery.value },
   })
   return data
 }, {

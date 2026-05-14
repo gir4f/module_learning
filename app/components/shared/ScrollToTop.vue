@@ -21,20 +21,27 @@
 
 <script setup lang="ts">
 const visible = ref(false)
-let updateTimer: number | null = null
+let updateFrame = 0
 
 onMounted(() => {
-  window.addEventListener('scroll', update, { passive: true })
-  document.addEventListener('scroll', update, { passive: true })
-  updateTimer = window.setInterval(update, 250)
+  window.addEventListener('scroll', scheduleUpdate, { passive: true })
+  document.addEventListener('scroll', scheduleUpdate, { passive: true })
   update()
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', update)
-  document.removeEventListener('scroll', update)
-  if (updateTimer) window.clearInterval(updateTimer)
+  window.removeEventListener('scroll', scheduleUpdate)
+  document.removeEventListener('scroll', scheduleUpdate)
+  if (updateFrame) window.cancelAnimationFrame(updateFrame)
 })
+
+function scheduleUpdate() {
+  if (updateFrame) return
+  updateFrame = window.requestAnimationFrame(() => {
+    updateFrame = 0
+    update()
+  })
+}
 
 function update() {
   visible.value = currentScrollY() > 280

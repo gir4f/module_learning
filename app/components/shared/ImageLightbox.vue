@@ -2,15 +2,15 @@
   <Teleport to="body">
     <Transition
       enter-active-class="transition duration-300 ease-out"
-      enter-from-class="opacity-0 backdrop-blur-none"
-      enter-to-class="opacity-100 backdrop-blur-sm"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
       leave-active-class="transition duration-200 ease-in"
-      leave-from-class="opacity-100 backdrop-blur-sm"
-      leave-to-class="opacity-0 backdrop-blur-none"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
     >
       <div
         v-if="image"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 no-print backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 no-print sm:backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       :aria-label="image.title"

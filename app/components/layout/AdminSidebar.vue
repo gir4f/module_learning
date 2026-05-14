@@ -1,16 +1,26 @@
 <template>
   <div>
     <!-- Mobile Header -->
-    <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/90 lg:hidden">
+    <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-slate-800 dark:bg-slate-950 lg:hidden">
       <NuxtLink to="/admin/modules" class="flex items-center gap-3">
         <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
           <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
         </span>
         <span class="font-black text-brand-navy dark:text-cyan-200">Admin</span>
       </NuxtLink>
-      <button type="button" class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400" @click="drawerOpen = true">
-        <i class="pi pi-bars" />
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition-colors hover:border-brand-teal hover:text-brand-teal dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-cyan-400 dark:hover:text-cyan-300"
+          :aria-label="isDark ? 'Gunakan mode terang' : 'Gunakan mode gelap'"
+          @click="toggleDark"
+        >
+          <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" />
+        </button>
+        <button type="button" class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400" @click="drawerOpen = true">
+          <i class="pi pi-bars" />
+        </button>
+      </div>
     </header>
 
     <!-- Mobile Drawer -->
@@ -23,10 +33,6 @@
           </NuxtLink>
         </nav>
         <div class="flex flex-col gap-2">
-          <button type="button" class="flex items-center gap-3 rounded-xl px-4 py-3 font-bold text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900" @click="toggleDark">
-            <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" />
-            {{ isDark ? 'Light Mode' : 'Dark Mode' }}
-          </button>
           <button type="button" class="flex items-center gap-3 rounded-xl px-4 py-3 font-bold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" @click="handleLogout">
             <i class="pi pi-sign-out" />
             Logout
