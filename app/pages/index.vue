@@ -43,10 +43,10 @@
             </div>
           </div>
         </div>
-        <dl class="grid grid-cols-1 gap-4 rounded-2xl bg-white/10 p-5 backdrop-blur-md ring-1 ring-white/20 min-[360px]:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
-          <div v-for="stat in heroStats" :key="stat.label" class="min-w-0 rounded-lg bg-white/12 p-3 xl:p-4">
-            <dt class="text-xs font-semibold uppercase text-cyan-100">{{ stat.label }}</dt>
-            <dd class="mt-2 text-2xl font-extrabold sm:text-3xl">{{ stat.value }}</dd>
+        <dl class="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-1 shadow-xl shadow-slate-950/10 backdrop-blur-md min-[360px]:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+          <div v-for="stat in heroStats" :key="stat.label" class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center xl:text-left 2xl:text-center">
+            <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">{{ stat.label }}</dt>
+            <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ stat.value }}</dd>
           </div>
         </dl>
       </div>
@@ -109,7 +109,7 @@ const attachmentCount = computed(() => modules.value.reduce((total, module) => {
 const heroStats = computed(() => [
   { label: 'Modul', value: modules.value.length },
   { label: 'Bagian', value: sectionCount.value },
-  { label: 'Lampiran', value: attachmentCount.value },
+  { label: 'File', value: attachmentCount.value },
 ])
 
 useHead({

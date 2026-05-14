@@ -1,5 +1,5 @@
 <template>
-  <section class="mx-auto max-w-7xl space-y-6 pb-12">
+  <section class="mx-auto w-full max-w-7xl space-y-6 px-3 pb-12 sm:px-0">
     <section class="relative mb-8 overflow-hidden rounded-3xl bg-slate-900 p-6 text-white shadow-2xl sm:p-10">
       <div class="absolute inset-0 bg-linear-to-br from-brand-navy via-brand-teal-dark to-brand-teal opacity-90" aria-hidden="true" />
       <div class="absolute inset-0 bg-[url('/grid.svg')] opacity-20" aria-hidden="true" />
@@ -10,24 +10,24 @@
             Modul Ajar
           </h1>
           <p class="mt-4 max-w-2xl text-lg leading-relaxed text-cyan-50 opacity-90">
-            Kelola modul, bagian, komponen, dan lampiran untuk materi internal.
+            Kelola modul, bagian, komponen, dan file untuk materi internal.
           </p>
           <div class="mt-6">
             <Button label="Modul Baru" icon="pi pi-plus" class="w-full sm:w-auto font-bold rounded-xl" @click="navigateTo('/admin/modules/new')" />
           </div>
         </div>
-        <dl class="grid grid-cols-1 gap-4 rounded-2xl bg-white/10 p-5 backdrop-blur-md ring-1 ring-white/20 min-[360px]:grid-cols-3">
-          <div class="min-w-0 rounded-lg bg-white/12 p-3">
-            <dt class="text-xs font-semibold uppercase text-cyan-100">Total</dt>
-            <dd class="mt-2 text-2xl font-extrabold sm:text-3xl">{{ store.modules.length }}</dd>
+        <dl class="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-1 shadow-xl shadow-slate-950/10 backdrop-blur-md min-[360px]:grid-cols-3">
+          <div class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
+            <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">Modul</dt>
+            <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ store.modules.length }}</dd>
           </div>
-          <div class="min-w-0 rounded-lg bg-white/12 p-3">
-            <dt class="text-xs font-semibold uppercase text-cyan-100">Publikasi</dt>
-            <dd class="mt-2 text-2xl font-extrabold sm:text-3xl">{{ publishedCount }}</dd>
+          <div class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
+            <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">Bagian</dt>
+            <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ sectionCount }}</dd>
           </div>
-          <div class="min-w-0 rounded-lg bg-white/12 p-3">
-            <dt class="text-xs font-semibold uppercase text-cyan-100">Draf</dt>
-            <dd class="mt-2 text-2xl font-extrabold sm:text-3xl">{{ draftCount }}</dd>
+          <div class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
+            <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">File</dt>
+            <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ attachmentCount }}</dd>
           </div>
         </dl>
       </div>
@@ -57,8 +57,10 @@ definePageMeta({ layout: 'admin', middleware: 'admin' })
 const store = useModulesStore()
 const confirm = useConfirm()
 
-const publishedCount = computed(() => store.modules.filter(m => m.status === 'PUBLISHED').length)
-const draftCount = computed(() => store.modules.filter(m => m.status === 'DRAFT').length)
+const sectionCount = computed(() => store.modules.reduce((total, module) => total + module.details.length, 0))
+const attachmentCount = computed(() => store.modules.reduce((total, module) => {
+  return total + module.details.reduce((subtotal, detail) => subtotal + detail.attachments.length, 0)
+}, 0))
 
 await store.fetchModules()
 

@@ -33,16 +33,16 @@
       </EmptyState>
     </div>
 
-    <div v-else class="p-4 flex flex-col h-full">
-      <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-1 flex-1">
+    <div v-else class="flex h-full flex-col p-3 sm:p-4">
+      <div class="grid flex-1 gap-3 md:grid-cols-2 lg:grid-cols-1">
         <article 
           v-for="module in paginatedModules" 
           :key="module.id || module.slug" 
-          class="group flex flex-col lg:flex-row lg:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50"
+          class="group flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50 sm:p-4 lg:flex-row lg:items-center"
         >
-          <div class="flex-1 min-w-0 flex flex-col lg:flex-row lg:items-center lg:gap-3">
-            <div class="flex items-start lg:items-center justify-between gap-3">
-              <h2 class="truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">
+          <div class="flex min-w-0 flex-1 flex-col lg:flex-row lg:items-center lg:gap-3">
+            <div class="flex min-w-0 items-start justify-between gap-3 lg:items-center">
+              <h2 class="min-w-0 truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">
                 {{ module.title }}
               </h2>
               <button 
@@ -59,12 +59,12 @@
             </p>
           </div>
           
-          <div class="mt-4 lg:mt-0 flex items-center justify-between lg:justify-end gap-6 lg:gap-8 text-sm">
-            <div class="flex flex-col lg:items-end">
+          <div class="flex items-center justify-between gap-4 text-sm lg:mt-0 lg:justify-end lg:gap-8">
+            <div class="flex min-w-0 flex-col lg:items-end">
               <span class="font-bold text-slate-700 dark:text-slate-200">{{ module.details?.length || 0 }}</span>
               <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Bagian</span>
             </div>
-            <div class="flex flex-col items-end">
+            <div class="flex min-w-0 flex-col items-end">
               <span class="font-bold text-slate-700 dark:text-slate-200">{{ formatAdminDate(module.updatedAt) }}</span>
               <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Diubah</span>
             </div>
@@ -76,9 +76,9 @@
           </div>
 
           <!-- Mobile Action Buttons -->
-          <div class="mt-4 grid grid-cols-2 gap-2 lg:hidden">
-            <Button label="Edit" icon="pi pi-pencil" size="small" class="w-full" @click="$emit('edit', module)" />
-            <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined class="w-full" @click="$emit('delete', module)" />
+          <div class="grid grid-cols-2 gap-2 lg:hidden">
+            <Button label="Edit" icon="pi pi-pencil" size="small" class="min-w-0 w-full" @click="$emit('edit', module)" />
+            <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined class="min-w-0 w-full" @click="$emit('delete', module)" />
           </div>
         </article>
       </div>

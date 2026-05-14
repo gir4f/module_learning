@@ -6,7 +6,7 @@
         <div class="flex gap-2 overflow-x-auto text-sm text-slate-600">
           <span class="shrink-0 rounded-md bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ modules.length }} modul</span>
           <span class="shrink-0 rounded-md bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ sectionCount }} bagian</span>
-          <span class="shrink-0 rounded-md bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ attachmentCount }} lampiran</span>
+          <span class="shrink-0 rounded-md bg-slate-100 px-3 py-2 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ attachmentCount }} file</span>
         </div>
       </div>
     </div>
