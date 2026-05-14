@@ -1,42 +1,49 @@
-# modul-ajar
+# Modul Ajar
 
-This template should help get you started developing with Vue 3 in Vite.
+Internal learning module CMS for PT. Gitronik Dimindo Indonesia.
 
-## Recommended IDE Setup
+- Learner pages use Nuxt, Vue, TypeScript, and Tailwind CSS.
+- Admin CRUD uses simple full-page editors with PrimeVue controls where useful.
+- API routes live in Nuxt server routes.
+- Prisma connects to PostgreSQL.
+- Login uses bcryptjs password hashes stored on `Profile` plus h3 sessions.
+- Uploaded files are stored under `UPLOAD_DIR` and served by `/api/uploads/...`.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Setup
 
-## Recommended Browser Setup
+Create `.env` from `.env.example`:
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```env
+DATABASE_URL="postgresql://..."
+DIRECT_URL="postgresql://..."
+SESSION_SECRET="change-this-to-a-random-64-char-string"
+UPLOAD_DIR="./uploads"
 ```
 
-### Compile and Hot-Reload for Development
+## Commands
+
+Use `npm.cmd` on Windows PowerShell:
 
 ```sh
-npm run dev
+npm.cmd install
+npx.cmd prisma generate
+npm.cmd run db:seed
+npm.cmd run dev -- --host 127.0.0.1 --port 3000
 ```
 
-### Type-Check, Compile and Minify for Production
+Verification:
 
 ```sh
-npm run build
+npm.cmd run type-check
+npm.cmd run build
+npm.cmd test
 ```
+
+## Admin Bootstrap
+
+The seed script creates a default admin account:
+
+- Email: `admin@gitronik.co.id`
+- Password: `admin123`
+
+Change this password before using the app outside local development.

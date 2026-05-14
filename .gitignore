@@ -11,12 +11,18 @@ node_modules
 .DS_Store
 dist
 dist-ssr
+uploads/
+.nuxt
+.output
 coverage
 *.local
+.env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
-!.vscode/extensions.json
+
 .idea
 *.suo
 *.ntvs*
@@ -37,3 +43,5 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+/docs

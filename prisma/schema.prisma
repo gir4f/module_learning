@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Profile {
+  id        String   @id
+  email     String   @unique
+  fullName  String?
+  passwordHash String?
+  role      UserRole @default(VIEWER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Module {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  title       String
+  description String?
+  keywords    String?
+  status      PublishStatus  @default(DRAFT)
+  sortOrder   Int            @default(0)
+  details     ModuleDetail[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ModuleDetail {
+  id          String          @id @default(cuid())
+  moduleId    String
+  slug        String
+  title       String
+  summary     String?
+  keywords    String?
+  sortOrder   Int             @default(0)
+  module      Module          @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  components  ComponentItem[]
+  attachments Attachment[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([moduleId, slug])
+}
+
+model ComponentItem {
+  id        String       @id @default(cuid())
+  detailId  String
+  category  String?
+  name      String
+  quantity  String
+  unit      String
+  note      String?
+  sortOrder Int          @default(0)
+  detail    ModuleDetail @relation(fields: [detailId], references: [id], onDelete: Cascade)
+}
+
+model Attachment {
+  id          String         @id @default(cuid())
+  detailId    String
+  type        AttachmentType
+  title       String
+  url         String
+  filePath    String?
+  mimeType    String?
+  sizeBytes   Int?
+  sortOrder   Int            @default(0)
+  detail      ModuleDetail   @relation(fields: [detailId], references: [id], onDelete: Cascade)
+  createdAt   DateTime       @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  VIEWER
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum AttachmentType {
+  IMAGE
+  SPREADSHEET
+  FILE
+  LINK
+}
