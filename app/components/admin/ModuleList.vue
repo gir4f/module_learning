@@ -1,6 +1,6 @@
 <template>
   <AdminSurface>
-    <div class="grid gap-3 border-b border-slate-200 p-4 dark:border-slate-800 lg:grid-cols-[1fr_auto] lg:items-center">
+    <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="grid gap-3 border-b border-slate-200 p-4 dark:border-slate-800 lg:grid-cols-[1fr_auto] lg:items-center">
       <label class="relative min-w-0">
         <span class="sr-only">Cari modul</span>
         <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true" />
@@ -12,7 +12,7 @@
         >
       </label>
 
-      <div class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+      <div v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
         <button
           v-for="option in statusOptions"
           :key="option.value"
@@ -33,8 +33,8 @@
       </EmptyState>
     </div>
 
-    <div v-else class="flex h-full flex-col p-3 sm:p-4">
-      <div class="grid flex-1 gap-3 md:grid-cols-2 lg:grid-cols-1">
+    <div v-else v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="flex h-full flex-col p-3 sm:p-4">
+      <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="grid flex-1 gap-3 md:grid-cols-2 lg:grid-cols-1">
         <article 
           v-for="module in paginatedModules" 
           :key="module.id || module.slug" 

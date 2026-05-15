@@ -1,6 +1,6 @@
 <template>
-  <div class="space-y-5">
-    <div v-if="showSearch" class="sticky top-[73px] z-20 rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+  <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="space-y-5">
+    <div v-if="showSearch" v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="sticky top-[73px] z-20 rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
       <div class="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
         <ModuleSearch v-model="searchModel" />
         <div class="flex gap-2 overflow-x-auto text-sm text-slate-600">
@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <div class="space-y-3">
+    <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-3 xl:flex-nowrap">
         <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">
           Menampilkan {{ modules.length }} dari {{ totalCount }} modul<span v-if="searchModel"> untuk "{{ searchModel }}"</span>
@@ -27,7 +27,7 @@
         </button>
       </div>
 
-      <div class="flex gap-2 overflow-x-auto pb-1 xl:justify-start">
+      <div v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="flex gap-2 overflow-x-auto pb-1 xl:justify-start">
         <button
           v-for="tab in categoryTabs"
           :key="tab.value"
@@ -52,7 +52,7 @@
 
     <div
       v-else
-     
+      v-auto-animate="{ duration: 180, easing: 'ease-out' }"
       class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 min-[96rem]:grid-cols-5"
     >
       <ModuleCard

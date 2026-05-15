@@ -114,6 +114,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@primevue/nuxt-module',
     '@nuxt/image',
+    '@formkit/auto-animate/nuxt',
     'vue-sonner/nuxt'
   ],
   nitro: {

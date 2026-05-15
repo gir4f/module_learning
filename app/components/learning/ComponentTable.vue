@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-3">
+  <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="space-y-3">
     <div class="flex flex-wrap items-center justify-between gap-2 no-print">
       <h3 class="text-sm font-bold uppercase text-slate-500 dark:text-slate-400">Tabel Komponen</h3>
       <button
@@ -23,7 +23,7 @@
             <th scope="col" class="px-4 py-3">Keterangan</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100 bg-white dark:divide-slate-800 dark:bg-slate-900">
+        <tbody v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="divide-y divide-slate-100 bg-white dark:divide-slate-800 dark:bg-slate-900">
           <template v-for="group in groupedComponents" :key="group.category">
             <tr class="bg-white dark:bg-slate-900">
               <th colspan="4" scope="rowgroup" class="border-b border-slate-100 px-4 py-2 pt-4 text-left text-xs font-bold uppercase text-brand-teal dark:border-slate-800 dark:text-cyan-400">
@@ -45,7 +45,7 @@
       </table>
     </div>
 
-    <div class="grid gap-3 sm:hidden">
+    <div v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="grid gap-3 sm:hidden">
       <details
         v-for="group in groupedComponents"
         :key="group.category"
@@ -56,7 +56,7 @@
         <summary class="cursor-pointer px-4 py-3 text-sm font-bold uppercase text-brand-navy dark:text-cyan-200">
           {{ group.category }}
         </summary>
-        <div class="grid gap-2 border-t border-slate-100 p-3 dark:border-slate-800">
+        <div v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="grid gap-2 border-t border-slate-100 p-3 dark:border-slate-800">
           <article
             v-for="component in group.items"
             :key="component.id || component.name"

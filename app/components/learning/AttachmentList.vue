@@ -1,7 +1,7 @@
 <template>
-  <div v-if="attachments.length" class="space-y-3">
+  <div v-if="attachments.length" v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="space-y-3">
     <h3 class="text-sm font-bold uppercase text-slate-500 dark:text-slate-400">Lampiran</h3>
-    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <article
         v-for="attachment in sortedAttachments"
         :key="attachment.id || attachment.url"

@@ -34,6 +34,7 @@
         <!-- Desktop search dropdown -->
         <div
           v-if="searchOpen && query"
+          v-auto-animate="{ duration: 160, easing: 'ease-out' }"
           class="absolute left-1/2 top-full mt-2 w-full max-w-xl -translate-x-1/2 overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/12 dark:border-slate-800 dark:bg-slate-900"
         >
           <NuxtLink
@@ -56,7 +57,7 @@
 
       <div class="flex shrink-0 items-center justify-end gap-2">
         <!-- Desktop nav -->
-        <nav class="hidden items-center gap-2 text-sm xl:flex" aria-label="Navigasi utama">
+        <nav v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="hidden items-center gap-2 text-sm xl:flex" aria-label="Navigasi utama">
           <NuxtLink
             v-for="item in navItems"
             :key="item.to"

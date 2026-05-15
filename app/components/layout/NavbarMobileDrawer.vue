@@ -1,24 +1,10 @@
 <template>
   <Teleport to="body">
-    <Transition
-      enter-active-class="transition-opacity duration-150 ease-out"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition-opacity duration-100 ease-in"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
+    <div v-auto-animate="{ duration: 160, easing: 'ease-out' }">
       <div v-if="modelValue" class="fixed inset-0 z-70 bg-slate-950/55 xl:hidden" @click.self="$emit('update:modelValue', false)" />
-    </Transition>
+    </div>
 
-    <Transition
-      enter-active-class="transition duration-150 ease-out"
-      enter-from-class="translate-x-full opacity-80"
-      enter-to-class="translate-x-0 opacity-100"
-      leave-active-class="transition duration-100 ease-in"
-      leave-from-class="translate-x-0 opacity-100"
-      leave-to-class="translate-x-full opacity-80"
-    >
+    <div v-auto-animate="{ duration: 180, easing: 'ease-out' }">
       <aside
         v-if="modelValue"
         class="fixed inset-y-0 right-0 z-80 flex h-dvh w-full max-w-sm flex-col overflow-hidden border-l border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950 sm:w-[24rem] xl:hidden"
@@ -41,7 +27,7 @@
         </div>
 
         <!-- Content -->
-        <div class="min-h-0 flex-1 overflow-y-auto p-4">
+        <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="min-h-0 flex-1 overflow-y-auto p-4">
           <!-- Mobile search -->
           <label class="grid gap-2">
             <span class="text-sm font-bold text-slate-700 dark:text-slate-200">Cari modul</span>
@@ -66,7 +52,7 @@
           </label>
 
           <!-- Mobile search results -->
-          <div v-if="searchQuery" class="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-900">
+          <div v-if="searchQuery" v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-900">
             <p v-if="searchPending" class="px-3 py-2 text-sm font-semibold text-slate-500 dark:text-slate-400">Mencari modul...</p>
             <template v-else-if="searchResults.length">
               <NuxtLink
@@ -87,7 +73,7 @@
           </div>
 
           <!-- Nav items -->
-          <nav class="mt-5 grid gap-2 text-sm" aria-label="Navigasi mobile">
+          <nav v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="mt-5 grid gap-2 text-sm" aria-label="Navigasi mobile">
             <NuxtLink
               v-for="item in navItems"
               :key="item.to"
@@ -115,7 +101,7 @@
           </button>
         </div>
       </aside>
-    </Transition>
+    </div>
   </Teleport>
 </template>
 
