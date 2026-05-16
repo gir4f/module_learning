@@ -1,5 +1,5 @@
 <template>
-  <nav v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="hidden lg:block relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 no-print">
+  <nav v-auto-animate="{ duration: 170, easing: 'ease-in-out' }" class="hidden lg:block relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 no-print">
     <div class="absolute left-0 top-0 h-full w-1 bg-slate-100 dark:bg-slate-800" aria-hidden="true">
       <div class="w-full bg-brand-teal transition-all" :style="{ height: `${progress}%` }" />
     </div>
@@ -13,7 +13,7 @@
       <div class="mb-3 h-1 rounded-full bg-slate-100 dark:bg-slate-800">
         <div class="h-1 rounded-full bg-brand-teal transition-all" :style="{ width: `${progress}%` }" />
       </div>
-      <ol v-if="!collapsed" v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="toc-scrollbar relative max-h-[62vh] space-y-1 overflow-y-auto border-l border-slate-200 pl-3 pr-1 text-sm dark:border-slate-800">
+    <ol v-if="!collapsed" class="toc-scrollbar relative max-h-[62vh] space-y-1 overflow-y-auto border-l border-slate-200 pl-3 pr-1 text-sm dark:border-slate-800">
         <li v-for="detail in details" :key="detail.slug" class="relative">
           <span
             v-if="activeId === detail.slug"

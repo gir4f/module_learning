@@ -13,7 +13,7 @@
           </tr>
         </thead>
         <tbody v-if="model.length" v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="divide-y divide-slate-100 dark:divide-slate-800/50">
-          <tr v-for="(row, index) in model" :key="index" class="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+          <tr v-for="(row, index) in model" :key="rowKey(row)" class="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
             <td class="p-2"><input v-model="row.category" class="cell-input" placeholder="Power"></td>
             <td class="p-2"><input v-model="row.name" class="cell-input" placeholder="Nama komponen"></td>
             <td class="p-2"><input v-model="row.quantity" class="cell-input" placeholder="1"></td>
@@ -43,7 +43,7 @@
     </div>
 
     <div v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="grid gap-4 sm:hidden">
-      <article v-for="(row, index) in model" :key="index" class="relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-brand-teal dark:border-slate-800 dark:bg-slate-900 dark:focus-within:ring-cyan-700">
+      <article v-for="(row, index) in model" :key="rowKey(row)" class="relative rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-brand-teal dark:border-slate-800 dark:bg-slate-900 dark:focus-within:ring-cyan-700">
         <span class="mb-3 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-500 dark:bg-slate-800 dark:text-slate-300">#{{ index + 1 }}</span>
         <button type="button" class="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600 transition hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-900/50" aria-label="Hapus komponen" @click="removeRow(index)">
           <i class="pi pi-times text-sm" aria-hidden="true" />
@@ -72,6 +72,13 @@
 import type { ComponentItem } from '~/types/learning'
 
 const model = defineModel<ComponentItem[]>({ default: () => [] })
+const localRowKeys = new WeakMap<ComponentItem, string>()
+
+function rowKey(row: ComponentItem) {
+  if (row.id) return row.id
+  if (!localRowKeys.has(row)) localRowKeys.set(row, crypto.randomUUID())
+  return localRowKeys.get(row)
+}
 
 function addRow() {
   model.value = [
@@ -84,4 +91,3 @@ function removeRow(index: number) {
   model.value = model.value.filter((_, rowIndex) => rowIndex !== index).map((row, rowIndex) => ({ ...row, sortOrder: rowIndex }))
 }
 </script>
-

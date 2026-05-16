@@ -1,5 +1,5 @@
 <template>
-  <div v-auto-animate="{ duration: 180, easing: 'ease-out' }">
+  <div>
     <!-- Mobile Header -->
     <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-3 dark:border-slate-800 dark:bg-slate-950 sm:px-6 lg:hidden">
       <NuxtLink to="/admin/modules" class="flex min-w-0 items-center gap-3">
@@ -28,8 +28,8 @@
 
     <!-- Mobile Drawer -->
     <Drawer v-model:visible="drawerOpen" header="Admin" class="w-72! lg:hidden!" :pt="{ root: { class: 'dark:bg-slate-950' } }">
-      <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="flex h-full flex-col justify-between py-4">
-        <nav v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="flex flex-col gap-2">
+      <div class="flex h-full flex-col justify-between py-4">
+        <nav class="flex flex-col gap-2">
           <NuxtLink v-for="item in navItems" :key="item.to" :to="item.to" class="flex items-center gap-3 rounded-xl px-4 py-3 font-bold transition-colors" :class="isActive(item.to) ? 'bg-brand-teal/10 text-brand-teal dark:bg-cyan-900/20 dark:text-cyan-300' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900'" @click="drawerOpen = false">
             <i :class="item.icon" />
             {{ item.label }}
@@ -45,7 +45,7 @@
     </Drawer>
 
     <!-- Desktop Sidebar -->
-    <aside v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="hidden h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex sticky top-0">
+    <aside class="hidden h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex sticky top-0">
       <div class="flex h-16 items-center gap-3 border-b border-slate-200 px-6 dark:border-slate-800">
         <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
           <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
@@ -54,7 +54,7 @@
       </div>
       
       <div class="flex flex-1 flex-col justify-between overflow-y-auto p-4">
-        <nav v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="flex flex-col gap-2">
+        <nav class="flex flex-col gap-2">
           <NuxtLink v-for="item in navItems" :key="item.to" :to="item.to" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-colors" :class="isActive(item.to) ? 'bg-brand-teal/10 text-brand-teal dark:bg-cyan-900/20 dark:text-cyan-300' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900'">
             <i :class="item.icon" />
             {{ item.label }}

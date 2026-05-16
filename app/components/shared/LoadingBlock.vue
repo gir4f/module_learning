@@ -1,6 +1,6 @@
 <template>
-  <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
-    <div v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+  <div class="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
       <div v-for="index in rows" :key="index" class="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
         <div class="h-1.5 animate-shimmer skeleton-shimmer" />
         <div class="space-y-4 p-5">

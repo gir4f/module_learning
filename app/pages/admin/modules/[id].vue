@@ -1,5 +1,5 @@
 <template>
-  <section v-if="module" v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="space-y-6 pb-12">
+  <section v-if="module" class="space-y-6 pb-12">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div class="min-w-0 flex-1">
         <div class="flex items-start justify-between gap-3 sm:block">
@@ -30,7 +30,7 @@
           <span class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Informasi ini tampil di halaman modul.</span>
         </span>
       </div>
-      <form v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="grid gap-5 p-4 sm:p-5" @submit.prevent="saveModule">
+      <form v-auto-animate="{ duration: 170, easing: 'ease-in-out' }" class="grid gap-5 p-4 sm:p-5" @submit.prevent="saveModule">
         <div v-if="hasModuleChanges" class="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-100">
           <i class="pi pi-info-circle mt-0.5 shrink-0" aria-hidden="true" />
           <span>Perubahan informasi modul belum disimpan.</span>
@@ -62,13 +62,13 @@
       </form>
     </AdminSurface>
 
-    <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="space-y-4">
+    <div v-auto-animate="{ duration: 180, easing: 'ease-in-out' }" class="space-y-4">
       <div class="flex items-center justify-between gap-3">
         <h2 class="text-xl font-black text-slate-950 dark:text-white">Bagian Modul</h2>
         <Button label="Tambah Bagian" icon="pi pi-plus" @click="addSection" />
       </div>
 
-      <AdminSurface v-for="(section, index) in sectionForms" :key="section.localKey">
+      <AdminSurface v-for="(section, index) in sectionForms" :key="section.localKey" v-auto-animate="{ duration: 190, easing: 'ease-in-out' }">
         <button type="button" class="group flex w-full items-center justify-between gap-4 border-b border-slate-200 p-5 text-left transition-colors hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50" @click="toggleSection(section.localKey)">
           <div class="flex items-center gap-4 min-w-0">
             <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors group-hover:bg-brand-teal group-hover:text-white dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-brand-teal-dark">
@@ -84,7 +84,7 @@
           </span>
         </button>
 
-        <div v-if="expandedSections.has(section.localKey)" v-auto-animate="{ duration: 200, easing: 'ease-out' }" class="grid gap-5 p-4 sm:p-5">
+        <div v-if="expandedSections.has(section.localKey)" class="grid gap-5 p-4 sm:p-5">
           <div class="grid gap-2">
             <AdminFieldGroup label="Judul" required>
               <InputText v-model.trim="section.title" class="w-full" />
@@ -115,7 +115,7 @@
               icon="pi pi-paperclip"
               :meta="`${section.attachments.length} lampiran`"
             />
-            <div v-if="section.attachments.length" v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="grid gap-2">
+            <div v-if="section.attachments.length" v-auto-animate="{ duration: 160, easing: 'ease-in-out' }" class="grid gap-2">
               <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex flex-col gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
                 <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 items-center gap-3 font-bold text-brand-teal hover:underline">
                   <img
@@ -152,7 +152,7 @@
               <span>Tambah Link</span>
             </button>
 
-            <div v-else v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="grid gap-3 rounded-2xl border border-slate-200 p-3 dark:border-slate-800 md:grid-cols-[1fr_1fr_auto_auto] md:items-end">
+            <div v-else class="grid gap-3 rounded-2xl border border-slate-200 p-3 dark:border-slate-800 md:grid-cols-[1fr_1fr_auto_auto] md:items-end">
               <AdminFieldGroup label="Judul Link">
                 <InputText v-model.trim="linkForms[section.localKey]!.title" class="w-full" />
               </AdminFieldGroup>

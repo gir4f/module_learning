@@ -1,6 +1,6 @@
 <template>
   <div class="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 dark:bg-slate-950 sm:px-6 lg:px-8">
-    <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="w-full max-w-md space-y-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+    <div class="w-full max-w-md space-y-8 rounded-2xl border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
       <div>
         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-teal text-white">
           <i class="pi pi-lock text-xl" aria-hidden="true" />
@@ -10,7 +10,7 @@
           Silakan masuk untuk mengelola modul pembelajaran.
         </p>
       </div>
-      <form v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="mt-8 space-y-6" @submit.prevent="handleLogin">
+      <form v-auto-animate="{ duration: 170, easing: 'ease-in-out' }" class="mt-8 space-y-6" @submit.prevent="handleLogin">
         <div class="space-y-4 rounded-md shadow-sm">
           <div>
             <label for="email-address" class="sr-only">Email address</label>

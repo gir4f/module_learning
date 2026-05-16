@@ -1,10 +1,10 @@
 <template>
-  <article v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="mx-auto grid max-w-[88rem] gap-6 px-4 pb-24 pt-6 text-slate-900 dark:text-slate-100 sm:px-6 sm:pb-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8 xl:grid-cols-[230px_minmax(0,1fr)_280px] 2xl:grid-cols-[250px_minmax(0,1fr)_300px]">
+  <article class="mx-auto grid max-w-[88rem] gap-6 px-4 pb-24 pt-6 text-slate-900 dark:text-slate-100 sm:px-6 sm:pb-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-8 xl:grid-cols-[230px_minmax(0,1fr)_280px] 2xl:grid-cols-[250px_minmax(0,1fr)_300px]">
     <aside class="sticky top-20 z-20 self-start lg:top-24">
       <SectionNav :details="module.details" />
     </aside>
 
-    <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="space-y-5">
+    <div class="space-y-5">
       <nav class="text-sm text-slate-500 dark:text-slate-400 no-print" aria-label="Breadcrumb">
         <NuxtLink to="/" class="font-semibold hover:text-brand-navy dark:hover:text-white">Beranda</NuxtLink>
         <span class="mx-2">/</span>
@@ -15,7 +15,6 @@
         v-for="detail in module.details"
         :id="detail.slug"
         :key="detail.slug"
-        v-auto-animate="{ duration: 180, easing: 'ease-out' }"
         class="scroll-mt-28 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
       >
         <div class="mb-5">
@@ -35,10 +34,10 @@
     </div>
 
     <aside class="hidden xl:block">
-      <div v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="sticky top-24 space-y-4 no-print">
-        <section v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div class="sticky top-24 space-y-4 no-print">
+        <section class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">Ringkasan modul</h2>
-          <dl v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="mt-4 grid gap-3">
+          <dl class="mt-4 grid gap-3">
             <div v-for="item in summaryItems" :key="item.label" class="rounded-lg bg-slate-50 p-3 dark:bg-slate-950">
               <dt class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">{{ item.label }}</dt>
               <dd class="mt-1 text-sm font-black text-slate-900 dark:text-slate-100">{{ item.value }}</dd>
@@ -64,7 +63,7 @@
           </div>
         </section>
 
-        <section v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div class="flex items-center justify-between gap-3">
             <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">Lampiran cepat</h2>
             <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ attachmentCount }}</span>

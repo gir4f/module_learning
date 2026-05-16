@@ -5,7 +5,7 @@
       <div class="absolute inset-0 bg-[url('/grid.svg')] opacity-20" aria-hidden="true" />
       
       <div class="relative grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-center 2xl:grid-cols-[minmax(0,1fr)_420px]">
-        <div v-auto-animate="{ duration: 180, easing: 'ease-out' }">
+        <div>
           <img
             :src="'/module-assets/Gitronikbgputih.jpg'"
             alt="PT. Gitronik Dimindo Indonesia"
@@ -20,7 +20,7 @@
             Kumpulan modul teknis untuk membaca dokumentasi produk, komponen, dan lampiran internal dengan cepat dan responsif.
           </p>
           <div class="mt-8 max-w-2xl rounded-2xl bg-white/10 p-1.5 shadow-lg ring-1 ring-white/20 sm:shadow-2xl sm:backdrop-blur-md">
-            <div v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="relative flex items-center bg-white rounded-xl">
+            <div class="relative flex items-center bg-white rounded-xl">
               <i class="pi pi-search absolute left-5 text-slate-400" aria-hidden="true" />
               <input
                 ref="heroSearchInput"
@@ -43,7 +43,7 @@
             </div>
           </div>
         </div>
-        <dl v-auto-animate="{ duration: 180, easing: 'ease-out' }" class="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-1 shadow-lg shadow-slate-950/10 min-[360px]:grid-cols-3 sm:backdrop-blur-md xl:grid-cols-1 2xl:grid-cols-3">
+        <dl class="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-1 shadow-lg shadow-slate-950/10 min-[360px]:grid-cols-3 sm:backdrop-blur-md xl:grid-cols-1 2xl:grid-cols-3">
           <div v-for="stat in heroStats" :key="stat.label" class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center xl:text-left 2xl:text-center">
             <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">{{ stat.label }}</dt>
             <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ stat.value }}</dd>

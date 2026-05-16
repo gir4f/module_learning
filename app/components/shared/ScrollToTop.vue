@@ -1,5 +1,5 @@
 <template>
-  <div v-auto-animate="{ duration: 160, easing: 'ease-out' }">
+  <Transition name="scroll-top-fade">
     <button
       v-if="visible"
       type="button"
@@ -9,7 +9,7 @@
     >
       <i class="pi pi-arrow-up" aria-hidden="true" />
     </button>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -54,3 +54,16 @@ function currentScrollY() {
   )
 }
 </script>
+
+<style scoped>
+.scroll-top-fade-enter-active,
+.scroll-top-fade-leave-active {
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.scroll-top-fade-enter-from,
+.scroll-top-fade-leave-to {
+  opacity: 0;
+  transform: translateY(0.5rem);
+}
+</style>
