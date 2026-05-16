@@ -98,7 +98,7 @@
             <InputText v-model.trim="section.keywords" class="w-full" />
           </AdminFieldGroup>
 
-          <div class="space-y-3">
+          <div class="min-w-0 space-y-3">
             <AdminSectionHeader
               title="Daftar Komponen"
               description="Isi komponen yang dipakai di bagian ini."
@@ -108,7 +108,7 @@
             <InlineComponentTable v-model="section.components" />
           </div>
 
-          <div class="space-y-3">
+          <div class="min-w-0 space-y-3">
             <AdminSectionHeader
               title="Lampiran"
               description="Tambahkan file atau link pendukung."
@@ -116,7 +116,7 @@
               :meta="`${section.attachments.length} lampiran`"
             />
             <div v-if="section.attachments.length" v-auto-animate="{ duration: 160, easing: 'ease-in-out' }" class="grid gap-2">
-              <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex flex-col gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+              <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
                 <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 items-center gap-3 font-bold text-brand-teal hover:underline">
                   <img
                     v-if="attachment.type === 'IMAGE'"
@@ -188,7 +188,7 @@
 
           <p v-if="sectionErrors[section.localKey]" class="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-100">{{ sectionErrors[section.localKey] }}</p>
 
-          <div class="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-800 sm:flex-row sm:items-end sm:justify-between">
             <Button label="Hapus Bagian" icon="pi pi-trash" severity="danger" outlined class="w-full sm:w-auto" @click="confirmDeleteSection(section)" />
             <div class="flex flex-col gap-2 sm:items-end">
               <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">

@@ -13,7 +13,7 @@
     </div>
 
     <div class="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:block">
-      <table class="min-w-[720px] divide-y divide-slate-200 text-sm dark:divide-slate-800">
+      <table class="w-full min-w-[720px] divide-y divide-slate-200 text-sm dark:divide-slate-800">
         <caption class="sr-only">Daftar komponen dan part</caption>
         <thead class="sticky top-0 z-10 bg-slate-50 text-left text-xs font-bold uppercase tracking-wider text-slate-500 shadow-sm dark:bg-slate-800/80 dark:text-slate-400">
           <tr>

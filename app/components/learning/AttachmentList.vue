@@ -5,7 +5,7 @@
       <article
         v-for="attachment in sortedAttachments"
         :key="attachment.id || attachment.url"
-        class="group relative rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:border-brand-teal hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+        class="group relative min-w-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:border-brand-teal hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
       >
         <button
           v-if="attachment.type === 'IMAGE'"
@@ -36,16 +36,16 @@
           {{ typeLabelFor(attachment.type) }}
         </span>
         <div class="mt-3 flex items-start justify-between gap-3">
-          <div>
-            <p class="text-sm font-semibold text-slate-900 group-hover:text-brand-navy dark:text-slate-100">{{ attachment.title }}</p>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ metaFor(attachment) }}</p>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold text-slate-900 group-hover:text-brand-navy dark:text-slate-100" :title="attachment.title">{{ attachment.title }}</p>
+            <p class="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">{{ metaFor(attachment) }}</p>
           </div>
           <a
             :href="attachment.url"
             :download="attachment.type === 'IMAGE' ? attachment.title : undefined"
             target="_blank"
             rel="noopener noreferrer"
-            class="rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-cyan-200 dark:focus:ring-cyan-950"
+            class="shrink-0 rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-cyan-200 dark:focus:ring-cyan-950"
             :aria-label="attachment.type === 'IMAGE' ? `Unduh ${attachment.title}` : `Buka ${attachment.title}`"
           >
             <i :class="attachment.type === 'IMAGE' ? 'pi pi-download' : 'pi pi-external-link'" aria-hidden="true" />
