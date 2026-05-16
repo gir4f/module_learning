@@ -27,7 +27,7 @@
     </header>
 
     <!-- Mobile Drawer -->
-    <Drawer v-model:visible="drawerOpen" class="w-72! lg:hidden!" :pt="{ root: { class: 'dark:bg-slate-950' }, header: { class: 'dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800' }, content: { class: 'dark:bg-slate-950' } }">
+    <Drawer v-model:visible="drawerOpen" class="w-72! lg:hidden!" :pt="{ root: { class: 'bg-white! dark:bg-slate-950!' }, header: { class: 'bg-white! dark:bg-slate-950! border-b border-slate-200 dark:border-slate-800' }, content: { class: 'bg-white! dark:bg-slate-950!' } }">
       <template #header>
         <div class="flex items-center gap-3">
           <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
