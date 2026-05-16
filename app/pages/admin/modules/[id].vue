@@ -53,8 +53,11 @@
           </AdminFieldGroup>
         </div>
         <p v-if="moduleError" class="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-100">{{ moduleError }}</p>
-        <div class="flex justify-end border-t border-slate-200 pt-4 dark:border-slate-700">
-          <Button label="Simpan Modul" icon="pi pi-check" type="submit" :loading="savingModule" class="w-full sm:w-auto" />
+        <div class="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">
+            {{ moduleSaveStatus }}
+          </p>
+          <Button label="Simpan Modul" icon="pi pi-check" type="submit" :loading="savingModule" :disabled="!hasModuleChanges || savingModule" class="w-full sm:w-auto" />
         </div>
       </form>
     </AdminSurface>
@@ -113,10 +116,23 @@
               :meta="`${section.attachments.length} lampiran`"
             />
             <div v-if="section.attachments.length" v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="grid gap-2">
-              <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex flex-col gap-2 rounded-xl border border-slate-200 p-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-                <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="min-w-0 font-bold text-brand-teal hover:underline">
-                  <span class="block truncate">{{ attachment.title }}</span>
-                  <span class="block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{{ attachment.type }} · {{ attachment.mimeType || attachment.url }}</span>
+              <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex flex-col gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+                <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 items-center gap-3 font-bold text-brand-teal hover:underline">
+                  <img
+                    v-if="attachment.type === 'IMAGE'"
+                    :src="previewUrlForAttachment(attachment)"
+                    :alt="attachment.title"
+                    class="h-12 w-16 shrink-0 rounded-lg bg-slate-100 object-cover dark:bg-slate-800"
+                    loading="lazy"
+                    @error="fallbackAttachmentPreview($event, attachment)"
+                  >
+                  <span v-else class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                    <i class="pi pi-file" aria-hidden="true" />
+                  </span>
+                  <span class="min-w-0">
+                    <span class="block truncate">{{ attachment.title }}</span>
+                    <span class="block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{{ attachment.type }} · {{ attachment.mimeType || attachment.url }}</span>
+                  </span>
                 </a>
                 <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined @click="confirmDeleteAttachment(attachment)" />
               </div>
@@ -143,7 +159,7 @@
               <AdminFieldGroup label="URL">
                 <InputText v-model.trim="linkForms[section.localKey]!.url" class="w-full" />
               </AdminFieldGroup>
-              <Button label="Simpan Link" icon="pi pi-check" severity="secondary" outlined @click="addLink(section)" />
+              <Button label="Simpan Link" icon="pi pi-check" severity="secondary" outlined @click="addLink(section, index)" />
               <Button label="Batal" severity="secondary" text @click="closeLinkForm(section.localKey)" />
             </div>
 
@@ -172,9 +188,14 @@
 
           <p v-if="sectionErrors[section.localKey]" class="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-100">{{ sectionErrors[section.localKey] }}</p>
 
-          <div class="flex flex-col-reverse gap-2 border-t border-slate-200 pt-4 dark:border-slate-800 sm:flex-row sm:justify-between">
+          <div class="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
             <Button label="Hapus Bagian" icon="pi pi-trash" severity="danger" outlined class="w-full sm:w-auto" @click="confirmDeleteSection(section)" />
-            <Button label="Simpan Bagian" icon="pi pi-check" :loading="savingSectionKey === section.localKey" class="w-full sm:w-auto" @click="saveSection(section, index)" />
+            <div class="flex flex-col gap-2 sm:items-end">
+              <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                {{ sectionSaveStatus(section) }}
+              </p>
+              <Button label="Simpan Bagian" icon="pi pi-check" :loading="savingSectionKey === section.localKey" :disabled="!hasSectionChanges(section, index) || savingSectionKey === section.localKey" class="w-full sm:w-auto" @click="saveSection(section, index)" />
+            </div>
           </div>
         </div>
       </AdminSurface>
@@ -198,7 +219,7 @@ import AdminSurface from '~/components/admin/AdminSurface.vue'
 import InlineComponentTable from '~/components/admin/InlineComponentTable.vue'
 import EmptyState from '~/components/shared/EmptyState.vue'
 import { apiErrorMessage, apiFieldErrors, assignFieldErrors } from '~/utils/apiErrors'
-import { attachmentTypeFromMimeType, isAllowedUploadMimeType, normalizedUploadMimeType, uploadFile } from '~/utils/upload'
+import { attachmentTypeFromMimeType, isAllowedUploadMimeType, normalizedUploadMimeType, previewUrlForAttachment, uploadFile } from '~/utils/upload'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
@@ -239,6 +260,8 @@ const openLinkFormKey = ref('')
 const dragOverSectionKey = ref('')
 const uploadingSectionKey = ref('')
 const uploadProgress = reactive<Record<string, { current: number, total: number }>>({})
+const moduleSavedAt = ref<Date | null>(null)
+const sectionSavedAt = reactive<Record<string, Date>>({})
 const moduleForm = reactive({
   title: '',
   description: '',
@@ -253,6 +276,12 @@ const hasModuleChanges = computed(() => {
     || moduleForm.description !== (module.value.description || '')
     || moduleForm.keywords !== (module.value.keywords || '')
     || moduleForm.status !== module.value.status
+})
+const moduleSaveStatus = computed(() => {
+  if (savingModule.value) return 'Menyimpan perubahan...'
+  if (hasModuleChanges.value) return 'Ada perubahan yang belum disimpan.'
+  if (moduleSavedAt.value) return `Terakhir disimpan ${formatSaveTime(moduleSavedAt.value)}`
+  return 'Tidak ada perubahan.'
 })
 
 watch(module, syncForms, { immediate: true })
@@ -308,6 +337,7 @@ async function saveModule() {
   try {
     const { data } = await api.patch<LearningModule>(`/api/modules/${module.value.id}`, moduleForm)
     module.value = data
+    moduleSavedAt.value = new Date()
     toast.success('Tersimpan', { description: 'Modul diperbarui.' })
   } catch (error) {
     assignFieldErrors(moduleFieldErrors, apiFieldErrors(error))
@@ -340,12 +370,14 @@ function toggleSection(key: string) {
 
 async function saveSection(section: SectionForm, index: number) {
   if (!module.value?.id) return
+  if (!hasSectionChanges(section, index)) return
   savingSectionKey.value = section.localKey
   sectionErrors[section.localKey] = ''
   const body = sectionBody(section, index)
   try {
     if (section.id) await api.patch(`/api/details/${section.id}`, body)
     else await api.post(`/api/modules/${module.value.id}/details`, body)
+    sectionSavedAt[section.localKey] = new Date()
     await refresh()
     syncForms()
     toast.success('Tersimpan', { description: 'Bagian modul disimpan.' })
@@ -354,6 +386,21 @@ async function saveSection(section: SectionForm, index: number) {
   } finally {
     savingSectionKey.value = ''
   }
+}
+
+function sectionSaveStatus(section: SectionForm) {
+  if (savingSectionKey.value === section.localKey) return 'Menyimpan bagian...'
+  if (!section.id && hasNewSectionContent(section)) return 'Bagian baru akan dibuat saat disimpan.'
+  if (!section.id) return 'Isi bagian dulu untuk menyimpan.'
+  const sectionIndex = sectionForms.value.findIndex(item => item.localKey === section.localKey)
+  if (hasSectionChanges(section, sectionIndex)) return 'Ada perubahan yang belum disimpan.'
+  const savedAt = sectionSavedAt[section.localKey]
+  if (savedAt) return `Terakhir disimpan ${formatSaveTime(savedAt)}`
+  return 'Tidak ada perubahan.'
+}
+
+function formatSaveTime(value: Date) {
+  return value.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
 }
 
 function sectionBody(section: SectionForm, index: number) {
@@ -383,6 +430,42 @@ function sectionBody(section: SectionForm, index: number) {
     sortOrder: index,
     components,
   }
+}
+
+function hasSectionChanges(section: SectionForm, index: number) {
+  if (!section.id) return hasNewSectionContent(section)
+
+  const original = module.value?.details.find(detail => detail.id === section.id)
+  if (!original) return true
+
+  return JSON.stringify(sectionComparisonPayload(section, index)) !== JSON.stringify(detailComparisonPayload(original, index))
+}
+
+function hasNewSectionContent(section: SectionForm) {
+  return Boolean(
+    section.title.trim()
+    || section.summary.trim()
+    || section.keywords.trim()
+    || section.components.some(row => row.name?.trim() || row.category?.trim() || row.quantity?.trim() || row.unit?.trim() || row.note?.trim()),
+  )
+}
+
+function sectionComparisonPayload(section: SectionForm, index: number) {
+  return sectionBody(section, index)
+}
+
+function detailComparisonPayload(section: ModuleDetail, index: number) {
+  return sectionBody({
+    localKey: section.id || section.slug,
+    id: section.id,
+    title: section.title,
+    slug: section.slug,
+    summary: section.summary || '',
+    keywords: section.keywords || '',
+    sortOrder: section.sortOrder,
+    components: section.components.map((component, componentIndex) => ({ ...component, sortOrder: componentIndex })),
+    attachments: section.attachments,
+  }, index)
 }
 
 function sectionErrorMessage(error: unknown, fallback: string) {
@@ -417,27 +500,26 @@ function confirmDeleteSection(section: SectionForm) {
   })
 }
 
-async function addLink(section: SectionForm) {
-  if (!section.id) {
-    sectionErrors[section.localKey] = 'Simpan bagian ini dulu sebelum menambah lampiran.'
-    return
-  }
+async function addLink(section: SectionForm, index: number) {
   const form = linkForms[section.localKey]!
+  const targetSection = await ensureSectionSavedForAttachments(section, index, 'Gagal menyimpan bagian sebelum menambah link.')
+  if (!targetSection?.id) return
+
   try {
-    await api.post(`/api/details/${section.id}/attachments`, {
+    await api.post(`/api/details/${targetSection.id}/attachments`, {
       type: 'LINK',
       title: form.title,
       url: form.url,
-      sortOrder: section.attachments.length,
+      sortOrder: targetSection.attachments.length,
     })
     form.title = ''
     form.url = ''
-    if (openLinkFormKey.value === section.localKey) openLinkFormKey.value = ''
+    if (openLinkFormKey.value === section.localKey || openLinkFormKey.value === targetSection.localKey) openLinkFormKey.value = ''
     await refresh()
     syncForms()
     toast.success('Tersimpan', { description: 'Link ditambahkan.' })
   } catch (error) {
-    sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menambah link.')
+    sectionErrors[targetSection.localKey] = sectionErrorMessage(error, 'Gagal menambah link.')
   }
 }
 
@@ -554,7 +636,7 @@ async function uploadFiles(files: File[], section: SectionForm, index: number) {
   }
 }
 
-async function ensureSectionSavedForAttachments(section: SectionForm, index: number) {
+async function ensureSectionSavedForAttachments(section: SectionForm, index: number, fallbackMessage = 'Gagal menyimpan bagian sebelum upload.') {
   if (section.id) return section
   if (!module.value?.id) return null
 
@@ -581,7 +663,7 @@ async function ensureSectionSavedForAttachments(section: SectionForm, index: num
       components: data.components,
     }
   } catch (error) {
-    sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menyimpan bagian sebelum upload.')
+    sectionErrors[section.localKey] = sectionErrorMessage(error, fallbackMessage)
     return null
   } finally {
     savingSectionKey.value = ''
@@ -603,5 +685,11 @@ function confirmDeleteAttachment(attachment: Attachment) {
       toast.success('Terhapus', { description: 'Lampiran dihapus.' })
     },
   })
+}
+
+function fallbackAttachmentPreview(event: Event, attachment: Attachment) {
+  const image = event.currentTarget as HTMLImageElement | null
+  if (!image || image.src.endsWith(attachment.url)) return
+  image.src = attachment.url
 }
 </script>

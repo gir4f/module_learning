@@ -140,7 +140,7 @@ const logoSrc = '/module-assets/LogoGitronikPolos.png'
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
 const subtitle = computed(() => mode === 'admin' ? 'Kelola modul ajar' : 'Modul safety device')
-const authPending = computed(() => !auth.initialized && auth.pending)
+const authPending = computed(() => auth.pending)
 const authLabel = computed(() => {
   if (authPending.value) return '...'
   return auth.profile ? 'Logout' : 'Login'
@@ -192,11 +192,15 @@ onMounted(() => {
   }
   window.addEventListener('keydown', handleShortcut)
   window.addEventListener('keydown', closeOnEscape)
+  window.addEventListener('focus', refreshAuthState)
+  document.addEventListener('visibilitychange', refreshAuthState)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleShortcut)
   window.removeEventListener('keydown', closeOnEscape)
+  window.removeEventListener('focus', refreshAuthState)
+  document.removeEventListener('visibilitychange', refreshAuthState)
   document.documentElement.classList.remove('overflow-hidden')
 })
 
@@ -233,5 +237,10 @@ async function handleAuthAction() {
     return
   }
   await navigateTo('/login')
+}
+
+function refreshAuthState() {
+  if (document.visibilityState && document.visibilityState !== 'visible') return
+  void auth.fetchProfile()
 }
 </script>

@@ -1,5 +1,5 @@
 import { promises as fs } from 'node:fs'
-import { extname, resolve } from 'node:path'
+import { extname, relative, resolve } from 'node:path'
 
 export function previewFilePathFor(filePath: string) {
   const extension = extname(filePath)
@@ -9,7 +9,8 @@ export function previewFilePathFor(filePath: string) {
 
 export function uploadTargetPath(uploadRoot: string, filePath: string) {
   const targetPath = resolve(uploadRoot, filePath)
-  if (!targetPath.startsWith(uploadRoot)) return null
+  const relativePath = relative(uploadRoot, targetPath)
+  if (relativePath.startsWith('..') || relativePath === '' || relativePath.includes('..\\') || relativePath.includes('../')) return null
   return targetPath
 }
 

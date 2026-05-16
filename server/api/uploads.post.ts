@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs'
 import { extname, resolve } from 'node:path'
 import sharp from 'sharp'
 import { requireAdmin } from '../utils/auth'
-import { previewFilePathFor } from '../utils/uploads'
+import { previewFilePathFor, uploadTargetPath } from '../utils/uploads'
 
 const allowedMimeTypes = new Set([
   'image/jpeg',
@@ -81,9 +81,8 @@ export default defineEventHandler(async (event) => {
   const extension = extname(originalName)
   const baseName = sanitizeFileName(originalName.slice(0, originalName.length - extension.length))
   const fileName = `${Date.now()}-${baseName}${extension}`
-  const targetPath = resolve(uploadRoot, fileName)
-
-  if (!targetPath.startsWith(uploadRoot)) {
+  const targetPath = uploadTargetPath(uploadRoot, fileName)
+  if (!targetPath) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid upload path.' })
   }
 
@@ -93,8 +92,8 @@ export default defineEventHandler(async (event) => {
   let previewSizeBytes: number | undefined
   if (shouldGeneratePreview(mimeType)) {
     previewFilePath = previewFilePathFor(fileName)
-    const previewPath = resolve(uploadRoot, previewFilePath)
-    if (previewPath.startsWith(uploadRoot)) {
+    const previewPath = uploadTargetPath(uploadRoot, previewFilePath)
+    if (previewPath) {
       try {
         await sharp(file.data)
           .rotate()

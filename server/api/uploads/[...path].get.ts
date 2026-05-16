@@ -2,6 +2,7 @@ import { createError, defineEventHandler, getRouterParam, setHeader, sendStream 
 import { createReadStream } from 'node:fs'
 import { promises as fs } from 'node:fs'
 import { resolve } from 'node:path'
+import { uploadTargetPath } from '../../utils/uploads'
 
 const mimeTypes: Record<string, string> = {
   '.csv': 'text/csv',
@@ -24,8 +25,8 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig()
   const uploadRoot = resolve(config.uploadDir)
-  const targetPath = resolve(uploadRoot, filePath)
-  if (!targetPath.startsWith(uploadRoot)) {
+  const targetPath = uploadTargetPath(uploadRoot, filePath)
+  if (!targetPath) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid file path.' })
   }
 

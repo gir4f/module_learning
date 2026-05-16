@@ -44,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { toast } from 'vue-sonner'
 import AdminFieldGroup from '~/components/admin/AdminFieldGroup.vue'
 import AdminSurface from '~/components/admin/AdminSurface.vue'
 import { apiErrorMessage, apiFieldErrors, assignFieldErrors } from '~/utils/apiErrors'
@@ -73,6 +74,7 @@ async function saveModule() {
   assignFieldErrors(fieldErrors, {})
   try {
     const { data: module } = await api.post<{ id: string }>('/api/modules', form)
+    toast.success('Tersimpan', { description: 'Modul baru dibuat.' })
     await navigateTo(`/admin/modules/${module.id}`)
   } catch (error) {
     assignFieldErrors(fieldErrors, apiFieldErrors(error))
