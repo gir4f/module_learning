@@ -27,7 +27,15 @@
     </header>
 
     <!-- Mobile Drawer -->
-    <Drawer v-model:visible="drawerOpen" header="Admin" class="w-72! lg:hidden!" :pt="{ root: { class: 'dark:bg-slate-950' } }">
+    <Drawer v-model:visible="drawerOpen" class="w-72! lg:hidden!" :pt="{ root: { class: 'dark:bg-slate-950' }, header: { class: 'dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800' }, content: { class: 'dark:bg-slate-950' } }">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
+            <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
+          </span>
+          <span class="font-black text-brand-navy dark:text-cyan-200">Gitronik Admin</span>
+        </div>
+      </template>
       <div class="flex h-full flex-col justify-between py-4">
         <nav class="flex flex-col gap-2">
           <NuxtLink v-for="item in navItems" :key="item.to" :to="item.to" class="flex items-center gap-3 rounded-xl px-4 py-3 font-bold transition-colors" :class="isActive(item.to) ? 'bg-brand-teal/10 text-brand-teal dark:bg-cyan-900/20 dark:text-cyan-300' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900'" @click="drawerOpen = false">
@@ -50,7 +58,7 @@
         <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
           <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
         </span>
-        <span class="font-black text-brand-navy dark:text-cyan-200">Admin</span>
+        <span class="font-black text-brand-navy dark:text-cyan-200">Gitronik Admin</span>
       </div>
       
       <div class="flex flex-1 flex-col justify-between overflow-y-auto p-4">
@@ -83,7 +91,7 @@ const route = useRoute()
 const auth = useAuthStore()
 const { isDark, init, toggle: toggleDark } = useDarkMode()
 const drawerOpen = ref(false)
-const logoSrc = '/module-assets/LogoGitronikPolos.png'
+const logoSrc = '/module-assets/LogoGitronikPolosNoBG.png'
 
 const navItems = [
   { label: 'Modul Ajar', to: '/admin/modules', icon: 'pi pi-book' },
