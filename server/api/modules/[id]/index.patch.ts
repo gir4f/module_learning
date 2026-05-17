@@ -2,6 +2,7 @@ import { defineEventHandler, getRouterParam, readBody } from 'h3'
 import { modulePayloadSchema } from '../../../../app/utils/validation'
 import { requireAdmin } from '../../../utils/auth'
 import { validationError } from '../../../utils/apiError'
+import { invalidateModuleCache } from '../../../utils/cache'
 import { moduleInclude, prisma } from '../../../utils/prisma'
 import { uniqueSlug } from '../../../utils/slug'
 
@@ -21,9 +22,11 @@ export default defineEventHandler(async (event) => {
       }, 'module')
     : undefined
 
-  return prisma.module.update({
+  const module = await prisma.module.update({
     where: { id },
     data: slug ? { ...moduleData, slug } : moduleData,
     include: moduleInclude,
   })
+  await invalidateModuleCache()
+  return module
 })

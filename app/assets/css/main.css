@@ -75,6 +75,15 @@ html.dark::-webkit-scrollbar-thumb {
   border-color: #020617;
 }
 
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
 html:has(> body.app-shell-learning.p-overflow-hidden) {
   background: #606264;
   scrollbar-gutter: auto;
@@ -598,10 +607,13 @@ summary::-webkit-details-marker {
   body {
     background: #fff;
     color: #000;
+    font-size: 11pt;
   }
 
   header,
   footer,
+  nav,
+  aside,
   .no-print {
     display: none !important;
   }
@@ -611,6 +623,7 @@ summary::-webkit-details-marker {
   section {
     max-width: none !important;
     box-shadow: none !important;
+    border: none !important;
   }
 
   article {
@@ -618,18 +631,52 @@ summary::-webkit-details-marker {
     padding: 0 !important;
   }
 
+  .grid {
+    display: block !important;
+  }
+
   table {
     border-collapse: collapse !important;
     width: 100% !important;
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
   }
 
   th,
   td {
     border: 1px solid #94a3b8 !important;
+    padding: 6px 10px !important;
   }
 
   section[id] {
     break-before: page;
     page-break-before: always;
+  }
+
+  section[id]:first-of-type {
+    break-before: auto;
+    page-break-before: auto;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
   }
 }

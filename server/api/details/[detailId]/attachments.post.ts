@@ -2,6 +2,7 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import { attachmentPayloadSchema } from '../../../../app/utils/validation'
 import { requireAdmin } from '../../../utils/auth'
 import { validationError } from '../../../utils/apiError'
+import { invalidateModuleCache } from '../../../utils/cache'
 import { prisma } from '../../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
@@ -15,10 +16,12 @@ export default defineEventHandler(async (event) => {
 
   if (!parsed.success) throw validationError(parsed.error)
 
-  return prisma.attachment.create({
+  const attachment = await prisma.attachment.create({
     data: {
       ...parsed.data,
       detailId,
     },
   })
+  await invalidateModuleCache()
+  return attachment
 })

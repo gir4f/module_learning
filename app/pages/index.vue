@@ -54,14 +54,19 @@
     <ModuleLibrary
       v-model="search"
       class="mt-6"
-      :modules="filteredModules"
-      :total-count="modules.length"
+      :modules="paginatedModules"
+      :total-count="sortedModules.length"
       :active-category="activeCategory"
+      :sort="sort"
+      :page="page"
+      :rows="rows"
       :pending="pending"
       :error="error"
       :show-search="false"
       @clear="clearFilters"
+      @update:page="page = $event"
       @update:category="activeCategory = $event"
+      @update:sort="sort = $event"
     />
   </PageShell>
 </template>
@@ -70,11 +75,14 @@
 import type { LearningModule } from '~/types/learning'
 import ModuleLibrary from '~/components/learning/ModuleLibrary.vue'
 import PageShell from '~/components/shared/PageShell.vue'
-import { moduleCategory, type ModuleCategory } from '~/utils/moduleUi'
+import { moduleCategory, sortModules, type ModuleCategory, type ModuleSort } from '~/utils/moduleUi'
 
 const search = useState('learning-module-local-search', () => '')
 const debouncedSearch = ref(search.value)
 const activeCategory = ref<ModuleCategory>('semua')
+const sort = ref<ModuleSort>('default')
+const page = ref(1)
+const rows = 15
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(search, (value) => {
@@ -82,6 +90,10 @@ watch(search, (value) => {
   searchTimer = setTimeout(() => {
     debouncedSearch.value = value
   }, 200)
+})
+
+watch([debouncedSearch, activeCategory, sort], () => {
+  page.value = 1
 })
 
 const api = useApiClient()
@@ -100,6 +112,11 @@ const filteredModules = computed(() => {
   if (activeCategory.value === 'semua') return modules.value
   return modules.value.filter((module) => moduleCategory(module) === activeCategory.value)
 })
+const sortedModules = computed(() => sortModules(filteredModules.value, sort.value))
+const paginatedModules = computed(() => {
+  const first = (page.value - 1) * rows
+  return sortedModules.value.slice(first, first + rows)
+})
 const sectionCount = computed(() => modules.value.reduce((total, module) => total + module.details.length, 0))
 const attachmentCount = computed(() => modules.value.reduce((total, module) => {
   return total + module.details.reduce((subtotal, detail) => subtotal + detail.attachments.length, 0)
@@ -117,6 +134,7 @@ useHead({
 function clearFilters() {
   search.value = ''
   activeCategory.value = 'semua'
+  page.value = 1
 }
 
 useSeoMeta({

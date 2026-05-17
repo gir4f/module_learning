@@ -131,9 +131,12 @@
             />
             <div v-if="section.attachments.length" v-auto-animate="{ duration: 160, easing: 'ease-in-out' }" class="grid gap-2">
               <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 p-3 shadow-sm dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-                <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 items-center gap-3 rounded-lg font-bold text-brand-teal hover:underline focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:focus-visible:ring-cyan-950" :aria-label="attachmentActionLabel(attachment)">
+                <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 items-center gap-3 rounded-lg font-bold text-brand-teal hover:underline focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:focus-visible:ring-cyan-950" :aria-label="attachmentActionLabel(attachment)" @click="handleAttachmentOpen($event, attachment)">
+                  <span v-if="isPdfAttachment(attachment)" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-500 dark:bg-red-950/40">
+                    <i class="pi pi-file-pdf" aria-hidden="true" />
+                  </span>
                   <img
-                    v-if="attachment.type === 'IMAGE'"
+                    v-else-if="attachment.type === 'IMAGE'"
                     :src="previewUrlForAttachment(attachment)"
                     :alt="attachment.title"
                     class="h-12 w-16 shrink-0 rounded-lg bg-slate-100 object-cover dark:bg-slate-800"
@@ -229,6 +232,12 @@
       <Button label="Kembali ke Daftar Modul" icon="pi pi-arrow-left" @click="navigateTo('/admin/modules')" />
     </EmptyState>
   </AdminSurface>
+
+  <PdfPreviewModal
+    :url="pdfPreviewAttachment?.url || null"
+    :title="pdfPreviewAttachment?.title"
+    @close="pdfPreviewAttachment = null"
+  />
 </template>
 
 <script setup lang="ts">
@@ -241,7 +250,9 @@ import AdminSurface from '~/components/admin/AdminSurface.vue'
 import InlineComponentTable from '~/components/admin/InlineComponentTable.vue'
 import EmptyState from '~/components/shared/EmptyState.vue'
 import { apiErrorMessage, apiFieldErrors, assignFieldErrors } from '~/utils/apiErrors'
-import { attachmentTypeFromMimeType, isAllowedUploadMimeType, normalizedUploadMimeType, previewUrlForAttachment, uploadFile } from '~/utils/upload'
+import { attachmentTypeFromMimeType, isAllowedUploadMimeType, isPdfAttachment, normalizedUploadMimeType, previewUrlForAttachment, uploadFile } from '~/utils/upload'
+
+const PdfPreviewModal = defineAsyncComponent(() => import('~/components/shared/PdfPreviewModal.vue'))
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
@@ -281,6 +292,7 @@ const linkForms = reactive<Record<string, { title: string, url: string }>>({})
 const openLinkFormKey = ref('')
 const dragOverSectionKey = ref('')
 const uploadingSectionKey = ref('')
+const pdfPreviewAttachment = ref<Attachment | null>(null)
 const uploadProgress = reactive<Record<string, { current: number, total: number }>>({})
 const lastUploadStatus = reactive<Record<string, { ok: boolean, message: string }>>({})
 const moduleSavedAt = ref<Date | null>(null)
@@ -557,13 +569,31 @@ function confirmDeleteSection(section: SectionForm) {
     acceptProps: { label: 'Hapus', severity: 'danger', size: 'small' },
     rejectProps: { label: 'Batal', severity: 'secondary', outlined: true, size: 'small' },
     accept: async () => {
-      if (section.id) await api.delete(`/api/details/${section.id}`)
-      else sectionForms.value = sectionForms.value.filter(item => item.localKey !== section.localKey)
+      if (!section.id) {
+        removeLocalSection(section.localKey)
+        toast.success('Terhapus', { description: 'Bagian draft dihapus.' })
+        return
+      }
+
+      await api.delete(`/api/details/${section.id}`)
       await refresh()
       syncForms()
       toast.success('Terhapus', { description: 'Bagian modul dihapus.' })
     },
   })
+}
+
+function removeLocalSection(localKey: string) {
+  sectionForms.value = sectionForms.value.filter(item => item.localKey !== localKey)
+  expandedSections.value.delete(localKey)
+  delete sectionErrors[localKey]
+  delete sectionSavedAt[localKey]
+  delete lastUploadStatus[localKey]
+  delete uploadProgress[localKey]
+  delete linkForms[localKey]
+  if (openLinkFormKey.value === localKey) openLinkFormKey.value = ''
+  if (dragOverSectionKey.value === localKey) dragOverSectionKey.value = ''
+  if (uploadingSectionKey.value === localKey) uploadingSectionKey.value = ''
 }
 
 async function addLink(section: SectionForm, index: number) {
@@ -799,8 +829,15 @@ function attachmentTypeLabel(attachment: Attachment) {
 }
 
 function attachmentActionLabel(attachment: Attachment) {
+  if (isPdfAttachment(attachment)) return `Preview PDF ${attachment.title}`
   if (attachment.type === 'IMAGE') return `Buka preview gambar ${attachment.title}`
   return `Buka file lampiran ${attachment.title}`
+}
+
+function handleAttachmentOpen(event: MouseEvent, attachment: Attachment) {
+  if (!isPdfAttachment(attachment)) return
+  event.preventDefault()
+  pdfPreviewAttachment.value = attachment
 }
 
 function formatBytes(bytes: number) {

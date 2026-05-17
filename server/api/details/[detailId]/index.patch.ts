@@ -2,6 +2,7 @@ import { defineEventHandler, getRouterParam, readBody } from 'h3'
 import { detailPayloadSchema } from '../../../../app/utils/validation'
 import { requireAdmin } from '../../../utils/auth'
 import { validationError } from '../../../utils/apiError'
+import { invalidateModuleCache } from '../../../utils/cache'
 import { prisma } from '../../../utils/prisma'
 import { uniqueSlug } from '../../../utils/slug'
 
@@ -15,7 +16,7 @@ export default defineEventHandler(async (event) => {
   const payload = parsed.data
   const { slug: requestedSlug, ...detailData } = payload
 
-  return prisma.$transaction(async (tx) => {
+  const detail = await prisma.$transaction(async (tx) => {
     const currentDetail = requestedSlug
       ? await tx.moduleDetail.findUnique({ where: { id: detailId }, select: { moduleId: true } })
       : null
@@ -50,4 +51,6 @@ export default defineEventHandler(async (event) => {
       },
     })
   })
+  await invalidateModuleCache()
+  return detail
 })

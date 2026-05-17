@@ -2,6 +2,7 @@ import { defineEventHandler, readBody } from 'h3'
 import { modulePayloadSchema } from '../../../app/utils/validation'
 import { requireAdmin } from '../../utils/auth'
 import { validationError } from '../../utils/apiError'
+import { invalidateModuleCache } from '../../utils/cache'
 import { moduleInclude, prisma } from '../../utils/prisma'
 import { uniqueSlug } from '../../utils/slug'
 
@@ -17,11 +18,13 @@ export default defineEventHandler(async (event) => {
     return Boolean(existing)
   }, 'module')
 
-  return prisma.module.create({
+  const module = await prisma.module.create({
     data: {
       ...payload,
       slug,
     },
     include: moduleInclude,
   })
+  await invalidateModuleCache()
+  return module
 })

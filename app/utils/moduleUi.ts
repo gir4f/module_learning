@@ -1,6 +1,7 @@
 import type { LearningModule } from '~/types/learning'
 
 export type ModuleCategory = 'semua' | 'device' | 'kabel' | 'aksesori' | 'sop'
+export type ModuleSort = 'default' | 'newest' | 'oldest' | 'alpha'
 
 export const categoryTabs: Array<{ label: string, value: ModuleCategory }> = [
   { label: 'Semua', value: 'semua' },
@@ -9,6 +10,27 @@ export const categoryTabs: Array<{ label: string, value: ModuleCategory }> = [
   { label: 'Aksesori', value: 'aksesori' },
   { label: 'SOP', value: 'sop' },
 ]
+
+export const moduleSortOptions: Array<{ label: string, value: ModuleSort }> = [
+  { label: 'Default', value: 'default' },
+  { label: 'Newest', value: 'newest' },
+  { label: 'Oldest', value: 'oldest' },
+  { label: 'A-Z', value: 'alpha' },
+]
+
+export function sortModules(modules: LearningModule[], sort: ModuleSort) {
+  const sorted = [...modules]
+  if (sort === 'newest') {
+    return sorted.sort((a, b) => dateValue(b.updatedAt || b.createdAt) - dateValue(a.updatedAt || a.createdAt) || a.title.localeCompare(b.title))
+  }
+  if (sort === 'oldest') {
+    return sorted.sort((a, b) => dateValue(a.updatedAt || a.createdAt) - dateValue(b.updatedAt || b.createdAt) || a.title.localeCompare(b.title))
+  }
+  if (sort === 'alpha') {
+    return sorted.sort((a, b) => a.title.localeCompare(b.title))
+  }
+  return sorted
+}
 
 export function moduleCategory(module: LearningModule): Exclude<ModuleCategory, 'semua'> {
   const text = [module.slug, module.title, module.keywords, module.description].join(' ').toLowerCase()
@@ -41,4 +63,10 @@ export function moduleIcon(module: LearningModule) {
   if (text.includes('alur')) return 'pi pi-sitemap'
   if (text.includes('gyro') || text.includes('imu')) return 'pi pi-compass'
   return 'pi pi-cog'
+}
+
+function dateValue(value?: string | null) {
+  if (!value) return 0
+  const timestamp = new Date(value).getTime()
+  return Number.isFinite(timestamp) ? timestamp : 0
 }

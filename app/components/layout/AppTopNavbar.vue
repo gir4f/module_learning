@@ -172,80 +172,82 @@
       @auth-action="handleAuthAction"
     />
 
-    <div
-      v-if="commandOpen"
-      class="fixed inset-0 z-50 flex items-start justify-center bg-slate-950/25 px-4 pt-20 backdrop-blur-[2px] sm:pt-24"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Command palette pencarian modul"
-      @click.self="closeCommandPalette"
-    >
-      <section class="w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-950/20 dark:border-slate-800 dark:bg-slate-950">
-        <label class="sr-only" for="command-module-search">Cari modul</label>
-        <div class="border-b border-slate-200 p-3 dark:border-slate-800">
-          <div class="flex items-center gap-3 rounded-xl border border-slate-300 bg-slate-50 px-3 focus-within:border-brand-teal focus-within:ring-4 focus-within:ring-cyan-100 dark:border-slate-700 dark:bg-slate-900 dark:focus-within:border-cyan-400 dark:focus-within:ring-cyan-950">
-            <i class="pi pi-search text-slate-400" aria-hidden="true" />
-            <input
-              id="command-module-search"
-              ref="commandInput"
-              v-model="query"
-              type="text"
-              role="searchbox"
-              class="min-w-0 flex-1 bg-transparent py-3 text-base font-semibold text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
-              placeholder="Cari modul, komponen, atau produk..."
-              autocomplete="off"
-              @keydown.down.prevent="moveCommandSelection(1)"
-              @keydown.up.prevent="moveCommandSelection(-1)"
-              @keydown.enter.prevent="openSelectedSuggestion"
-              @keydown.escape.prevent="closeCommandPalette"
+    <Teleport to="body">
+      <div
+        v-if="commandOpen"
+        class="fixed inset-0 z-50 flex items-start justify-center bg-slate-950/25 px-4 pt-20 backdrop-blur-[2px] sm:pt-24"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette pencarian modul"
+        @click.self="closeCommandPalette"
+      >
+        <section class="w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-950/20 dark:border-slate-800 dark:bg-slate-950">
+          <label class="sr-only" for="command-module-search">Cari modul</label>
+          <div class="border-b border-slate-200 p-3 dark:border-slate-800">
+            <div class="flex items-center gap-3 rounded-xl border border-slate-300 bg-slate-50 px-3 focus-within:border-brand-teal focus-within:ring-4 focus-within:ring-cyan-100 dark:border-slate-700 dark:bg-slate-900 dark:focus-within:border-cyan-400 dark:focus-within:ring-cyan-950">
+              <i class="pi pi-search text-slate-400" aria-hidden="true" />
+              <input
+                id="command-module-search"
+                ref="commandInput"
+                v-model="query"
+                type="text"
+                role="searchbox"
+                class="min-w-0 flex-1 bg-transparent py-3 text-base font-semibold text-slate-900 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
+                placeholder="Cari modul, komponen, atau produk..."
+                autocomplete="off"
+                @keydown.down.prevent="moveCommandSelection(1)"
+                @keydown.up.prevent="moveCommandSelection(-1)"
+                @keydown.enter.prevent="openSelectedSuggestion"
+                @keydown.escape.prevent="closeCommandPalette"
+              >
+              <button type="button" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:focus-visible:ring-cyan-950" aria-label="Tutup pencarian" @click="closeCommandPalette">
+                <i class="pi pi-times" aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+          <div class="max-h-[55vh] overflow-y-auto p-2">
+            <NuxtLink
+              v-for="(module, index) in suggestions"
+              :key="module.slug"
+              :to="moduleTarget(module)"
+              class="flex items-center justify-between gap-4 rounded-xl px-3 py-3 text-sm transition hover:bg-slate-100 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:hover:bg-slate-800 dark:focus-visible:ring-cyan-950"
+              :class="activeSuggestionIndex === index ? 'bg-cyan-50 dark:bg-cyan-950/30' : ''"
+              @mouseenter="activeSuggestionIndex = index"
+              @click="closeCommandPalette"
             >
-            <button type="button" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:focus-visible:ring-cyan-950" aria-label="Tutup pencarian" @click="closeCommandPalette">
-              <i class="pi pi-times" aria-hidden="true" />
-            </button>
+              <span class="min-w-0">
+                <span class="block truncate font-black text-brand-navy dark:text-cyan-200">
+                  <template v-for="(part, partIndex) in highlightParts(module.title)" :key="`${module.slug}-command-title-${partIndex}`">
+                    <mark v-if="part.hit" class="rounded bg-cyan-100 px-0.5 text-brand-navy dark:bg-cyan-900/70 dark:text-cyan-100">{{ part.text }}</mark>
+                    <span v-else>{{ part.text }}</span>
+                  </template>
+                </span>
+                <span class="mt-1 block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  <template v-for="(part, partIndex) in highlightParts(module.slug)" :key="`${module.slug}-command-slug-${partIndex}`">
+                    <mark v-if="part.hit" class="rounded bg-cyan-100 px-0.5 text-brand-navy dark:bg-cyan-900/70 dark:text-cyan-100">{{ part.text }}</mark>
+                    <span v-else>{{ part.text }}</span>
+                  </template>
+                </span>
+                <span v-if="module.description || module.keywords" class="mt-2 block truncate text-xs leading-5 text-slate-500 dark:text-slate-400">
+                  <template v-for="(part, partIndex) in highlightParts(module.description || module.keywords || '')" :key="`${module.slug}-command-meta-${partIndex}`">
+                    <mark v-if="part.hit" class="rounded bg-cyan-100 px-0.5 text-brand-navy dark:bg-cyan-900/70 dark:text-cyan-100">{{ part.text }}</mark>
+                    <span v-else>{{ part.text }}</span>
+                  </template>
+                </span>
+              </span>
+              <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }} bagian</span>
+            </NuxtLink>
+            <p v-if="isSearchBusy" class="px-3 py-6 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">Mencari modul...</p>
+            <p v-else-if="searchError" class="px-3 py-6 text-center text-sm font-semibold text-red-600 dark:text-red-300">{{ searchError }}</p>
+            <p v-else-if="query && !suggestions.length" class="px-3 py-6 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">Tidak ada modul ditemukan.</p>
+            <div v-else class="px-3 py-6 text-center">
+              <p class="text-sm font-black text-slate-700 dark:text-slate-200">Cari modul global</p>
+              <p class="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-400">Ketik judul, slug, komponen, atau kata kunci modul.</p>
+            </div>
           </div>
-        </div>
-        <div class="max-h-[55vh] overflow-y-auto p-2">
-          <NuxtLink
-            v-for="(module, index) in suggestions"
-            :key="module.slug"
-            :to="moduleTarget(module)"
-            class="flex items-center justify-between gap-4 rounded-xl px-3 py-3 text-sm transition hover:bg-slate-100 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:hover:bg-slate-800 dark:focus-visible:ring-cyan-950"
-            :class="activeSuggestionIndex === index ? 'bg-cyan-50 dark:bg-cyan-950/30' : ''"
-            @mouseenter="activeSuggestionIndex = index"
-            @click="closeCommandPalette"
-          >
-            <span class="min-w-0">
-              <span class="block truncate font-black text-brand-navy dark:text-cyan-200">
-                <template v-for="(part, partIndex) in highlightParts(module.title)" :key="`${module.slug}-command-title-${partIndex}`">
-                  <mark v-if="part.hit" class="rounded bg-cyan-100 px-0.5 text-brand-navy dark:bg-cyan-900/70 dark:text-cyan-100">{{ part.text }}</mark>
-                  <span v-else>{{ part.text }}</span>
-                </template>
-              </span>
-              <span class="mt-1 block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
-                <template v-for="(part, partIndex) in highlightParts(module.slug)" :key="`${module.slug}-command-slug-${partIndex}`">
-                  <mark v-if="part.hit" class="rounded bg-cyan-100 px-0.5 text-brand-navy dark:bg-cyan-900/70 dark:text-cyan-100">{{ part.text }}</mark>
-                  <span v-else>{{ part.text }}</span>
-                </template>
-              </span>
-              <span v-if="module.description || module.keywords" class="mt-2 block truncate text-xs leading-5 text-slate-500 dark:text-slate-400">
-                <template v-for="(part, partIndex) in highlightParts(module.description || module.keywords || '')" :key="`${module.slug}-command-meta-${partIndex}`">
-                  <mark v-if="part.hit" class="rounded bg-cyan-100 px-0.5 text-brand-navy dark:bg-cyan-900/70 dark:text-cyan-100">{{ part.text }}</mark>
-                  <span v-else>{{ part.text }}</span>
-                </template>
-              </span>
-            </span>
-            <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }} bagian</span>
-          </NuxtLink>
-          <p v-if="isSearchBusy" class="px-3 py-6 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">Mencari modul...</p>
-          <p v-else-if="searchError" class="px-3 py-6 text-center text-sm font-semibold text-red-600 dark:text-red-300">{{ searchError }}</p>
-          <p v-else-if="query && !suggestions.length" class="px-3 py-6 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">Tidak ada modul ditemukan.</p>
-          <div v-else class="px-3 py-6 text-center">
-            <p class="text-sm font-black text-slate-700 dark:text-slate-200">Cari modul global</p>
-            <p class="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-400">Ketik judul, slug, komponen, atau kata kunci modul.</p>
-          </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </Teleport>
   </header>
 </template>
 

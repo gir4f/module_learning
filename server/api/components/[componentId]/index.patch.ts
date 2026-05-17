@@ -2,6 +2,7 @@ import { defineEventHandler, getRouterParam, readBody } from 'h3'
 import { z } from 'zod'
 import { requireAdmin } from '../../../utils/auth'
 import { validationError } from '../../../utils/apiError'
+import { invalidateModuleCache } from '../../../utils/cache'
 import { prisma } from '../../../utils/prisma'
 
 const componentPayloadSchema = z.object({
@@ -20,8 +21,10 @@ export default defineEventHandler(async (event) => {
 
   if (!parsed.success) throw validationError(parsed.error)
 
-  return prisma.componentItem.update({
+  const component = await prisma.componentItem.update({
     where: { id: componentId },
     data: parsed.data,
   })
+  await invalidateModuleCache()
+  return component
 })

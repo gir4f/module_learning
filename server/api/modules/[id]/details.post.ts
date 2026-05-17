@@ -2,6 +2,7 @@ import { createError, defineEventHandler, getRouterParam, readBody } from 'h3'
 import { detailPayloadSchema } from '../../../../app/utils/validation'
 import { requireAdmin } from '../../../utils/auth'
 import { validationError } from '../../../utils/apiError'
+import { invalidateModuleCache } from '../../../utils/cache'
 import { prisma } from '../../../utils/prisma'
 import { uniqueSlug } from '../../../utils/slug'
 
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event) => {
     return Boolean(existing)
   }, 'section')
 
-  return prisma.moduleDetail.create({
+  const detail = await prisma.moduleDetail.create({
     data: {
       moduleId,
       slug,
@@ -42,4 +43,6 @@ export default defineEventHandler(async (event) => {
       attachments: { orderBy: { sortOrder: 'asc' } },
     },
   })
+  await invalidateModuleCache()
+  return detail
 })

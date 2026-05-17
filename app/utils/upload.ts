@@ -67,6 +67,10 @@ export function previewUrlForAttachment(attachment: Attachment) {
   return `/api/uploads/${encodeURIComponent(previewFilePathFor(attachment.filePath))}`
 }
 
+export function isPdfAttachment(attachment: Attachment) {
+  return attachment.mimeType === 'application/pdf' || attachment.url.toLowerCase().endsWith('.pdf')
+}
+
 type UploadResponse = {
   url: string
   filePath: string

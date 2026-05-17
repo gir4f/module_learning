@@ -1,5 +1,6 @@
 <template>
-  <article class="mx-auto max-w-[88rem] overflow-hidden px-4 pb-24 pt-6 text-slate-900 dark:text-slate-100 sm:px-6 sm:pb-6 lg:px-8">
+  <article class="mx-auto max-w-[88rem] overflow-x-clip px-4 pb-24 pt-6 text-slate-900 dark:text-slate-100 sm:px-6 sm:pb-6 lg:px-8">
+    <PrintHeader :module="module" />
     <!-- Breadcrumbs above the grid so all 3 columns start at the same level -->
     <nav class="mb-5 text-sm text-slate-500 dark:text-slate-400 no-print" aria-label="Breadcrumb">
       <NuxtLink to="/" class="font-semibold hover:text-brand-navy dark:hover:text-white">Beranda</NuxtLink>
@@ -8,7 +9,7 @@
     </nav>
 
     <!-- 3-column grid: all columns start at the same vertical position -->
-    <div class="grid items-start gap-6 lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[230px_minmax(0,1fr)_280px] 2xl:grid-cols-[250px_minmax(0,1fr)_300px]">
+    <div class="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[230px_minmax(0,1fr)_280px] 2xl:grid-cols-[250px_minmax(0,1fr)_300px]">
       <aside class="hidden lg:block lg:z-20">
         <div class="sticky top-24">
           <SectionNav :details="module.details" />
@@ -56,7 +57,7 @@
         </section>
       </div>
 
-      <aside class="hidden xl:block">
+      <aside class="hidden xl:block self-start">
         <div class="sticky top-24 space-y-4 no-print">
           <section class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">Ringkasan modul</h2>
@@ -124,6 +125,7 @@ import type { Attachment, LearningModule } from '~/types/learning'
 import AttachmentList from '~/components/learning/AttachmentList.vue'
 import ComponentTable from '~/components/learning/ComponentTable.vue'
 import DocumentHeader from '~/components/learning/DocumentHeader.vue'
+import PrintHeader from '~/components/learning/PrintHeader.vue'
 import SectionNav from '~/components/learning/SectionNav.vue'
 
 const { module } = defineProps<{

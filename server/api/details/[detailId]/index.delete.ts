@@ -1,5 +1,6 @@
 import { defineEventHandler, getRouterParam } from 'h3'
 import { requireAdmin } from '../../../utils/auth'
+import { invalidateModuleCache } from '../../../utils/cache'
 import { prisma } from '../../../utils/prisma'
 import { deleteUploadedFileWithPreview } from '../../../utils/uploads'
 
@@ -23,5 +24,6 @@ export default defineEventHandler(async (event) => {
     }
   }
 
+  await invalidateModuleCache()
   return { ok: true }
 })

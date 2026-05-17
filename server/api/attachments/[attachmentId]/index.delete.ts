@@ -1,6 +1,7 @@
 import { defineEventHandler, getRouterParam } from 'h3'
 import { resolve } from 'node:path'
 import { requireAdmin } from '../../../utils/auth'
+import { invalidateModuleCache } from '../../../utils/cache'
 import { prisma } from '../../../utils/prisma'
 import { deleteUploadedFileWithPreview } from '../../../utils/uploads'
 
@@ -17,5 +18,6 @@ export default defineEventHandler(async (event) => {
     await deleteUploadedFileWithPreview(uploadRoot, attachment.filePath)
   }
 
+  await invalidateModuleCache()
   return { ok: true }
 })

@@ -22,6 +22,16 @@
             @error="fallbackToOriginal($event, attachment)"
           />
         </button>
+        <button
+          v-else-if="isPdfAttachment(attachment)"
+          type="button"
+          class="flex aspect-4/3 w-full flex-col items-center justify-center gap-3 rounded-md bg-slate-50 px-4 text-center text-red-500 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:bg-slate-800 dark:focus-visible:ring-cyan-950"
+          :aria-label="`Preview PDF ${attachment.title}`"
+          @click="pdfPreviewAttachment = attachment"
+        >
+          <i class="pi pi-file-pdf text-3xl" aria-hidden="true" />
+          <span class="max-w-full truncate text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-300">Preview PDF</span>
+        </button>
         <a
           v-else
           :href="attachment.url"
@@ -56,19 +66,26 @@
     </div>
 
     <ImageLightbox :image="lightboxAttachment" @close="lightboxAttachment = null" />
+    <PdfPreviewModal
+      :url="pdfPreviewAttachment?.url || null"
+      :title="pdfPreviewAttachment?.title"
+      @close="pdfPreviewAttachment = null"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Attachment } from '~/types/learning'
-import { previewUrlForAttachment } from '~/utils/upload'
+import { isPdfAttachment, previewUrlForAttachment } from '~/utils/upload'
 const ImageLightbox = defineAsyncComponent(() => import('~/components/shared/ImageLightbox.vue'))
+const PdfPreviewModal = defineAsyncComponent(() => import('~/components/shared/PdfPreviewModal.vue'))
 
 const { attachments } = defineProps<{
   attachments: Attachment[]
 }>()
 
 const lightboxAttachment = ref<Attachment | null>(null)
+const pdfPreviewAttachment = ref<Attachment | null>(null)
 const sortedAttachments = computed(() => [...attachments].sort((a, b) => a.sortOrder - b.sortOrder))
 
 function iconFor(type: string) {
