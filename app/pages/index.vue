@@ -23,9 +23,9 @@
             <div class="relative flex items-center bg-white rounded-xl">
               <i class="pi pi-search absolute left-5 text-slate-400" aria-hidden="true" />
               <input
-                ref="heroSearchInput"
                 v-model="search"
-                type="search"
+                type="text"
+                role="searchbox"
                 class="w-full flex-1 rounded-xl border-0 bg-transparent py-4 pl-12 pr-12 text-base font-medium text-slate-900 outline-none focus:ring-0 placeholder:text-slate-400"
                 placeholder="Cari modul, produk, atau komponen..."
                 aria-label="Cari modul"
@@ -33,13 +33,12 @@
               <button
                 v-if="search"
                 type="button"
-                class="absolute right-4 rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 sm:right-20"
+                class="absolute right-4 rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100"
                 aria-label="Bersihkan pencarian"
                 @click="search = ''"
               >
                 <i class="pi pi-times" aria-hidden="true" />
               </button>
-              <kbd class="absolute right-4 hidden rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-bold text-slate-500 sm:block">Ctrl K</kbd>
             </div>
           </div>
         </div>
@@ -73,10 +72,9 @@ import ModuleLibrary from '~/components/learning/ModuleLibrary.vue'
 import PageShell from '~/components/shared/PageShell.vue'
 import { moduleCategory, type ModuleCategory } from '~/utils/moduleUi'
 
-const search = ref('')
-const debouncedSearch = ref('')
+const search = useState('learning-module-local-search', () => '')
+const debouncedSearch = ref(search.value)
 const activeCategory = ref<ModuleCategory>('semua')
-const heroSearchInput = useTemplateRef<HTMLInputElement>('heroSearchInput')
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(search, (value) => {
@@ -115,21 +113,6 @@ const heroStats = computed(() => [
 useHead({
   title: 'Modul Ajar - PT. Gitronik Dimindo Indonesia',
 })
-
-onMounted(() => {
-  window.addEventListener('keydown', focusShortcut)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', focusShortcut)
-})
-
-function focusShortcut(event: KeyboardEvent) {
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-    event.preventDefault()
-    heroSearchInput.value?.focus()
-  }
-}
 
 function clearFilters() {
   search.value = ''

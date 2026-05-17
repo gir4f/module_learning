@@ -17,15 +17,32 @@
 
       <div class="min-w-0 space-y-5">
         <DocumentHeader :module="module" />
+        <details class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:hidden">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-black text-slate-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:text-slate-100 dark:focus-visible:ring-cyan-950">
+            <span>Daftar isi</span>
+            <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }}</span>
+          </summary>
+          <ol class="mt-3 grid gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+            <li v-for="detail in module.details" :key="detail.slug">
+              <a
+                :href="`#${detail.slug}`"
+                class="flex items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-brand-navy focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-cyan-200 dark:focus-visible:ring-cyan-950"
+              >
+                <span class="min-w-0 truncate">{{ detail.title }}</span>
+                <span class="shrink-0 text-xs text-slate-500 dark:text-slate-400">{{ detail.components.length }}</span>
+              </a>
+            </li>
+          </ol>
+        </details>
         <section
           v-for="detail in module.details"
           :id="detail.slug"
           :key="detail.slug"
-          class="scroll-mt-28 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+          class="scroll-mt-28 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6 lg:scroll-mt-32"
         >
           <div class="mb-5">
-            <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ detail.title }}</h2>
-            <p v-if="detail.summary" class="mt-2 max-w-4xl text-base leading-relaxed text-slate-600 dark:text-slate-300">{{ detail.summary }}</p>
+            <h2 class="text-2xl font-black leading-tight text-slate-950 dark:text-slate-100">{{ detail.title }}</h2>
+            <p v-if="detail.summary" class="mt-3 max-w-prose text-base leading-8 text-slate-600 dark:text-slate-300">{{ detail.summary }}</p>
           </div>
 
           <ComponentTable v-if="detail.components.length" :components="detail.components" />

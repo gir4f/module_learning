@@ -7,13 +7,13 @@
             <h1 class="truncate text-2xl font-black text-brand-navy dark:text-cyan-200 sm:text-3xl">{{ module.title }}</h1>
             <p class="mt-1 break-all text-sm font-medium text-slate-500 dark:text-slate-400">/{{ module.slug }}</p>
           </div>
-          <button type="button" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white sm:hidden" aria-label="Kembali ke daftar modul" @click="navigateTo('/admin/modules')">
+          <button type="button" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white dark:focus-visible:ring-cyan-950 sm:hidden" aria-label="Kembali ke daftar modul" @click="navigateTo('/admin/modules')">
             <i class="pi pi-arrow-left" aria-hidden="true" />
           </button>
         </div>
       </div>
       <div class="flex shrink-0 items-center gap-2">
-        <button type="button" class="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white sm:inline-flex" aria-label="Kembali ke daftar modul" @click="navigateTo('/admin/modules')">
+        <button type="button" class="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white dark:focus-visible:ring-cyan-950 sm:inline-flex" aria-label="Kembali ke daftar modul" @click="navigateTo('/admin/modules')">
           <i class="pi pi-arrow-left" aria-hidden="true" />
         </button>
         <Button label="Lihat Modul" icon="pi pi-eye" severity="secondary" outlined class="w-full sm:w-auto" @click="navigateTo(`/modules/${module.slug}`)" />
@@ -69,14 +69,28 @@
       </div>
 
       <AdminSurface v-for="(section, index) in sectionForms" :key="section.localKey" v-auto-animate="{ duration: 190, easing: 'ease-in-out' }">
-        <button type="button" class="group flex w-full items-center justify-between gap-4 border-b border-slate-200 p-5 text-left transition-colors hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50" @click="toggleSection(section.localKey)">
-          <div class="flex items-center gap-4 min-w-0">
+        <button type="button" class="group flex w-full items-start justify-between gap-4 border-b border-slate-200 p-5 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-cyan-100 dark:border-slate-800 dark:hover:bg-slate-800/50 dark:focus-visible:ring-cyan-950" :aria-expanded="expandedSections.has(section.localKey)" @click="toggleSection(section.localKey)">
+          <div class="flex min-w-0 items-start gap-4">
             <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors group-hover:bg-brand-teal group-hover:text-white dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-brand-teal-dark">
               <i class="pi font-bold" :class="expandedSections.has(section.localKey) ? 'pi-folder-open' : 'pi-folder'" aria-hidden="true" />
             </span>
-            <span class="min-w-0">
+            <span class="min-w-0 space-y-2">
               <span class="block truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">{{ section.title || 'Bagian tanpa judul' }}</span>
               <span class="block truncate text-sm font-semibold text-slate-500 dark:text-slate-400">/{{ section.slug || 'alamat-bagian' }}</span>
+              <span class="flex flex-wrap gap-2">
+                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  <i class="pi pi-list-check text-[10px]" aria-hidden="true" />
+                  {{ section.components.length }} komponen
+                </span>
+                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                  <i class="pi pi-paperclip text-[10px]" aria-hidden="true" />
+                  {{ section.attachments.length }} lampiran
+                </span>
+                <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black" :class="sectionStatusClass(section, index)">
+                  <i :class="sectionStatusIcon(section, index)" class="text-[10px]" aria-hidden="true" />
+                  {{ sectionStatusLabel(section, index) }}
+                </span>
+              </span>
             </span>
           </div>
           <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 shadow-sm transition-transform duration-200 dark:border-slate-700 dark:bg-slate-900" :class="{ 'rotate-180': expandedSections.has(section.localKey) }">
@@ -116,8 +130,8 @@
               :meta="`${section.attachments.length} lampiran`"
             />
             <div v-if="section.attachments.length" v-auto-animate="{ duration: 160, easing: 'ease-in-out' }" class="grid gap-2">
-              <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-                <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 items-center gap-3 font-bold text-brand-teal hover:underline">
+              <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 p-3 shadow-sm dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+                <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 items-center gap-3 rounded-lg font-bold text-brand-teal hover:underline focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:focus-visible:ring-cyan-950" :aria-label="attachmentActionLabel(attachment)">
                   <img
                     v-if="attachment.type === 'IMAGE'"
                     :src="previewUrlForAttachment(attachment)"
@@ -127,10 +141,14 @@
                     @error="fallbackAttachmentPreview($event, attachment)"
                   >
                   <span v-else class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                    <i class="pi pi-file" aria-hidden="true" />
+                    <i :class="attachmentIconClass(attachment)" aria-hidden="true" />
                   </span>
                   <span class="min-w-0">
                     <span class="block truncate">{{ attachment.title }}</span>
+                    <span class="mt-1 flex flex-wrap gap-1.5">
+                      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ attachmentTypeLabel(attachment) }}</span>
+                      <span v-if="attachment.sizeBytes" class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ formatBytes(attachment.sizeBytes) }}</span>
+                    </span>
                     <span class="block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{{ attachment.type }} · {{ attachment.mimeType || attachment.url }}</span>
                   </span>
                 </a>
@@ -168,6 +186,7 @@
               class="relative flex w-full items-center justify-center rounded-2xl border-2 border-dashed px-6 py-8 text-center transition-colors"
               :class="uploadZoneClass(section)"
               :aria-busy="isUploadingSection(section)"
+              :aria-label="uploadAriaLabel(section)"
               @dragenter.prevent.stop="handleDragEnter($event, section)"
               @dragover.prevent.stop="handleDragOver($event, section)"
               @dragleave.prevent.stop="handleDragLeave($event, section)"
@@ -181,6 +200,9 @@
                   <span class="pl-1">atau tarik ke sini</span>
                 </span>
                 <span class="block text-xs leading-5 text-slate-500 dark:text-slate-400">{{ uploadHint(section) }}</span>
+                <span v-if="lastUploadStatus[section.localKey]" class="mt-2 block text-xs font-black" :class="lastUploadStatus[section.localKey]!.ok ? 'text-emerald-600 dark:text-emerald-300' : 'text-red-600 dark:text-red-300'">
+                  {{ lastUploadStatus[section.localKey]!.message }}
+                </span>
               </span>
             </button>
             <input :id="`file-upload-${section.localKey}`" name="file-upload" type="file" class="sr-only" multiple :disabled="isUploadingSection(section)" @change="uploadAttachment($event, section, index)">
@@ -260,6 +282,7 @@ const openLinkFormKey = ref('')
 const dragOverSectionKey = ref('')
 const uploadingSectionKey = ref('')
 const uploadProgress = reactive<Record<string, { current: number, total: number }>>({})
+const lastUploadStatus = reactive<Record<string, { ok: boolean, message: string }>>({})
 const moduleSavedAt = ref<Date | null>(null)
 const sectionSavedAt = reactive<Record<string, Date>>({})
 const moduleForm = reactive({
@@ -283,8 +306,27 @@ const moduleSaveStatus = computed(() => {
   if (moduleSavedAt.value) return `Terakhir disimpan ${formatSaveTime(moduleSavedAt.value)}`
   return 'Tidak ada perubahan.'
 })
+const hasUnsavedChanges = computed(() => {
+  if (hasModuleChanges.value) return true
+  return sectionForms.value.some((section, index) => hasSectionChanges(section, index))
+})
 
 watch(module, syncForms, { immediate: true })
+
+onMounted(() => {
+  window.addEventListener('beforeunload', warnBeforeUnload)
+  window.addEventListener('keydown', handleEditorKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', warnBeforeUnload)
+  window.removeEventListener('keydown', handleEditorKeydown)
+})
+
+onBeforeRouteLeave(() => {
+  if (!hasUnsavedChanges.value) return true
+  return window.confirm('Ada perubahan yang belum disimpan. Tinggalkan halaman ini?')
+})
 
 function syncForms() {
   if (!module.value) return
@@ -342,6 +384,7 @@ async function saveModule() {
   } catch (error) {
     assignFieldErrors(moduleFieldErrors, apiFieldErrors(error))
     moduleError.value = apiErrorMessage(error, 'Gagal menyimpan modul.')
+    toast.error('Gagal menyimpan', { description: moduleError.value })
   } finally {
     savingModule.value = false
   }
@@ -383,6 +426,7 @@ async function saveSection(section: SectionForm, index: number) {
     toast.success('Tersimpan', { description: 'Bagian modul disimpan.' })
   } catch (error) {
     sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menyimpan bagian.')
+    toast.error('Gagal menyimpan', { description: sectionErrors[section.localKey] })
   } finally {
     savingSectionKey.value = ''
   }
@@ -397,6 +441,28 @@ function sectionSaveStatus(section: SectionForm) {
   const savedAt = sectionSavedAt[section.localKey]
   if (savedAt) return `Terakhir disimpan ${formatSaveTime(savedAt)}`
   return 'Tidak ada perubahan.'
+}
+
+function sectionStatusLabel(section: SectionForm, index: number) {
+  if (savingSectionKey.value === section.localKey) return 'Menyimpan'
+  if (isUploadingSection(section)) return 'Upload'
+  if (!section.id && hasNewSectionContent(section)) return 'Baru'
+  if (hasSectionChanges(section, index)) return 'Belum disimpan'
+  return 'Tersimpan'
+}
+
+function sectionStatusIcon(section: SectionForm, index: number) {
+  const label = sectionStatusLabel(section, index)
+  if (label === 'Menyimpan' || label === 'Upload') return 'pi pi-spinner pi-spin'
+  if (label === 'Belum disimpan' || label === 'Baru') return 'pi pi-pencil'
+  return 'pi pi-check'
+}
+
+function sectionStatusClass(section: SectionForm, index: number) {
+  const label = sectionStatusLabel(section, index)
+  if (label === 'Menyimpan' || label === 'Upload') return 'bg-cyan-50 text-brand-navy dark:bg-cyan-950/40 dark:text-cyan-100'
+  if (label === 'Belum disimpan' || label === 'Baru') return 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-100'
+  return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-100'
 }
 
 function formatSaveTime(value: Date) {
@@ -527,6 +593,12 @@ function isUploadingSection(section: SectionForm) {
   return uploadingSectionKey.value === section.localKey
 }
 
+function uploadAriaLabel(section: SectionForm) {
+  if (isUploadingSection(section)) return `Sedang mengunggah lampiran untuk ${section.title || 'bagian ini'}`
+  if (dragOverSectionKey.value === section.localKey) return `Lepaskan file untuk mengunggah ke ${section.title || 'bagian ini'}`
+  return `Pilih atau tarik file lampiran untuk ${section.title || 'bagian ini'}`
+}
+
 function uploadZoneClass(section: SectionForm) {
   const isDragging = dragOverSectionKey.value === section.localKey
   const isUploading = isUploadingSection(section)
@@ -598,6 +670,8 @@ async function uploadFiles(files: File[], section: SectionForm, index: number) {
   const unsupportedFiles = files.filter(file => !isAllowedUploadMimeType(file.name, file.type))
   if (unsupportedFiles.length) {
     sectionErrors[section.localKey] = `Jenis file belum didukung: ${unsupportedFiles.map(file => file.name).join(', ')}. Gunakan gambar, PDF, CSV, atau spreadsheet.`
+    lastUploadStatus[section.localKey] = { ok: false, message: 'Upload ditolak. Jenis file belum didukung.' }
+    toast.error('Upload gagal', { description: sectionErrors[section.localKey] })
     return
   }
 
@@ -628,8 +702,11 @@ async function uploadFiles(files: File[], section: SectionForm, index: number) {
     toast.success('Terunggah', {
       description: files.length === 1 ? 'Lampiran file ditambahkan.' : `${files.length} lampiran file ditambahkan.`,
     })
+    lastUploadStatus[targetSection.localKey] = { ok: true, message: files.length === 1 ? '1 file berhasil diunggah.' : `${files.length} file berhasil diunggah.` }
   } catch (error) {
     sectionErrors[targetSection.localKey] = sectionErrorMessage(error, 'Gagal mengunggah file.')
+    lastUploadStatus[targetSection.localKey] = { ok: false, message: 'Upload gagal. Coba ulangi.' }
+    toast.error('Upload gagal', { description: sectionErrors[targetSection.localKey] })
   } finally {
     if (uploadingSectionKey.value === targetSection.localKey) uploadingSectionKey.value = ''
     delete uploadProgress[targetSection.localKey]
@@ -691,5 +768,44 @@ function fallbackAttachmentPreview(event: Event, attachment: Attachment) {
   const image = event.currentTarget as HTMLImageElement | null
   if (!image || image.src.endsWith(attachment.url)) return
   image.src = attachment.url
+}
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!hasUnsavedChanges.value) return
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+function handleEditorKeydown(event: KeyboardEvent) {
+  if (event.key !== 'Escape') return
+  if (openLinkFormKey.value) {
+    closeLinkForm(openLinkFormKey.value)
+    return
+  }
+  dragOverSectionKey.value = ''
+}
+
+function attachmentIconClass(attachment: Attachment) {
+  if (attachment.type === 'SPREADSHEET') return 'pi pi-table'
+  if (attachment.type === 'LINK') return 'pi pi-external-link'
+  return 'pi pi-file'
+}
+
+function attachmentTypeLabel(attachment: Attachment) {
+  if (attachment.type === 'IMAGE') return 'Gambar preview'
+  if (attachment.type === 'SPREADSHEET') return 'Spreadsheet'
+  if (attachment.type === 'LINK') return 'Link'
+  return 'File'
+}
+
+function attachmentActionLabel(attachment: Attachment) {
+  if (attachment.type === 'IMAGE') return `Buka preview gambar ${attachment.title}`
+  return `Buka file lampiran ${attachment.title}`
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 </script>

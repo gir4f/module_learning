@@ -27,10 +27,11 @@
           :href="attachment.url"
           target="_blank"
           rel="noopener noreferrer"
-          class="flex aspect-4/3 items-center justify-center rounded-md bg-slate-50 text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:bg-slate-800 dark:text-cyan-200 dark:focus:ring-cyan-950"
+          class="flex aspect-4/3 flex-col items-center justify-center gap-3 rounded-md bg-slate-50 px-4 text-center text-brand-navy focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:bg-slate-800 dark:text-cyan-200 dark:focus-visible:ring-cyan-950"
           :aria-label="`Buka ${attachment.title}`"
         >
           <i :class="iconFor(attachment.type)" class="text-3xl" aria-hidden="true" />
+          <span class="max-w-full truncate text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-300">{{ openLabelFor(attachment.type) }}</span>
         </a>
         <span class="absolute right-5 top-5 rounded-full bg-slate-950/70 px-2 py-1 text-[10px] font-bold text-white">
           {{ typeLabelFor(attachment.type) }}
@@ -45,7 +46,7 @@
             :download="attachment.type === 'IMAGE' ? attachment.title : undefined"
             target="_blank"
             rel="noopener noreferrer"
-            class="shrink-0 rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-brand-navy focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-cyan-200 dark:focus:ring-cyan-950"
+            class="shrink-0 rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-brand-navy focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-cyan-200 dark:focus-visible:ring-cyan-950"
             :aria-label="attachment.type === 'IMAGE' ? `Unduh ${attachment.title}` : `Buka ${attachment.title}`"
           >
             <i :class="attachment.type === 'IMAGE' ? 'pi pi-download' : 'pi pi-external-link'" aria-hidden="true" />
@@ -82,6 +83,12 @@ function typeLabelFor(type: string) {
   if (type === 'SPREADSHEET') return 'Spreadsheet'
   if (type === 'LINK') return 'Link'
   return 'File'
+}
+
+function openLabelFor(type: string) {
+  if (type === 'LINK') return 'Buka link'
+  if (type === 'SPREADSHEET') return 'Buka spreadsheet'
+  return 'Buka file'
 }
 
 function metaFor(attachment: Attachment) {

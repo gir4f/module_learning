@@ -5,11 +5,25 @@
         <span class="sr-only">Cari modul</span>
         <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true" />
         <input
+          ref="searchInput"
           v-model="search"
-          type="search"
-          class="min-h-11 w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-950"
+          type="text"
+          role="searchbox"
+          class="min-h-11 w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 text-sm font-semibold text-slate-900 outline-none transition focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-950"
+          :class="search ? 'pr-11' : 'pr-24'"
           placeholder="Cari modul..."
+          @keydown.escape.prevent="handleSearchEscape"
         >
+        <button
+          v-if="search"
+          type="button"
+          class="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:focus-visible:ring-cyan-950"
+          aria-label="Bersihkan pencarian modul"
+          @click="clearSearch"
+        >
+          <i class="pi pi-times text-xs" aria-hidden="true" />
+        </button>
+        <kbd v-else class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-black text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 sm:inline-flex">Ctrl K</kbd>
       </label>
 
       <div class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
@@ -109,14 +123,16 @@ const { modules, pending = false } = defineProps<{
   pending?: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   create: []
   edit: [module: LearningModule]
   delete: [module: LearningModule]
   'toggle-status': [module: LearningModule]
+  'open-command-palette': []
 }>()
 
 const search = ref('')
+const searchInput = useTemplateRef<HTMLInputElement>('searchInput')
 const status = ref<'ALL' | PublishStatus>('ALL')
 const statusOptions: Array<{ label: string, value: 'ALL' | PublishStatus }> = [
   { label: 'Semua', value: 'ALL' },
@@ -141,9 +157,37 @@ const paginatedModules = computed(() => {
 watch(search, () => { firstRow.value = 0 })
 watch(status, () => { firstRow.value = 0 })
 
+onMounted(() => {
+  window.addEventListener('keydown', handleGlobalShortcut)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleGlobalShortcut)
+})
+
 function statusClass(moduleStatus: PublishStatus) {
   return moduleStatus === 'PUBLISHED'
     ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200'
     : 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-200'
+}
+
+function clearSearch() {
+  search.value = ''
+  searchInput.value?.focus()
+}
+
+function handleSearchEscape() {
+  if (search.value) {
+    search.value = ''
+    return
+  }
+  searchInput.value?.blur()
+}
+
+function handleGlobalShortcut(event: KeyboardEvent) {
+  if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'k') return
+  if (window.matchMedia('(max-width: 1023px)').matches) return
+  event.preventDefault()
+  emit('open-command-palette')
 }
 </script>

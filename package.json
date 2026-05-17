@@ -10,6 +10,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "type-check": "nuxt typecheck",
+    "audit:assets": "node ./scripts/audit-assets.mjs",
+    "optimize:assets": "node ./scripts/optimize-assets.mjs",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
