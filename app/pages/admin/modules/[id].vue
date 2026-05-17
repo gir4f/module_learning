@@ -143,13 +143,13 @@
                   <span v-else class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
                     <i :class="attachmentIconClass(attachment)" aria-hidden="true" />
                   </span>
-                  <span class="min-w-0">
+                  <span class="flex min-w-0 flex-col gap-1.5">
                     <span class="block truncate">{{ attachment.title }}</span>
-                    <span class="mt-1 flex flex-wrap gap-1.5">
-                      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ attachmentTypeLabel(attachment) }}</span>
-                      <span v-if="attachment.sizeBytes" class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ formatBytes(attachment.sizeBytes) }}</span>
+                    <span class="flex flex-wrap gap-1.5">
+                      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ attachmentTypeLabel(attachment) }}</span>
+                      <span v-if="attachment.sizeBytes" class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ formatBytes(attachment.sizeBytes) }}</span>
                     </span>
-                    <span class="block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">{{ attachment.type }} · {{ attachment.mimeType || attachment.url }}</span>
+                    <span class="block truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ attachment.type }} · {{ attachment.mimeType || attachment.url }}</span>
                   </span>
                 </a>
                 <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined @click="confirmDeleteAttachment(attachment)" />
