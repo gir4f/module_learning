@@ -6,10 +6,17 @@
       
       <div class="relative grid gap-8 lg:grid-cols-[1fr_340px] lg:items-center">
         <div>
-          <h1 class="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl text-balance">
+          <img
+            :src="'/module-assets/Gitronikbgputih.jpg'"
+            alt="PT. Gitronik Dimindo Indonesia"
+            class="h-16 w-auto rounded-lg bg-white shadow-md ring-4 ring-white/10"
+            loading="lazy"
+          >
+          <p class="mt-8 text-sm font-black uppercase tracking-wider text-cyan-200">PT. Gitronik Dimindo Indonesia</p>
+          <h1 class="mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl text-balance">
             Modul Ajar
           </h1>
-          <p class="mt-4 max-w-2xl text-lg leading-relaxed text-cyan-50 opacity-90">
+          <p class="mt-5 max-w-2xl text-lg leading-relaxed text-cyan-50 opacity-90">
             Kelola modul, bagian, komponen, dan file untuk materi internal.
           </p>
           <div class="mt-6">

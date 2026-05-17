@@ -1,56 +1,7 @@
 <template>
-  <div>
-    <!-- Mobile Header -->
-    <header class="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-3 dark:border-slate-800 dark:bg-slate-950 sm:px-6 lg:hidden">
-      <NuxtLink to="/admin/modules" class="flex min-w-0 items-center gap-3">
-        <span class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
-          <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
-        </span>
-        <span class="min-w-0">
-          <span class="block truncate text-sm font-black text-brand-navy dark:text-cyan-200">Gitronik Modul Ajar</span>
-          <span class="block truncate text-xs font-semibold text-slate-500 dark:text-slate-400">Admin</span>
-        </span>
-      </NuxtLink>
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 transition-colors hover:border-brand-teal hover:bg-slate-50 hover:text-brand-teal dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-cyan-400 dark:hover:bg-slate-800 dark:hover:text-cyan-300"
-          :aria-label="isDark ? 'Gunakan mode terang' : 'Gunakan mode gelap'"
-          @click="toggleDark"
-        >
-          <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" />
-        </button>
-        <button type="button" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 transition-colors hover:border-brand-teal hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800" aria-label="Buka menu admin" @click="drawerOpen = true">
-          <i class="pi pi-bars" />
-        </button>
-      </div>
-    </header>
-
-    <!-- Mobile Drawer -->
-    <Drawer v-model:visible="drawerOpen" class="w-72! lg:hidden!" :pt="{ root: { class: 'bg-white! dark:bg-slate-950!' }, header: { class: 'bg-white! dark:bg-slate-950! border-b border-slate-200 dark:border-slate-800' }, content: { class: 'bg-white! dark:bg-slate-950!' } }">
-      <template #header>
-        <div class="flex items-center gap-3">
-          <span class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white p-1 shadow-sm ring-1 ring-slate-900/10 dark:ring-white/10">
-            <img :src="logoSrc" alt="" class="h-full w-full object-contain" aria-hidden="true">
-          </span>
-          <span class="font-black text-brand-navy dark:text-cyan-200">Gitronik Admin</span>
-        </div>
-      </template>
-      <div class="flex h-full flex-col justify-between py-4">
-        <nav class="flex flex-col gap-2">
-          <NuxtLink v-for="item in navItems" :key="item.to" :to="item.to" class="flex items-center gap-3 rounded-xl px-4 py-3 font-bold transition-colors" :class="isActive(item.to) ? 'bg-brand-teal/10 text-brand-teal dark:bg-cyan-900/20 dark:text-cyan-300' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900'" @click="drawerOpen = false">
-            <i :class="item.icon" />
-            {{ item.label }}
-          </NuxtLink>
-        </nav>
-        <div class="flex flex-col gap-2">
-          <button type="button" class="flex items-center gap-3 rounded-xl px-4 py-3 font-bold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" @click="handleLogout">
-            <i class="pi pi-sign-out" />
-            Logout
-          </button>
-        </div>
-      </div>
-    </Drawer>
+  <div class="sticky top-0 z-40 w-full lg:static lg:z-auto lg:w-auto">
+    <!-- Mobile Top Navbar -->
+    <AppTopNavbar mode="admin" class="lg:hidden" />
 
     <!-- Desktop Sidebar -->
     <aside class="hidden h-screen w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 lg:flex sticky top-0">
@@ -86,11 +37,11 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
+import AppTopNavbar from '~/components/layout/AppTopNavbar.vue'
 
 const route = useRoute()
 const auth = useAuthStore()
 const { isDark, init, toggle: toggleDark } = useDarkMode()
-const drawerOpen = ref(false)
 const logoSrc = '/module-assets/LogoGitronikPolosNoBG.png'
 
 const navItems = [
@@ -102,14 +53,12 @@ onMounted(() => {
   init()
 })
 
-
 function isActive(path: string) {
   if (path === '/') return false
   return route.path.startsWith(path)
 }
 
 async function handleLogout() {
-  drawerOpen.value = false
   await auth.logout()
   await navigateTo('/login')
 }
