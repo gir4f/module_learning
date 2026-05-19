@@ -5,7 +5,7 @@
       <NuxtPage />
     </NuxtLayout>
     <ClientOnly>
-      <Toaster position="top-right" theme="dark" richColors />
+      <Toaster position="top-right" :theme="toasterTheme" richColors />
       <component :is="ScrollToTop" />
     </ClientOnly>
     <ConfirmDialog :style="{ width: '28rem', maxWidth: '90vw' }" />
@@ -14,4 +14,7 @@
 
 <script setup lang="ts">
 import ScrollToTop from '~/components/shared/ScrollToTop.vue'
+
+const { isDark } = useDarkMode()
+const toasterTheme = computed(() => isDark.value ? 'dark' : 'light')
 </script>

@@ -41,17 +41,13 @@ import AppTopNavbar from '~/components/layout/AppTopNavbar.vue'
 
 const route = useRoute()
 const auth = useAuthStore()
-const { isDark, init, toggle: toggleDark } = useDarkMode()
+const { isDark, toggle: toggleDark } = useDarkMode()
 const logoSrc = '/module-assets/LogoGitronikPolosNoBG.png'
 
 const navItems = [
   { label: 'Modul Ajar', to: '/admin/modules', icon: 'pi pi-book' },
   { label: 'Halaman Modul', to: '/', icon: 'pi pi-external-link' },
 ]
-
-onMounted(() => {
-  init()
-})
 
 function isActive(path: string) {
   if (path === '/') return false

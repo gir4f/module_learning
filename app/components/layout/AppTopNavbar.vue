@@ -276,7 +276,7 @@ const localLearningSearch = useState('learning-module-local-search', () => '')
 const auth = useAuthStore()
 const learningStore = useLearningModulesStore()
 const adminModulesStore = useModulesStore()
-const { isDark, init, toggle } = useDarkMode()
+const { isDark, toggle } = useDarkMode()
 const logoSrc = '/module-assets/LogoGitronikPolos.png'
 const searchSourceModules = computed(() => mode === 'admin' ? adminModulesStore.modules : learningStore.modules)
 const {
@@ -338,10 +338,6 @@ watch(drawerOpen, (isOpen) => {
 })
 
 onMounted(() => {
-  init()
-  if (!auth.initialized) {
-    void auth.ensureProfile()
-  }
   if (mode === 'learning') {
     void learningStore.ensureModules()
   } else if (!adminModulesStore.modules.length) {
@@ -349,17 +345,13 @@ onMounted(() => {
   }
   window.addEventListener('keydown', handleShortcut)
   window.addEventListener('keydown', closeOnEscape)
-  window.addEventListener('focus', refreshAuthState)
   document.addEventListener('pointerdown', handlePointerDown)
-  document.addEventListener('visibilitychange', refreshAuthState)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleShortcut)
   window.removeEventListener('keydown', closeOnEscape)
-  window.removeEventListener('focus', refreshAuthState)
   document.removeEventListener('pointerdown', handlePointerDown)
-  document.removeEventListener('visibilitychange', refreshAuthState)
   document.documentElement.classList.remove('overflow-hidden')
 })
 
@@ -449,8 +441,4 @@ async function handleAuthAction() {
   await navigateTo('/login')
 }
 
-function refreshAuthState() {
-  if (document.visibilityState && document.visibilityState !== 'visible') return
-  void auth.fetchProfile()
-}
 </script>
