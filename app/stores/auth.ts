@@ -4,6 +4,8 @@ import type { Profile } from '~/types/learning'
 import { apiErrorMessage } from '~/utils/apiErrors'
 import { shouldRefreshAuthState } from '~/utils/authRefresh'
 import { homeRouteForProfile } from '~/utils/authRoutes'
+import { useLearningModulesStore } from '~/stores/learningModules'
+import { useModulesStore } from '~/stores/modules'
 
 export const useAuthStore = defineStore('auth', () => {
   const profile = ref<Profile | null>(null)
@@ -92,6 +94,10 @@ export const useAuthStore = defineStore('auth', () => {
       pending.value = false
       lastFetchedAt.value = Date.now()
       lastResolvedAuthState.value = 'anonymous'
+
+      // Bersihkan cached module data agar tidak bocor ke sesi berikutnya
+      useLearningModulesStore().resetState()
+      useModulesStore().resetState()
     }
   }
 

@@ -117,6 +117,19 @@ export const useLearningModulesStore = defineStore('learning-modules', () => {
     return fetchModuleBySlug(slug)
   }
 
+  function resetState() {
+    modules.value = []
+    currentModule.value = null
+    currentModuleKey.value = ''
+    pending.value = false
+    pendingDetail.value = false
+    error.value = ''
+    detailError.value = ''
+    loaded.value = false
+    dirty.value = false
+    detailDirtyKeys.value = []
+  }
+
   return {
     modules,
     currentModule,
@@ -137,5 +150,6 @@ export const useLearningModulesStore = defineStore('learning-modules', () => {
     ensureModules,
     fetchModuleBySlug,
     ensureModuleBySlug,
+    resetState,
   }
 })

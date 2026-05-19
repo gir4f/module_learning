@@ -312,6 +312,17 @@ export const useModulesStore = defineStore('modules', () => {
     }
   }
 
+  function resetState() {
+    modules.value = []
+    currentModule.value = null
+    currentModuleKey.value = ''
+    pendingList.value = false
+    pendingDetail.value = false
+    pendingMutation.value = false
+    listError.value = ''
+    detailError.value = ''
+  }
+
   return {
     modules,
     currentModule,
@@ -337,5 +348,6 @@ export const useModulesStore = defineStore('modules', () => {
     addAttachment,
     attachFiles,
     deleteAttachment,
+    resetState,
   }
 })

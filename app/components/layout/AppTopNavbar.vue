@@ -449,7 +449,7 @@ async function handleAuthAction() {
   drawerOpen.value = false
   if (auth.profile) {
     await auth.logout()
-    if (route.path.startsWith('/admin')) await navigateTo('/login')
+    await navigateTo('/login')
     return
   }
   await navigateTo('/login')
