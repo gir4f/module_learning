@@ -61,7 +61,7 @@
       </div>
 
       <div v-else class="flex h-full flex-col p-4 sm:p-5">
-        <div class="mb-3 hidden grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] items-center gap-4 rounded-xl bg-slate-100 px-4 py-3 text-[11px] font-black uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300 min-[90rem]:grid">
+        <div class="mb-3 hidden grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] items-center gap-4 rounded-xl bg-slate-100 px-4 py-3 text-[11px] font-black uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300 min-[96rem]:grid">
           <label class="flex items-center justify-center">
             <span class="sr-only">Pilih semua modul di halaman aktif</span>
             <input
@@ -80,13 +80,13 @@
           <span class="text-center">Aksi</span>
         </div>
 
-        <div class="grid flex-1 gap-3 min-[48rem]:grid-cols-2 min-[90rem]:grid-cols-1">
+        <div class="grid flex-1 gap-3 min-[48rem]:grid-cols-2 min-[96rem]:grid-cols-1">
           <article
             v-for="module in paginatedModules"
             :key="module.id || module.slug"
-            class="group grid min-w-0 gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50 sm:p-4 min-[90rem]:grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] min-[90rem]:items-center"
+            class="group grid min-w-0 gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50 sm:p-4 min-[96rem]:grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] min-[96rem]:items-center"
           >
-            <div class="flex items-start justify-between gap-3 min-[90rem]:items-center min-[90rem]:justify-center">
+            <div class="flex items-start justify-between gap-3 min-[96rem]:items-center min-[96rem]:justify-center">
               <label class="flex items-center justify-center">
                 <span class="sr-only">Pilih modul {{ module.title }}</span>
                 <input
@@ -99,7 +99,7 @@
               </label>
               <button
                 type="button"
-                class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[90rem]:hidden"
+                class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[96rem]:hidden"
                 :class="statusClass(module.status)"
                 :disabled="props.busy"
                 @click="$emit('toggle-status', module)"
@@ -109,19 +109,19 @@
             </div>
 
             <div class="min-w-0">
-              <div class="flex min-w-0 items-start justify-between gap-3 min-[90rem]:block">
+              <div class="flex min-w-0 items-start justify-between gap-3 min-[96rem]:block">
                 <h2 class="min-w-0 truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">
                   {{ module.title }}
                 </h2>
               </div>
-              <p class="mt-0.5 truncate text-sm font-medium text-slate-500 dark:text-slate-400 min-[90rem]:hidden">
+              <p class="mt-0.5 truncate text-sm font-medium text-slate-500 dark:text-slate-400 min-[96rem]:hidden">
                 /{{ module.slug }}
               </p>
             </div>
 
             <button
               type="button"
-              class="hidden w-fit justify-self-start rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[90rem]:inline-flex"
+              class="hidden w-fit justify-self-start rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[96rem]:inline-flex"
               :class="statusClass(module.status)"
               :disabled="props.busy"
               @click="$emit('toggle-status', module)"
@@ -129,24 +129,24 @@
               {{ module.status === 'PUBLISHED' ? 'Publikasi' : 'Draf' }}
             </button>
 
-            <p class="hidden min-w-0 truncate text-sm font-semibold text-slate-500 dark:text-slate-400 min-[90rem]:block">
+            <p class="hidden min-w-0 truncate text-sm font-semibold text-slate-500 dark:text-slate-400 min-[96rem]:block">
               /{{ module.slug }}
             </p>
 
-            <div class="hidden min-w-0 min-[90rem]:block">
+            <div class="hidden min-w-0 min-[96rem]:block">
               <span class="font-bold text-slate-700 dark:text-slate-200">{{ module.details?.length || 0 }}</span>
             </div>
 
-            <div class="hidden min-w-0 min-[90rem]:block">
+            <div class="hidden min-w-0 min-[96rem]:block">
               <span class="font-bold text-slate-700 dark:text-slate-200">{{ formatAdminDate(module.updatedAt) }}</span>
             </div>
 
-            <div class="hidden items-center justify-end gap-2 min-[90rem]:flex">
+            <div class="hidden items-center justify-end gap-2 min-[96rem]:flex">
               <Button label="Edit" icon="pi pi-pencil" size="small" :disabled="props.busy" @click="$emit('edit', module)" />
               <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="props.busy" @click="$emit('delete', module)" />
             </div>
 
-            <div class="flex items-center justify-between gap-4 text-sm min-[90rem]:hidden">
+            <div class="flex items-center justify-between gap-4 text-sm min-[96rem]:hidden">
               <div class="flex min-w-0 flex-col">
                 <span class="font-bold text-slate-700 dark:text-slate-200">{{ module.details?.length || 0 }}</span>
                 <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Varian Produk</span>
@@ -157,7 +157,7 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 min-[90rem]:hidden">
+            <div class="grid grid-cols-2 gap-2 min-[96rem]:hidden">
               <Button label="Edit" icon="pi pi-pencil" size="small" class="min-w-0 w-full" :disabled="props.busy" @click="$emit('edit', module)" />
               <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined class="min-w-0 w-full" :disabled="props.busy" @click="$emit('delete', module)" />
             </div>
