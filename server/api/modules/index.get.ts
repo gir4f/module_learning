@@ -34,10 +34,25 @@ export default defineEventHandler(async (event) => {
       details: {
         select: {
           id: true,
-          components: { select: { id: true } },
-          attachments: { select: { id: true } }
-        }
-      }
+          slug: true,
+          title: true,
+          summary: true,
+          keywords: true,
+          sortOrder: true,
+          components: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          attachments: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+      },
     }
   })
 

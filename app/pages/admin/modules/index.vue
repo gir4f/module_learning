@@ -42,7 +42,7 @@
 
     <ModuleList
       :modules="store.modules"
-      :pending="store.pending"
+      :pending="store.pendingList"
       @open-command-palette="openCommandPalette"
       @create="navigateTo('/admin/modules/new')"
       @edit="editModule"
@@ -150,7 +150,9 @@ const {
   isBusy: commandBusy,
   moveSelection,
   highlightParts,
-} = useModuleSearch()
+} = useModuleSearch({
+  source: computed(() => store.modules),
+})
 
 const sectionCount = computed(() => store.modules.reduce((total, module) => total + module.details.length, 0))
 const attachmentCount = computed(() => store.modules.reduce((total, module) => {

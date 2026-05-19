@@ -47,6 +47,7 @@
 import { toast } from 'vue-sonner'
 import AdminFieldGroup from '~/components/admin/AdminFieldGroup.vue'
 import AdminSurface from '~/components/admin/AdminSurface.vue'
+import { useModulesStore } from '~/stores/modules'
 import { apiErrorMessage, apiFieldErrors, assignFieldErrors } from '~/utils/apiErrors'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
@@ -59,7 +60,7 @@ const statusOptions = [
 const saving = ref(false)
 const formError = ref('')
 const fieldErrors = reactive<Record<string, string>>({})
-const api = useApiClient()
+const store = useModulesStore()
 const form = reactive({
   title: '',
   description: '',
@@ -73,7 +74,8 @@ async function saveModule() {
   formError.value = ''
   assignFieldErrors(fieldErrors, {})
   try {
-    const { data: module } = await api.post<{ id: string }>('/api/modules', form)
+    const module = await store.createModule(form)
+    await store.fetchModules()
     toast.success('Tersimpan', { description: 'Modul baru dibuat.' })
     await navigateTo(`/admin/modules/${module.id}`)
   } catch (error) {

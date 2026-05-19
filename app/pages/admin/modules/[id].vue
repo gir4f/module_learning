@@ -255,15 +255,15 @@
 <script setup lang="ts">
 import { useConfirm } from 'primevue/useconfirm'
 import { toast } from 'vue-sonner'
-import type { Attachment, ComponentItem, LearningModule, ModuleDetail, PublishStatus } from '~/types/learning'
+import type { Attachment, ComponentItem, ModuleDetail, PublishStatus } from '~/types/learning'
 import AdminFieldGroup from '~/components/admin/AdminFieldGroup.vue'
 import AdminSectionHeader from '~/components/admin/AdminSectionHeader.vue'
 import AdminSurface from '~/components/admin/AdminSurface.vue'
 import InlineComponentTable from '~/components/admin/InlineComponentTable.vue'
 import EmptyState from '~/components/shared/EmptyState.vue'
-import { useModulesStore } from '~/stores/modules'
+import { useModulesStore, type ModuleAttachmentPayload, type ModuleSectionPayload } from '~/stores/modules'
 import { apiErrorMessage, apiFieldErrors, assignFieldErrors } from '~/utils/apiErrors'
-import { attachmentTypeFromMimeType, isAllowedUploadMimeType, isPdfAttachment, normalizedUploadMimeType, previewUrlForAttachment, uploadFile } from '~/utils/upload'
+import { isAllowedUploadMimeType, isPdfAttachment, previewUrlForAttachment } from '~/utils/upload'
 
 const PdfPreviewModal = defineAsyncComponent(() => import('~/components/shared/PdfPreviewModal.vue'))
 
@@ -288,15 +288,9 @@ type SectionForm = {
 
 const route = useRoute()
 const confirm = useConfirm()
-const api = useApiClient()
 const store = useModulesStore()
-const { data: module, refresh } = await useAsyncData<LearningModule | null>(`admin-module-${route.params.id}`, async () => {
-  const { data } = await api.get<LearningModule>(`/api/modules/${route.params.id}`)
-  return data
-}, {
-  default: () => null,
-  getCachedData: () => undefined,
-})
+await store.fetchModuleById(String(route.params.id))
+const module = computed(() => store.currentModule)
 
 const savingModule = ref(false)
 const savingSectionKey = ref('')
@@ -350,6 +344,11 @@ const hasUnsavedChanges = computed(() => {
 })
 
 watch(module, syncForms, { immediate: true })
+watch(() => route.params.id, async (id, previousId) => {
+  if (!id || id === previousId) return
+  store.setCurrentModule(null)
+  await store.fetchModuleById(String(id))
+})
 
 onMounted(() => {
   window.addEventListener('beforeunload', warnBeforeUnload)
@@ -367,7 +366,10 @@ onBeforeRouteLeave(() => {
 })
 
 function syncForms() {
-  if (!module.value) return
+  if (!module.value) {
+    sectionForms.value = []
+    return
+  }
   moduleForm.title = module.value.title
   moduleForm.description = module.value.description || ''
   moduleForm.keywords = module.value.keywords || ''
@@ -378,11 +380,6 @@ function syncForms() {
     ensureLinkForm(section.localKey)
     componentTableVersions[section.localKey] ??= 0
   }
-}
-
-function syncStoreModule(moduleToSync: LearningModule | null = module.value) {
-  if (!moduleToSync?.id) return
-  store.upsertModule(moduleToSync)
 }
 
 function toSectionForm(section: ModuleDetail): SectionForm {
@@ -423,10 +420,9 @@ async function saveModule() {
   moduleError.value = ''
   assignFieldErrors(moduleFieldErrors, {})
   try {
-    const { data } = await api.patch<LearningModule>(`/api/modules/${module.value.id}`, moduleForm)
-    module.value = data
+    await store.updateModule(module.value.id, moduleForm)
+    await store.fetchModules()
     syncForms()
-    syncStoreModule(data)
     await nextTick()
     moduleSavedAt.value = new Date()
     toast.success('Tersimpan', { description: 'Modul diperbarui.' })
@@ -484,12 +480,9 @@ async function saveSection(section: SectionForm, index: number) {
   sectionErrors[section.localKey] = ''
   const body = sectionBody(section, index)
   try {
-    if (section.id) await api.patch(`/api/details/${section.id}`, body)
-    else await api.post(`/api/modules/${module.value.id}/details`, body)
+    await store.saveSection(module.value.id, section.id, body)
     sectionSavedAt[section.localKey] = new Date()
-    await refresh()
     syncForms()
-    syncStoreModule()
     toast.success('Tersimpan', { description: 'Bagian modul disimpan.' })
   } catch (error) {
     sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menyimpan bagian.')
@@ -536,7 +529,7 @@ function formatSaveTime(value: Date) {
   return value.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
 }
 
-function sectionBody(section: SectionForm, index: number) {
+function sectionBody(section: SectionForm, index: number): ModuleSectionPayload {
   const components = section.components
     .map(row => ({
       category: row.category?.trim() || '',
@@ -630,11 +623,14 @@ function confirmDeleteSection(section: SectionForm) {
         return
       }
 
-      await api.delete(`/api/details/${section.id}`)
-      await refresh()
-      syncForms()
-      syncStoreModule()
-      toast.success('Terhapus', { description: 'Bagian modul dihapus.' })
+      try {
+        await store.deleteSection(section.id)
+        syncForms()
+        toast.success('Terhapus', { description: 'Bagian modul dihapus.' })
+      } catch (error) {
+        sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menghapus bagian.')
+        toast.error('Gagal menghapus', { description: sectionErrors[section.localKey] })
+      }
     },
   })
 }
@@ -659,18 +655,17 @@ async function addLink(section: SectionForm, index: number) {
   if (!targetSection?.id) return
 
   try {
-    await api.post(`/api/details/${targetSection.id}/attachments`, {
+    const payload: ModuleAttachmentPayload = {
       type: 'LINK',
       title: form.title,
       url: form.url,
       sortOrder: targetSection.attachments.length,
-    })
+    }
+    await store.addAttachment(targetSection.id, payload)
     form.title = ''
     form.url = ''
     if (openLinkFormKey.value === section.localKey || openLinkFormKey.value === targetSection.localKey) openLinkFormKey.value = ''
-    await refresh()
     syncForms()
-    syncStoreModule()
     toast.success('Tersimpan', { description: 'Link ditambahkan.' })
   } catch (error) {
     sectionErrors[targetSection.localKey] = sectionErrorMessage(error, 'Gagal menambah link.')
@@ -773,21 +768,9 @@ async function uploadFiles(files: File[], section: SectionForm, index: number) {
   try {
     for (const [index, file] of files.entries()) {
       uploadProgress[targetSection.localKey] = { current: index + 1, total: files.length }
-      const mimeType = normalizedUploadMimeType(file.name, file.type)
-      const uploaded = await uploadFile(file, file.name)
-      await api.post(`/api/details/${targetSection.id}/attachments`, {
-        type: attachmentTypeFromMimeType(mimeType),
-        title: file.name,
-        url: uploaded.url,
-        filePath: uploaded.filePath,
-        mimeType: uploaded.mimeType,
-        sizeBytes: uploaded.sizeBytes,
-        sortOrder: targetSection.attachments.length + index,
-      })
     }
-    await refresh()
+    await store.attachFiles(targetSection.id, files, targetSection.attachments.length)
     syncForms()
-    syncStoreModule()
     toast.success('Terunggah', {
       description: files.length === 1 ? 'Lampiran file ditambahkan.' : `${files.length} lampiran file ditambahkan.`,
     })
@@ -811,10 +794,9 @@ async function ensureSectionSavedForAttachments(section: SectionForm, index: num
   sectionErrors[section.localKey] = ''
 
   try {
-    const { data } = await api.post<ModuleDetail>(`/api/modules/${module.value.id}/details`, sectionBody(section, index))
-    await refresh()
+    const data = await store.saveSection(module.value.id, undefined, sectionBody(section, index))
     syncForms()
-    syncStoreModule()
+    if (!data) return null
 
     const savedSection = sectionForms.value.find(item => item.id === data.id)
     if (savedSection) {
@@ -846,11 +828,13 @@ function confirmDeleteAttachment(attachment: Attachment) {
     rejectProps: { label: 'Batal', severity: 'secondary', outlined: true, size: 'small' },
     accept: async () => {
       if (!attachment.id) return
-      await api.delete(`/api/attachments/${attachment.id}`)
-      await refresh()
-      syncForms()
-      syncStoreModule()
-      toast.success('Terhapus', { description: 'Lampiran dihapus.' })
+      try {
+        await store.deleteAttachment(attachment.id)
+        syncForms()
+        toast.success('Terhapus', { description: 'Lampiran dihapus.' })
+      } catch (error) {
+        toast.error('Gagal menghapus', { description: sectionErrorMessage(error, 'Gagal menghapus lampiran.') })
+      }
     },
   })
 }
