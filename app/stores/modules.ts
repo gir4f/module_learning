@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Attachment, ComponentItem, LearningModule, ModuleDetail } from '~/types/learning'
+import type { Attachment, ComponentItem, LearningModule, ModuleDetail, PublishStatus } from '~/types/learning'
 import { useLearningModulesStore } from '~/stores/learningModules'
 import { apiErrorMessage } from '~/utils/apiErrors'
 import { attachmentTypeFromMimeType, normalizedUploadMimeType, uploadFile } from '~/utils/upload'
@@ -23,6 +23,12 @@ export type ModuleAttachmentPayload = Pick<Attachment, 'type' | 'title' | 'url' 
   filePath?: string | null
   mimeType?: string | null
   sizeBytes?: number | null
+}
+
+export type BulkModuleMutationResult = {
+  requestedCount: number
+  affectedCount: number
+  missingIds: string[]
 }
 
 export const useModulesStore = defineStore('modules', () => {
@@ -63,6 +69,18 @@ export const useModulesStore = defineStore('modules', () => {
       module?.slug,
       currentModule.value?.id,
       currentModule.value?.slug,
+    )
+  }
+
+  function uniqueIds(ids: string[]) {
+    return Array.from(new Set(ids.filter(Boolean)))
+  }
+
+  function invalidateLearnerModulesByKeys(keys: Array<string | null | undefined>) {
+    const learningStore = useLearningModulesStore()
+    learningStore.invalidateModules()
+    learningStore.invalidateModule(
+      ...keys,
     )
   }
 
@@ -152,6 +170,61 @@ export const useModulesStore = defineStore('modules', () => {
       }
       removeModule(id)
       invalidateLearnerModules(deletedModule)
+    } finally {
+      pendingMutation.value = false
+    }
+  }
+
+  async function bulkUpdateStatus(ids: string[], status: PublishStatus) {
+    pendingMutation.value = true
+    try {
+      const resolvedIds = uniqueIds(ids)
+      const targetModules = modules.value.filter(module => module.id && resolvedIds.includes(module.id))
+      const targetKeys = targetModules.flatMap(module => [module.id, module.slug])
+      const api = useApiClient()
+      const { data } = await api.patch<BulkModuleMutationResult>('/api/modules/bulk', {
+        ids: resolvedIds,
+        status,
+      })
+
+      if (currentModule.value?.id && resolvedIds.includes(currentModule.value.id)) {
+        await refreshCurrentModule()
+      }
+
+      await fetchModules()
+      invalidateLearnerModulesByKeys([
+        ...targetKeys,
+        currentModule.value?.id,
+        currentModule.value?.slug,
+      ])
+      return data
+    } finally {
+      pendingMutation.value = false
+    }
+  }
+
+  async function bulkDeleteModules(ids: string[]) {
+    pendingMutation.value = true
+    try {
+      const resolvedIds = uniqueIds(ids)
+      const targetModules = modules.value.filter(module => module.id && resolvedIds.includes(module.id))
+      const targetKeys = targetModules.flatMap(module => [module.id, module.slug])
+      const currentKeys = [currentModule.value?.id, currentModule.value?.slug]
+      const api = useApiClient()
+      const { data } = await api.delete<BulkModuleMutationResult>('/api/modules/bulk', {
+        data: { ids: resolvedIds },
+      })
+
+      if (currentModule.value?.id && resolvedIds.includes(currentModule.value.id)) {
+        setCurrentModule(null)
+      }
+
+      await fetchModules()
+      invalidateLearnerModulesByKeys([
+        ...targetKeys,
+        ...currentKeys,
+      ])
+      return data
     } finally {
       pendingMutation.value = false
     }
@@ -257,6 +330,8 @@ export const useModulesStore = defineStore('modules', () => {
     createModule,
     updateModule,
     deleteModule,
+    bulkUpdateStatus,
+    bulkDeleteModules,
     saveSection,
     deleteSection,
     addAttachment,

@@ -29,6 +29,19 @@ export const modulePatchPayloadSchema = z.object({
   sortOrder: z.coerce.number().int().optional(),
 }).refine(payload => Object.keys(payload).length > 0, 'Tidak ada perubahan.')
 
+const bulkModuleIdsSchema = z.array(z.string().trim().min(1, 'ID modul wajib diisi'))
+  .min(1, 'Pilih minimal satu modul.')
+  .transform(ids => Array.from(new Set(ids)))
+
+export const moduleBulkStatusPayloadSchema = z.object({
+  ids: bulkModuleIdsSchema,
+  status: z.enum(['DRAFT', 'PUBLISHED']),
+})
+
+export const moduleBulkDeletePayloadSchema = z.object({
+  ids: bulkModuleIdsSchema,
+})
+
 export const detailPayloadSchema = z.object({
   title: z.string().trim().min(1, 'Wajib diisi'),
   slug: z.string().trim().optional(),

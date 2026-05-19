@@ -1,10 +1,57 @@
 <template>
   <div class="space-y-4">
-    <p v-if="!pending" class="text-sm font-semibold text-slate-600 dark:text-slate-400">
+    <p v-if="!props.pending" class="text-sm font-semibold text-slate-600 dark:text-slate-400">
       Menampilkan {{ paginatedModules.length }} dari {{ sortedModules.length }} modul
     </p>
 
     <AdminSurface>
+      <div
+        v-if="selectedIds.length"
+        class="sticky top-3 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 sm:px-5"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-sm font-black text-slate-900 dark:text-slate-100">{{ selectedIds.length }} modul dipilih</p>
+            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Aksi hanya berlaku untuk item di halaman aktif.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <Button
+              label="Publikasikan"
+              icon="pi pi-globe"
+              size="small"
+              :disabled="props.busy"
+              @click="emitBulkStatus('PUBLISHED')"
+            />
+            <Button
+              label="Jadikan Draf"
+              icon="pi pi-file-edit"
+              size="small"
+              severity="secondary"
+              outlined
+              :disabled="props.busy"
+              @click="emitBulkStatus('DRAFT')"
+            />
+            <Button
+              label="Hapus"
+              icon="pi pi-trash"
+              size="small"
+              severity="danger"
+              outlined
+              :disabled="props.busy"
+              @click="$emit('bulk-delete', [...selectedIds])"
+            />
+            <Button
+              label="Batal pilih"
+              icon="pi pi-times"
+              size="small"
+              text
+              :disabled="props.busy"
+              @click="clearSelection"
+            />
+          </div>
+        </div>
+      </div>
+
       <div class="grid gap-3 border-b border-slate-200 p-4 dark:border-slate-800 min-[90rem]:grid-cols-[minmax(0,1fr)_auto_auto] min-[90rem]:items-end">
         <label class="relative min-w-0">
           <span class="sr-only">Cari modul</span>
@@ -51,7 +98,7 @@
         />
       </div>
 
-      <div v-if="pending" class="p-6 text-sm font-semibold text-slate-500 dark:text-slate-400">Memuat modul...</div>
+      <div v-if="props.pending" class="p-6 text-sm font-semibold text-slate-500 dark:text-slate-400">Memuat modul...</div>
       <div v-else-if="!filteredModules.length" class="p-6">
         <EmptyState title="Modul tidak ditemukan" description="Coba kata kunci lain atau buat modul baru." icon="pi pi-search">
           <Button label="Modul Baru" icon="pi pi-plus" @click="$emit('create')" />
@@ -59,7 +106,17 @@
       </div>
 
       <div v-else class="flex h-full flex-col p-4 sm:p-5">
-        <div class="mb-3 hidden grid-cols-[minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] items-center gap-4 rounded-xl bg-slate-100 px-4 py-3 text-[11px] font-black uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300 min-[90rem]:grid">
+        <div class="mb-3 hidden grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] items-center gap-4 rounded-xl bg-slate-100 px-4 py-3 text-[11px] font-black uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300 min-[90rem]:grid">
+          <label class="flex items-center justify-center">
+            <span class="sr-only">Pilih semua modul di halaman aktif</span>
+            <input
+              type="checkbox"
+              class="h-4 w-4 rounded border-slate-300 text-brand-teal focus:ring-cyan-200 dark:border-slate-600 dark:bg-slate-900 dark:focus:ring-cyan-900"
+              :checked="allPageSelected"
+              :disabled="props.busy || !selectablePageIds.length"
+              @change="handleSelectAllChange"
+            >
+          </label>
           <span>Nama Modul</span>
           <span>Status</span>
           <span>Alamat</span>
@@ -72,21 +129,35 @@
           <article
             v-for="module in paginatedModules"
             :key="module.id || module.slug"
-            class="group grid min-w-0 gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50 sm:p-4 min-[90rem]:grid-cols-[minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] min-[90rem]:items-center"
+            class="group grid min-w-0 gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50 sm:p-4 min-[90rem]:grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] min-[90rem]:items-center"
           >
+            <div class="flex items-start justify-between gap-3 min-[90rem]:items-center min-[90rem]:justify-center">
+              <label class="flex items-center justify-center">
+                <span class="sr-only">Pilih modul {{ module.title }}</span>
+                <input
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-slate-300 text-brand-teal focus:ring-cyan-200 dark:border-slate-600 dark:bg-slate-900 dark:focus:ring-cyan-900"
+                  :checked="module.id ? selectedIds.includes(module.id) : false"
+                  :disabled="props.busy || !module.id"
+                  @change="handleRowSelectionChange(module.id, $event)"
+                >
+              </label>
+              <button
+                type="button"
+                class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[90rem]:hidden"
+                :class="statusClass(module.status)"
+                :disabled="props.busy"
+                @click="$emit('toggle-status', module)"
+              >
+                {{ module.status === 'PUBLISHED' ? 'Publikasi' : 'Draf' }}
+              </button>
+            </div>
+
             <div class="min-w-0">
               <div class="flex min-w-0 items-start justify-between gap-3 min-[90rem]:block">
                 <h2 class="min-w-0 truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">
                   {{ module.title }}
                 </h2>
-                <button
-                  type="button"
-                  class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] min-[90rem]:hidden"
-                  :class="statusClass(module.status)"
-                  @click="$emit('toggle-status', module)"
-                >
-                  {{ module.status === 'PUBLISHED' ? 'Publikasi' : 'Draf' }}
-                </button>
               </div>
               <p class="mt-0.5 truncate text-sm font-medium text-slate-500 dark:text-slate-400 min-[90rem]:hidden">
                 /{{ module.slug }}
@@ -95,8 +166,9 @@
 
             <button
               type="button"
-              class="hidden w-fit justify-self-start rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] min-[90rem]:inline-flex"
+              class="hidden w-fit justify-self-start rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[90rem]:inline-flex"
               :class="statusClass(module.status)"
+              :disabled="props.busy"
               @click="$emit('toggle-status', module)"
             >
               {{ module.status === 'PUBLISHED' ? 'Publikasi' : 'Draf' }}
@@ -115,8 +187,8 @@
             </div>
 
             <div class="hidden items-center justify-end gap-2 min-[90rem]:flex">
-              <Button label="Edit" icon="pi pi-pencil" size="small" @click="$emit('edit', module)" />
-              <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined @click="$emit('delete', module)" />
+              <Button label="Edit" icon="pi pi-pencil" size="small" :disabled="props.busy" @click="$emit('edit', module)" />
+              <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined :disabled="props.busy" @click="$emit('delete', module)" />
             </div>
 
             <div class="flex items-center justify-between gap-4 text-sm min-[90rem]:hidden">
@@ -131,15 +203,15 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2 min-[90rem]:hidden">
-              <Button label="Edit" icon="pi pi-pencil" size="small" class="min-w-0 w-full" @click="$emit('edit', module)" />
-              <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined class="min-w-0 w-full" @click="$emit('delete', module)" />
+              <Button label="Edit" icon="pi pi-pencil" size="small" class="min-w-0 w-full" :disabled="props.busy" @click="$emit('edit', module)" />
+              <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined class="min-w-0 w-full" :disabled="props.busy" @click="$emit('delete', module)" />
             </div>
           </article>
         </div>
       </div>
     </AdminSurface>
 
-    <div v-if="!pending && sortedModules.length > 10" class="flex justify-center border-t border-slate-200 pt-4 dark:border-slate-800">
+    <div v-if="!props.pending && sortedModules.length > 10" class="flex justify-center border-t border-slate-200 pt-4 dark:border-slate-800">
       <Paginator
         v-model:first="firstRow"
         :rows="10"
@@ -150,8 +222,6 @@
   </div>
 </template>
 
-
-
 <script setup lang="ts">
 import type { LearningModule, PublishStatus } from '~/types/learning'
 import AdminSurface from '~/components/admin/AdminSurface.vue'
@@ -160,10 +230,16 @@ import SortSelect from '~/components/shared/SortSelect.vue'
 import { formatAdminDate } from '~/utils/adminModuleUi'
 import { sortModules, type ModuleSort } from '~/utils/moduleUi'
 
-const { modules, pending = false } = defineProps<{
+const props = withDefaults(defineProps<{
   modules: LearningModule[]
   pending?: boolean
-}>()
+  busy?: boolean
+  selectionResetKey?: number
+}>(), {
+  pending: false,
+  busy: false,
+  selectionResetKey: 0,
+})
 
 const emit = defineEmits<{
   create: []
@@ -171,6 +247,8 @@ const emit = defineEmits<{
   delete: [module: LearningModule]
   'toggle-status': [module: LearningModule]
   'open-command-palette': []
+  'bulk-status': [payload: { ids: string[], status: PublishStatus }]
+  'bulk-delete': [ids: string[]]
 }>()
 
 const search = ref('')
@@ -184,10 +262,11 @@ const statusOptions: Array<{ label: string, value: 'ALL' | PublishStatus }> = [
 ]
 
 const firstRow = ref(0)
+const selectedIds = ref<string[]>([])
 
 const filteredModules = computed(() => {
   const query = search.value.trim().toLowerCase()
-  return modules.filter((module) => {
+  return props.modules.filter((module) => {
     const haystack = [module.title, module.slug, module.description, module.keywords].join(' ').toLowerCase()
     return (status.value === 'ALL' || module.status === status.value) && (!query || haystack.includes(query))
   })
@@ -199,9 +278,24 @@ const paginatedModules = computed(() => {
   return sortedModules.value.slice(firstRow.value, firstRow.value + 10)
 })
 
+const selectablePageIds = computed(() => paginatedModules.value
+  .map(module => module.id)
+  .filter((id): id is string => Boolean(id)))
+
+const allPageSelected = computed(() => {
+  return selectablePageIds.value.length > 0
+    && selectablePageIds.value.every(id => selectedIds.value.includes(id))
+})
+
 watch(search, () => { firstRow.value = 0 })
 watch(status, () => { firstRow.value = 0 })
 watch(sort, () => { firstRow.value = 0 })
+watch(selectablePageIds, (ids) => {
+  selectedIds.value = selectedIds.value.filter(id => ids.includes(id))
+}, { immediate: true })
+watch(() => props.selectionResetKey, () => {
+  selectedIds.value = []
+})
 
 onMounted(() => {
   window.addEventListener('keydown', handleGlobalShortcut)
@@ -220,6 +314,31 @@ function statusClass(moduleStatus: PublishStatus) {
 function clearSearch() {
   search.value = ''
   searchInput.value?.focus()
+}
+
+function clearSelection() {
+  selectedIds.value = []
+}
+
+function handleSelectAllChange(event: Event) {
+  const checked = (event.target as HTMLInputElement).checked
+  selectedIds.value = checked ? [...selectablePageIds.value] : []
+}
+
+function handleRowSelectionChange(id: string | undefined, event: Event) {
+  if (!id) return
+  const checked = (event.target as HTMLInputElement).checked
+  if (checked) {
+    if (!selectedIds.value.includes(id)) selectedIds.value = [...selectedIds.value, id]
+    return
+  }
+
+  selectedIds.value = selectedIds.value.filter(selectedId => selectedId !== id)
+}
+
+function emitBulkStatus(statusValue: PublishStatus) {
+  if (!selectedIds.value.length) return
+  emit('bulk-status', { ids: [...selectedIds.value], status: statusValue })
 }
 
 function handleSearchEscape() {
