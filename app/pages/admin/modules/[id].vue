@@ -263,6 +263,17 @@ import InlineComponentTable from '~/components/admin/InlineComponentTable.vue'
 import EmptyState from '~/components/shared/EmptyState.vue'
 import { useModulesStore, type ModuleAttachmentPayload, type ModuleSectionPayload } from '~/stores/modules'
 import { apiErrorMessage, apiFieldErrors, assignFieldErrors } from '~/utils/apiErrors'
+import { CSV_IMPORT_MAX_BYTES, CSV_IMPORT_MAX_ROWS, exceedsCsvImportByteLimit, exceedsCsvImportRowLimit } from '~/utils/csvImportLimits'
+import {
+  CSV_EXPORT_HEADERS,
+  CSV_HEADER_ALIASES,
+  parseCsvTable,
+  detectCsvDelimiter,
+  normalizeCsvHeader,
+  resolveCsvColumnIndex,
+  getCsvCell,
+  escapeCsvField,
+} from '~/utils/csvUtils'
 import { isAllowedUploadMimeType, isPdfAttachment, previewUrlForAttachment } from '~/utils/upload'
 
 const PdfPreviewModal = defineAsyncComponent(() => import('~/components/shared/PdfPreviewModal.vue'))
@@ -309,14 +320,6 @@ const uploadProgress = reactive<Record<string, { current: number, total: number 
 const lastUploadStatus = reactive<Record<string, { ok: boolean, message: string }>>({})
 const moduleSavedAt = ref<Date | null>(null)
 const sectionSavedAt = reactive<Record<string, Date>>({})
-const CSV_EXPORT_HEADERS = ['Kategori', 'Nama Komponen', 'Jumlah', 'Satuan', 'Keterangan']
-const CSV_HEADER_ALIASES = {
-  category: ['kategori', 'category', 'jenis'],
-  name: ['nama', 'nama komponen', 'komponen', 'part', 'part name', 'item', 'barang'],
-  quantity: ['jumlah', 'qty', 'quantity', 'banyak', 'kuantitas'],
-  unit: ['satuan', 'unit', 'uom'],
-  note: ['keterangan', 'note', 'catatan', 'remarks'],
-} as const
 const moduleForm = reactive({
   title: '',
   description: '',
@@ -874,9 +877,20 @@ async function importCsv(event: Event, section: SectionForm, index: number) {
   input.value = ''
   if (!file) return
 
+  if (exceedsCsvImportByteLimit(file.size)) {
+    sectionErrors[section.localKey] = 'Ukuran file CSV melebihi batas 1 MB.'
+    toast.error('Import CSV gagal', { description: 'Ukuran file CSV melebihi batas 1 MB.' })
+    return
+  }
+
   try {
     const text = await file.text()
     const rows = parseCsvTable(text)
+    if (exceedsCsvImportRowLimit(rows.length - 1)) {
+      sectionErrors[section.localKey] = 'Jumlah baris CSV melebihi batas 1000 baris.'
+      toast.error('Import CSV gagal', { description: 'Jumlah baris CSV melebihi batas 1000 baris.' })
+      return
+    }
     if (rows.length < 2) {
       await fallbackCsvToAttachment(file, section, index, 'Format CSV kosong atau tidak terbaca sebagai tabel komponen.')
       return
@@ -945,110 +959,6 @@ async function fallbackCsvToAttachment(file: File, section: SectionForm, index: 
     description: `${reason} File tetap disimpan agar bisa ditinjau manual.`,
   })
   await uploadFiles([file], section, index)
-}
-
-function parseCsvTable(text: string) {
-  const normalized = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-  const firstLine = normalized.split('\n').find(line => line.trim().length) || ''
-  const delimiter = detectCsvDelimiter(firstLine)
-  const rows: string[][] = []
-  let row: string[] = []
-  let field = ''
-  let inQuotes = false
-
-  for (let index = 0; index < normalized.length; index += 1) {
-    const char = normalized[index]
-    const nextChar = normalized[index + 1]
-
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
-        field += '"'
-        index += 1
-      } else {
-        inQuotes = !inQuotes
-      }
-      continue
-    }
-
-    if (char === delimiter && !inQuotes) {
-      row.push(field)
-      field = ''
-      continue
-    }
-
-    if (char === '\n' && !inQuotes) {
-      row.push(field)
-      if (row.some(cell => cell.trim().length)) rows.push(row.map(cell => cell.trim()))
-      row = []
-      field = ''
-      continue
-    }
-
-    field += char
-  }
-
-  if (field.length || row.length) {
-    row.push(field)
-    if (row.some(cell => cell.trim().length)) rows.push(row.map(cell => cell.trim()))
-  }
-
-  return rows
-}
-
-function detectCsvDelimiter(line: string) {
-  const delimiters = [',', ';', '\t'] as const
-  let winner = ','
-  let bestCount = -1
-
-  for (const delimiter of delimiters) {
-    const count = line.split(delimiter).length
-    if (count > bestCount) {
-      bestCount = count
-      winner = delimiter
-    }
-  }
-
-  return winner
-}
-
-function resolveCsvColumnIndex(headers: string[], aliases: readonly string[]) {
-  const normalizedHeaders = headers.map(header => normalizeCsvHeader(header))
-  let bestIndex = -1
-  let bestScore = 0
-
-  normalizedHeaders.forEach((header, index) => {
-    aliases.forEach((alias) => {
-      const normalizedAlias = normalizeCsvHeader(alias)
-      let score = 0
-      if (header === normalizedAlias) score = 4
-      else if (header.includes(normalizedAlias) || normalizedAlias.includes(header)) score = 3
-      else if (header.split(' ').some(part => normalizedAlias.includes(part) || part.includes(normalizedAlias))) score = 2
-      if (score > bestScore) {
-        bestScore = score
-        bestIndex = index
-      }
-    })
-  })
-
-  return bestIndex
-}
-
-function normalizeCsvHeader(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[_-]+/g, ' ')
-    .replace(/[^\w\s]/g, '')
-    .replace(/\s+/g, ' ')
-}
-
-function getCsvCell(row: string[], index: number) {
-  if (index < 0) return ''
-  return row[index]?.trim() || ''
-}
-
-function escapeCsvField(value: string) {
-  return `"${String(value).replace(/"/g, '""')}"`
 }
 
 function warnBeforeUnload(event: BeforeUnloadEvent) {
