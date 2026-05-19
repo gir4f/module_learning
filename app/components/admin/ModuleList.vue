@@ -1,102 +1,57 @@
 <template>
-  <div class="space-y-4">
-    <p v-if="!props.pending" class="text-sm font-semibold text-slate-600 dark:text-slate-400">
-      Menampilkan {{ paginatedModules.length }} dari {{ sortedModules.length }} modul
-    </p>
-
+  <div>
     <AdminSurface>
-      <div
-        v-if="selectedIds.length"
-        class="sticky top-3 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 sm:px-5"
-      >
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div class="min-w-0">
-            <p class="text-sm font-black text-slate-900 dark:text-slate-100">{{ selectedIds.length }} modul dipilih</p>
-            <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Aksi hanya berlaku untuk item di halaman aktif.</p>
+      <div ref="cardEl">
+        <div class="grid gap-3 border-b border-slate-200 p-4 dark:border-slate-800 min-[90rem]:grid-cols-[minmax(0,1fr)_auto_auto] min-[90rem]:items-end">
+          <div class="flex min-w-0 flex-col gap-1.5">
+            <p v-if="!props.pending" class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Menampilkan {{ paginatedModules.length }} dari {{ sortedModules.length }} modul
+            </p>
+            <label class="relative min-w-0">
+              <span class="sr-only">Cari modul</span>
+            <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true" />
+            <input
+              ref="searchInput"
+              v-model="search"
+              type="text"
+              role="searchbox"
+              class="min-h-11 w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 text-sm font-semibold text-slate-900 outline-none transition focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-950"
+              :class="search ? 'pr-11' : 'pr-24'"
+              placeholder="Cari modul..."
+              @keydown.escape.prevent="handleSearchEscape"
+            >
+            <button
+              v-if="search"
+              type="button"
+              class="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:focus-visible:ring-cyan-950"
+              aria-label="Bersihkan pencarian modul"
+              @click="clearSearch"
+            >
+              <i class="pi pi-times text-xs" aria-hidden="true" />
+            </button>
+            <kbd v-else class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-black text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 sm:inline-flex">Ctrl K</kbd>
+          </label>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <Button
-              label="Publikasikan"
-              icon="pi pi-globe"
-              size="small"
-              :disabled="props.busy"
-              @click="emitBulkStatus('PUBLISHED')"
-            />
-            <Button
-              label="Jadikan Draf"
-              icon="pi pi-file-edit"
-              size="small"
-              severity="secondary"
-              outlined
-              :disabled="props.busy"
-              @click="emitBulkStatus('DRAFT')"
-            />
-            <Button
-              label="Hapus"
-              icon="pi pi-trash"
-              size="small"
-              severity="danger"
-              outlined
-              :disabled="props.busy"
-              @click="$emit('bulk-delete', [...selectedIds])"
-            />
-            <Button
-              label="Batal pilih"
-              icon="pi pi-times"
-              size="small"
-              text
-              :disabled="props.busy"
-              @click="clearSelection"
-            />
+
+          <div class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800 min-[48rem]:w-full min-[90rem]:w-auto">
+            <button
+              v-for="option in statusOptions"
+              :key="option.value"
+              type="button"
+              class="min-h-10 flex-1 rounded-lg px-3 text-center text-xs font-black transition min-[90rem]:flex-none"
+              :class="status === option.value ? 'bg-white text-brand-navy shadow-sm dark:bg-slate-950 dark:text-cyan-200' : 'text-slate-600 hover:text-brand-navy dark:text-slate-300 dark:hover:text-cyan-200'"
+              @click="status = option.value"
+            >
+              {{ option.label }}
+            </button>
           </div>
+
+          <SortSelect
+            :model-value="sort"
+            class="w-full min-[90rem]:w-44"
+            @update:model-value="sort = $event"
+          />
         </div>
-      </div>
-
-      <div class="grid gap-3 border-b border-slate-200 p-4 dark:border-slate-800 min-[90rem]:grid-cols-[minmax(0,1fr)_auto_auto] min-[90rem]:items-end">
-        <label class="relative min-w-0">
-          <span class="sr-only">Cari modul</span>
-          <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true" />
-          <input
-            ref="searchInput"
-            v-model="search"
-            type="text"
-            role="searchbox"
-            class="min-h-11 w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 text-sm font-semibold text-slate-900 outline-none transition focus:border-brand-teal focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-cyan-950"
-            :class="search ? 'pr-11' : 'pr-24'"
-            placeholder="Cari modul..."
-            @keydown.escape.prevent="handleSearchEscape"
-          >
-          <button
-            v-if="search"
-            type="button"
-            class="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:focus-visible:ring-cyan-950"
-            aria-label="Bersihkan pencarian modul"
-            @click="clearSearch"
-          >
-            <i class="pi pi-times text-xs" aria-hidden="true" />
-          </button>
-          <kbd v-else class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-black text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 sm:inline-flex">Ctrl K</kbd>
-        </label>
-
-        <div class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800 min-[48rem]:w-full min-[90rem]:w-auto">
-          <button
-            v-for="option in statusOptions"
-            :key="option.value"
-            type="button"
-            class="min-h-10 flex-1 rounded-lg px-3 text-center text-xs font-black transition min-[90rem]:flex-none"
-            :class="status === option.value ? 'bg-white text-brand-navy shadow-sm dark:bg-slate-950 dark:text-cyan-200' : 'text-slate-600 hover:text-brand-navy dark:text-slate-300 dark:hover:text-cyan-200'"
-            @click="status = option.value"
-          >
-            {{ option.label }}
-          </button>
-        </div>
-
-        <SortSelect
-          :model-value="sort"
-          class="w-full min-[90rem]:w-44"
-          @update:model-value="sort = $event"
-        />
-      </div>
 
       <div v-if="props.pending" class="p-6 text-sm font-semibold text-slate-500 dark:text-slate-400">Memuat modul...</div>
       <div v-else-if="!filteredModules.length" class="p-6">
@@ -208,10 +163,13 @@
             </div>
           </article>
         </div>
+
+
+      </div>
       </div>
     </AdminSurface>
 
-    <div v-if="!props.pending && sortedModules.length > 10" class="flex justify-center border-t border-slate-200 pt-4 dark:border-slate-800">
+    <div v-if="!props.pending && sortedModules.length > 10" class="mt-4 flex justify-center border-t border-slate-200 pt-4 dark:border-slate-800">
       <Paginator
         v-model:first="firstRow"
         :rows="10"
@@ -219,6 +177,56 @@
         template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
       />
     </div>
+
+    <Transition name="bulk-pill">
+      <div
+        v-if="selectedIds.length"
+        class="fixed bottom-5 z-50 inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/90 py-1.5 pl-4 pr-1.5 shadow-xl ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/90 dark:ring-white/5 sm:gap-3 sm:py-2 sm:pl-5 sm:pr-2"
+        :style="pillStyle"
+      >
+        <p class="whitespace-nowrap text-xs font-black text-slate-800 dark:text-slate-100 sm:text-sm">
+          {{ selectedIds.length }} dipilih
+        </p>
+        <div class="flex items-center gap-1 sm:gap-1.5">
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-full bg-brand-teal px-2.5 py-1.5 text-[11px] font-bold text-white shadow-sm transition hover:bg-brand-teal/90 disabled:opacity-50 sm:px-3 sm:py-1.5 sm:text-xs"
+            :disabled="props.busy"
+            @click="emitBulkStatus('PUBLISHED')"
+          >
+            <i class="pi pi-globe text-[10px]" aria-hidden="true" />
+            <span class="hidden min-[28rem]:inline">Publikasi</span>
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-3 sm:py-1.5 sm:text-xs"
+            :disabled="props.busy"
+            @click="emitBulkStatus('DRAFT')"
+          >
+            <i class="pi pi-file-edit text-[10px]" aria-hidden="true" />
+            <span class="hidden min-[28rem]:inline">Draf</span>
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:bg-slate-800 dark:text-red-400 dark:hover:bg-red-950/50 sm:px-3 sm:py-1.5 sm:text-xs"
+            :disabled="props.busy"
+            @click="$emit('bulk-delete', [...selectedIds])"
+          >
+            <i class="pi pi-trash text-[10px]" aria-hidden="true" />
+            <span class="hidden min-[28rem]:inline">Hapus</span>
+          </button>
+          <button
+            type="button"
+            class="inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50 dark:hover:bg-slate-700 dark:hover:text-slate-200 sm:h-8 sm:w-8"
+            :disabled="props.busy"
+            aria-label="Batal pilih"
+            @click="clearSelection"
+          >
+            <i class="pi pi-times text-xs" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -253,6 +261,7 @@ const emit = defineEmits<{
 
 const search = ref('')
 const searchInput = useTemplateRef<HTMLInputElement>('searchInput')
+const cardEl = useTemplateRef<HTMLElement>('cardEl')
 const status = ref<'ALL' | PublishStatus>('ALL')
 const sort = ref<ModuleSort>('default')
 const statusOptions: Array<{ label: string, value: 'ALL' | PublishStatus }> = [
@@ -263,6 +272,7 @@ const statusOptions: Array<{ label: string, value: 'ALL' | PublishStatus }> = [
 
 const firstRow = ref(0)
 const selectedIds = ref<string[]>([])
+const cardCenter = ref(0)
 
 const filteredModules = computed(() => {
   const query = search.value.trim().toLowerCase()
@@ -287,6 +297,11 @@ const allPageSelected = computed(() => {
     && selectablePageIds.value.every(id => selectedIds.value.includes(id))
 })
 
+const pillStyle = computed(() => ({
+  left: `${cardCenter.value}px`,
+  transform: 'translateX(-50%)',
+}))
+
 watch(search, () => { firstRow.value = 0 })
 watch(status, () => { firstRow.value = 0 })
 watch(sort, () => { firstRow.value = 0 })
@@ -297,12 +312,29 @@ watch(() => props.selectionResetKey, () => {
   selectedIds.value = []
 })
 
+function updateCardCenter() {
+  if (!cardEl.value) return
+  const rect = cardEl.value.getBoundingClientRect()
+  cardCenter.value = rect.left + rect.width / 2
+}
+
+let resizeObserver: ResizeObserver | null = null
+
 onMounted(() => {
   window.addEventListener('keydown', handleGlobalShortcut)
+  window.addEventListener('resize', updateCardCenter, { passive: true })
+  updateCardCenter()
+
+  if (cardEl.value) {
+    resizeObserver = new ResizeObserver(updateCardCenter)
+    resizeObserver.observe(cardEl.value)
+  }
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleGlobalShortcut)
+  window.removeEventListener('resize', updateCardCenter)
+  resizeObserver?.disconnect()
 })
 
 function statusClass(moduleStatus: PublishStatus) {
@@ -356,3 +388,16 @@ function handleGlobalShortcut(event: KeyboardEvent) {
   emit('open-command-palette')
 }
 </script>
+
+<style>
+.bulk-pill-enter-active,
+.bulk-pill-leave-active {
+  transition: transform 180ms ease-out, opacity 180ms ease-out;
+}
+
+.bulk-pill-enter-from,
+.bulk-pill-leave-to {
+  opacity: 0;
+  transform: translateY(0.75rem);
+}
+</style>

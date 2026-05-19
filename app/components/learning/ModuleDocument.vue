@@ -13,6 +13,14 @@
       <aside class="hidden lg:block lg:z-20">
         <div class="sticky top-24">
           <SectionNav :details="module.details" />
+          <button
+            type="button"
+            class="mt-3 flex w-full items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-600 shadow-sm transition hover:border-brand-teal hover:text-brand-navy focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-cyan-400 dark:hover:text-cyan-200 dark:focus-visible:ring-cyan-950 no-print"
+            @click="goBack"
+          >
+            <i class="pi pi-arrow-left text-xs" aria-hidden="true" />
+            Kembali ke Modul
+          </button>
         </div>
       </aside>
 
@@ -117,6 +125,20 @@
         </div>
       </aside>
     </div>
+
+    <!-- Mobile floating back button with auto-hide -->
+    <Transition name="back-pill">
+      <button
+        v-if="showMobileBack"
+        type="button"
+        class="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-5 py-2.5 text-sm font-bold text-slate-700 shadow-lg backdrop-blur-md transition hover:border-brand-teal hover:text-brand-navy focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:border-cyan-400 dark:hover:text-cyan-200 dark:focus-visible:ring-cyan-950 lg:hidden no-print"
+        aria-label="Kembali ke halaman sebelumnya"
+        @click="goBack"
+      >
+        <i class="pi pi-arrow-left text-xs" aria-hidden="true" />
+        Kembali
+      </button>
+    </Transition>
   </article>
 </template>
 
@@ -133,6 +155,28 @@ const { module } = defineProps<{
 }>()
 
 const copied = ref(false)
+const router = useRouter()
+const showMobileBack = ref(true)
+let lastScrollY = 0
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else navigateTo('/')
+}
+
+function handleScroll() {
+  const currentY = window.scrollY
+  showMobileBack.value = currentY < lastScrollY || currentY < 80
+  lastScrollY = currentY
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 const componentCount = computed(() => module.details.reduce((total, detail) => total + detail.components.length, 0))
 const attachmentCount = computed(() => module.details.reduce((total, detail) => total + detail.attachments.length, 0))
 const readingTime = computed(() => Math.max(1, Math.ceil((module.details.length * 90 + componentCount.value * 18) / 220)))
@@ -197,3 +241,16 @@ function attachmentTypeLabel(type: Attachment['type']) {
   return 'File'
 }
 </script>
+
+<style scoped>
+.back-pill-enter-active,
+.back-pill-leave-active {
+  transition: transform 200ms ease-out, opacity 200ms ease-out;
+}
+
+.back-pill-enter-from,
+.back-pill-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(1rem);
+}
+</style>
