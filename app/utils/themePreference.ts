@@ -1,18 +1,34 @@
 export type ThemeMode = 'light' | 'dark'
-export type ThemeSource = 'system' | 'user'
+export type ThemePreference = 'system' | 'light' | 'dark'
 
-export function resolveThemePreference(storedValue: string | null, prefersDark: boolean) {
-  if (storedValue === 'true') {
-    return { isDark: true, mode: 'dark' as ThemeMode, source: 'user' as ThemeSource }
+export const THEME_STORAGE_KEY = 'dark-mode'
+
+export function normalizeStoredThemePreference(storedValue: string | null): ThemePreference {
+  if (storedValue === 'dark' || storedValue === 'true') return 'dark'
+  if (storedValue === 'light' || storedValue === 'false') return 'light'
+  return 'system'
+}
+
+export function resolveThemePreference(preference: ThemePreference, prefersDark: boolean) {
+  if (preference === 'dark') {
+    return {
+      preference: 'dark' as ThemePreference,
+      mode: 'dark' as ThemeMode,
+      isDark: true,
+    }
   }
 
-  if (storedValue === 'false') {
-    return { isDark: false, mode: 'light' as ThemeMode, source: 'user' as ThemeSource }
+  if (preference === 'light') {
+    return {
+      preference: 'light' as ThemePreference,
+      mode: 'light' as ThemeMode,
+      isDark: false,
+    }
   }
 
   return {
-    isDark: prefersDark,
+    preference: 'system' as ThemePreference,
     mode: prefersDark ? 'dark' as ThemeMode : 'light' as ThemeMode,
-    source: 'system' as ThemeSource,
+    isDark: prefersDark,
   }
 }

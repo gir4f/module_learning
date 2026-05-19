@@ -90,7 +90,7 @@ export default defineNuxtConfig({
       ],
       script: [
         {
-          innerHTML: `(function(){try{var stored=localStorage.getItem('dark-mode');var prefers=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;if(stored==='true'||(stored===null&&prefers)){document.documentElement.classList.add('dark')}else{document.documentElement.classList.remove('dark')}}catch(e){}})();`,
+          innerHTML: `(function(){try{var key='dark-mode';var stored=localStorage.getItem(key);var preference=(stored==='dark'||stored==='true')?'dark':(stored==='light'||stored==='false')?'light':'system';var prefers=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=preference==='dark'||(preference==='system'&&prefers)?'dark':'light';var root=document.documentElement;root.classList.toggle('dark',resolved==='dark');root.dataset.themePreference=preference;root.dataset.themeResolved=resolved;}catch(e){}})();`,
           tagPosition: 'head',
         },
       ],

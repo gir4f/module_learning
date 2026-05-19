@@ -67,12 +67,15 @@ State dibagi seperti ini:
 `useState()` masih dipakai untuk UI-only state kecil, misalnya:
 
 - `learning-module-local-search`
-- `dark-mode`
+- `theme-preference`
+- `theme-resolved`
+- `theme-ready`
 
 Rule yang dipakai sekarang:
 
 - canonical fetched/saved module data -> Pinia
 - temporary form draft / input text / open-close UI -> local refs atau `useState`
+- theme dibootstrap lebih awal lewat head script, lalu state tombol/theme disinkronkan di client lewat `useDarkMode()` composable
 
 ## Server Boundaries
 

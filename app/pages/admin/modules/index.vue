@@ -24,15 +24,15 @@
           </div>
         </div>
         <dl class="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-1 shadow-lg shadow-slate-950/10 min-[360px]:grid-cols-3 sm:backdrop-blur-md">
-          <div class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
+          <div class="flex flex-col justify-between h-full min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
             <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">Modul</dt>
             <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ store.modules.length }}</dd>
           </div>
-          <div class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
+          <div class="flex flex-col justify-between h-full min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
             <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">Varian Produk</dt>
             <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ sectionCount }}</dd>
           </div>
-          <div class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
+          <div class="flex flex-col justify-between h-full min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
             <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">File</dt>
             <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ attachmentCount }}</dd>
           </div>

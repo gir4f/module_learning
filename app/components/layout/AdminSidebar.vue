@@ -21,9 +21,10 @@
         </nav>
         
         <div class="flex flex-col gap-2 border-t border-slate-200 pt-4 dark:border-slate-800">
-          <button type="button" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900" @click="toggleDark">
-            <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" />
-            {{ isDark ? 'Mode Terang' : 'Mode Gelap' }}
+          <button type="button" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-wait disabled:opacity-70 dark:text-slate-400 dark:hover:bg-slate-900" :disabled="!themeButtonReady" @click="toggleDark">
+            <i v-if="themeButtonReady" :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" />
+            <span v-else aria-hidden="true" class="block h-4 w-4" />
+            {{ themeButtonText }}
           </button>
           <button type="button" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" @click="handleLogout">
             <i class="pi pi-sign-out" />
@@ -41,13 +42,24 @@ import AppTopNavbar from '~/components/layout/AppTopNavbar.vue'
 
 const route = useRoute()
 const auth = useAuthStore()
-const { isDark, toggle: toggleDark } = useDarkMode()
+const { isDark, toggle: toggleDark, ready, init } = useDarkMode()
 const logoSrc = '/module-assets/LogoGitronikPolosNoBG.png'
+const themeMounted = ref(false)
+const themeButtonReady = computed(() => themeMounted.value && ready.value)
+const themeButtonText = computed(() => {
+  if (!themeButtonReady.value) return 'Ganti Tema'
+  return isDark.value ? 'Mode Terang' : 'Mode Gelap'
+})
 
 const navItems = [
   { label: 'Modul Ajar', to: '/admin/modules', icon: 'pi pi-book' },
   { label: 'Halaman Modul', to: '/', icon: 'pi pi-external-link' },
 ]
+
+onMounted(() => {
+  themeMounted.value = true
+  init()
+})
 
 function isActive(path: string) {
   if (path === '/') return false

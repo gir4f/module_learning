@@ -135,7 +135,9 @@ Action utama:
 `useState()` yang memang masih wajar dipakai:
 
 - `learning-module-local-search`
-- `dark-mode`
+- `theme-preference`
+- `theme-resolved`
+- `theme-ready`
 
 Local draft form state yang sengaja tidak dimasukkan Pinia:
 
@@ -149,6 +151,7 @@ Alasan:
 - state ini bersifat transient
 - tidak perlu menjadi shared canonical source of truth
 - lebih aman dipisah dari fetched/saved server state
+- theme memakai `useDarkMode()` composable dengan preference canonical (`system` / `light` / `dark`) dan resolved mode terpisah
 
 ## Current Search Flow
 

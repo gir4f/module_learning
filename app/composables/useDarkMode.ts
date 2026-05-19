@@ -1,89 +1,85 @@
-import { resolveThemePreference, type ThemeMode, type ThemeSource } from '~/utils/themePreference'
+import {
+  THEME_STORAGE_KEY,
+  normalizeStoredThemePreference,
+  resolveThemePreference,
+  type ThemeMode,
+  type ThemePreference,
+} from '~/utils/themePreference'
 
 let initialized = false
 let mediaQuery: MediaQueryList | null = null
 let mediaQueryHandler: ((event: MediaQueryListEvent) => void) | null = null
 
 export function useDarkMode() {
-  const isDark = useState('dark-mode', () => import.meta.client
-    ? document.documentElement.classList.contains('dark')
-    : false)
-  const mode = useState<ThemeMode>('dark-mode-mode', () => isDark.value ? 'dark' : 'light')
-  const source = useState<ThemeSource>('dark-mode-source', () => 'system')
-  const ready = useState('dark-mode-ready', () => false)
+  const preference = useState<ThemePreference>('theme-preference', () => 'system')
+  const resolvedMode = useState<ThemeMode>('theme-resolved', () => 'light')
+  const ready = useState('theme-ready', () => false)
+  const isDark = computed(() => resolvedMode.value === 'dark')
 
-  function syncFromDom() {
-    if (!import.meta.client) return
-    const actual = document.documentElement.classList.contains('dark')
-    isDark.value = actual
-    mode.value = actual ? 'dark' : 'light'
-  }
-
-  function apply(value = isDark.value) {
-    if (!import.meta.client) return
-    document.documentElement.classList.toggle('dark', value)
-    syncFromDom()
-    ready.value = true
-  }
-
-  function readStoredPreference() {
-    if (!import.meta.client) return null
-    return localStorage.getItem('dark-mode')
-  }
-
-  function systemPreference() {
+  function systemPrefersDark() {
     if (!import.meta.client) return false
     return window.matchMedia('(prefers-color-scheme: dark)').matches
   }
 
-  function syncFromPreference() {
-    const preference = resolveThemePreference(readStoredPreference(), systemPreference())
-    source.value = preference.source
-    apply(preference.isDark)
+  function applyResolvedState(nextPreference: ThemePreference) {
+    const resolution = resolveThemePreference(nextPreference, systemPrefersDark())
+    preference.value = resolution.preference
+    resolvedMode.value = resolution.mode
+
+    if (!import.meta.client) return
+
+    const root = document.documentElement
+    root.classList.toggle('dark', resolution.mode === 'dark')
+    root.dataset.themePreference = resolution.preference
+    root.dataset.themeResolved = resolution.mode
+    ready.value = true
+  }
+
+  function readStoredPreference() {
+    if (!import.meta.client) return 'system' as ThemePreference
+    return normalizeStoredThemePreference(localStorage.getItem(THEME_STORAGE_KEY))
+  }
+
+  function writeStoredPreference(nextPreference: ThemePreference) {
+    if (!import.meta.client) return
+    localStorage.setItem(THEME_STORAGE_KEY, nextPreference)
+  }
+
+  function syncFromPreference(nextPreference = readStoredPreference()) {
+    applyResolvedState(nextPreference)
   }
 
   function init() {
     if (!import.meta.client) return
 
-    if (initialized) {
-      syncFromDom()
-      ready.value = true
-      return
-    }
-
     syncFromPreference()
 
-    mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQueryHandler = (event: MediaQueryListEvent) => {
-      if (source.value !== 'system') return
-      isDark.value = event.matches
-      apply()
+    if (!initialized) {
+      mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      mediaQueryHandler = () => {
+        if (preference.value !== 'system') return
+        applyResolvedState('system')
+      }
+      mediaQuery.addEventListener('change', mediaQueryHandler)
+      initialized = true
     }
-    mediaQuery.addEventListener('change', mediaQueryHandler)
 
-    initialized = true
     ready.value = true
   }
 
   function toggle() {
     if (!import.meta.client) return
 
-    const nextValue = !document.documentElement.classList.contains('dark')
-    source.value = 'user'
-    localStorage.setItem('dark-mode', String(nextValue))
-    apply(nextValue)
+    const nextPreference: ThemePreference = resolvedMode.value === 'dark' ? 'light' : 'dark'
+    writeStoredPreference(nextPreference)
+    applyResolvedState(nextPreference)
   }
 
   function resetToSystem() {
     if (!import.meta.client) return
-    localStorage.removeItem('dark-mode')
-    source.value = 'system'
-    apply(systemPreference())
+    writeStoredPreference('system')
+    applyResolvedState('system')
   }
 
-  if (import.meta.client && ready.value) {
-    syncFromDom()
-  }
-
-  return { isDark, mode, source, ready, init, toggle, resetToSystem }
+  return { preference, resolvedMode, isDark, ready, init, toggle, resetToSystem }
 }
