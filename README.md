@@ -84,10 +84,10 @@ The seed script creates a default admin account:
 
 Change this password before using the app outside local development.
 
-# Modul Ajar is available in Docs folder
+## Docs
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - high-level system shape, runtime flow, and storage boundaries
-- [API_CONTRACT.md](./API_CONTRACT.md) - current server route contracts used by the app
-- [AUTH_ACCESS.md](./AUTH_ACCESS.md) - auth, session, role guard, and upload access rules
-- [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md) - Pinia stores, UI state, and source-of-truth rules
-
+- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) - high-level system shape, runtime flow, and storage boundaries
+- [docs/DB_SCHEMA.md](./docs/DB_SCHEMA.md) - Prisma/PostgreSQL table structure, enums, and relations
+- [docs/API_CONTRACTS.md](./docs/API_CONTRACTS.md) - current server route contracts used by the app
+- [docs/AUTH_ACCESS.md](./docs/AUTH_ACCESS.md) - auth, session, role guard, same-origin rules, and upload access
+- [docs/STATE_MANAGEMENT.md](./docs/STATE_MANAGEMENT.md) - Pinia stores, local UI state, and source-of-truth rules

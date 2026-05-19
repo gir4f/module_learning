@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Attachment, ComponentItem, LearningModule, ModuleDetail } from '~/types/learning'
+import { useLearningModulesStore } from '~/stores/learningModules'
 import { apiErrorMessage } from '~/utils/apiErrors'
 import { attachmentTypeFromMimeType, normalizedUploadMimeType, uploadFile } from '~/utils/upload'
 
@@ -54,6 +55,17 @@ export const useModulesStore = defineStore('modules', () => {
     currentModuleKey.value = module?.id || ''
   }
 
+  function invalidateLearnerModules(module?: LearningModule | null) {
+    const learningStore = useLearningModulesStore()
+    learningStore.invalidateModules()
+    learningStore.invalidateModule(
+      module?.id,
+      module?.slug,
+      currentModule.value?.id,
+      currentModule.value?.slug,
+    )
+  }
+
   async function fetchModules(search = '') {
     pendingList.value = true
     listError.value = ''
@@ -104,6 +116,7 @@ export const useModulesStore = defineStore('modules', () => {
       const { data: module } = await api.post<LearningModule>('/api/modules', payload)
       setCurrentModule(module)
       upsertModule(module)
+      invalidateLearnerModules(module)
       return module
     } finally {
       pendingMutation.value = false
@@ -119,6 +132,7 @@ export const useModulesStore = defineStore('modules', () => {
         setCurrentModule(module)
       }
       replaceModule(id, module)
+      invalidateLearnerModules(module)
       return module
     } finally {
       pendingMutation.value = false
@@ -128,12 +142,16 @@ export const useModulesStore = defineStore('modules', () => {
   async function deleteModule(id: string) {
     pendingMutation.value = true
     try {
+      const deletedModule = currentModule.value?.id === id
+        ? currentModule.value
+        : modules.value.find(module => module.id === id) || null
       const api = useApiClient()
       await api.delete(`/api/modules/${id}`)
       if (currentModule.value?.id === id || currentModuleKey.value === id) {
         setCurrentModule(null)
       }
       removeModule(id)
+      invalidateLearnerModules(deletedModule)
     } finally {
       pendingMutation.value = false
     }
@@ -153,6 +171,7 @@ export const useModulesStore = defineStore('modules', () => {
       }
 
       await refreshCurrentModule()
+      invalidateLearnerModules(currentModule.value)
       return currentModule.value?.details.find(item => item.id === detail.id) || detail
     } finally {
       pendingMutation.value = false
@@ -165,6 +184,7 @@ export const useModulesStore = defineStore('modules', () => {
       const api = useApiClient()
       await api.delete(`/api/details/${detailId}`)
       await refreshCurrentModule()
+      invalidateLearnerModules(currentModule.value)
     } finally {
       pendingMutation.value = false
     }
@@ -176,6 +196,7 @@ export const useModulesStore = defineStore('modules', () => {
       const api = useApiClient()
       const { data } = await api.post<Attachment>(`/api/details/${detailId}/attachments`, payload)
       await refreshCurrentModule()
+      invalidateLearnerModules(currentModule.value)
       return data
     } finally {
       pendingMutation.value = false
@@ -200,6 +221,7 @@ export const useModulesStore = defineStore('modules', () => {
         } satisfies ModuleAttachmentPayload)
       }
       await refreshCurrentModule()
+      invalidateLearnerModules(currentModule.value)
     } finally {
       pendingMutation.value = false
     }
@@ -211,6 +233,7 @@ export const useModulesStore = defineStore('modules', () => {
       const api = useApiClient()
       await api.delete(`/api/attachments/${attachmentId}`)
       await refreshCurrentModule()
+      invalidateLearnerModules(currentModule.value)
     } finally {
       pendingMutation.value = false
     }

@@ -11,6 +11,8 @@ export const useLearningModulesStore = defineStore('learning-modules', () => {
   const error = ref('')
   const detailError = ref('')
   const loaded = ref(false)
+  const dirty = ref(false)
+  const detailDirtyKeys = ref<string[]>([])
 
   function replaceModule(id: string, module: LearningModule) {
     const index = modules.value.findIndex(item => item.id === id)
@@ -25,7 +27,36 @@ export const useLearningModulesStore = defineStore('learning-modules', () => {
 
   function setCurrentModule(module: LearningModule | null) {
     currentModule.value = module
-    currentModuleKey.value = module?.id || module?.slug || ''
+    currentModuleKey.value = module?.slug || module?.id || ''
+  }
+
+  function clearCurrentModule() {
+    setCurrentModule(null)
+  }
+
+  function uniqueKeys(keys: Array<string | null | undefined>) {
+    return Array.from(new Set(keys.filter((key): key is string => Boolean(key))))
+  }
+
+  function invalidateModules() {
+    dirty.value = true
+  }
+
+  function invalidateModule(...keys: Array<string | null | undefined>) {
+    for (const key of uniqueKeys(keys)) {
+      if (!detailDirtyKeys.value.includes(key)) detailDirtyKeys.value.push(key)
+    }
+    dirty.value = true
+  }
+
+  function clearDirtyKeys(...keys: Array<string | null | undefined>) {
+    const resolved = uniqueKeys(keys)
+    if (!resolved.length) return
+    detailDirtyKeys.value = detailDirtyKeys.value.filter(key => !resolved.includes(key))
+  }
+
+  function isModuleDirty(...keys: Array<string | null | undefined>) {
+    return uniqueKeys(keys).some(key => detailDirtyKeys.value.includes(key))
   }
 
   async function fetchModules() {
@@ -36,6 +67,7 @@ export const useLearningModulesStore = defineStore('learning-modules', () => {
       const { data } = await api.get<LearningModule[]>('/api/modules')
       modules.value = data
       loaded.value = true
+      dirty.value = false
       return data
     } catch (err) {
       error.value = apiErrorMessage(err, 'Failed to load modules.')
@@ -45,8 +77,8 @@ export const useLearningModulesStore = defineStore('learning-modules', () => {
     }
   }
 
-  async function ensureModules() {
-    if (loaded.value) return modules.value
+  async function ensureModules(options: { force?: boolean } = {}) {
+    if (!options.force && loaded.value && !dirty.value) return modules.value
     return fetchModules()
   }
 
@@ -59,14 +91,30 @@ export const useLearningModulesStore = defineStore('learning-modules', () => {
       const { data } = await api.get<LearningModule>(`/api/modules/${slug}`)
       setCurrentModule(data)
       upsertModule(data)
+      clearDirtyKeys(slug, data.id, data.slug)
       return data
     } catch (err) {
-      setCurrentModule(null)
+      clearCurrentModule()
       detailError.value = apiErrorMessage(err, 'Failed to load module.')
       return null
     } finally {
       pendingDetail.value = false
     }
+  }
+
+  async function ensureModuleBySlug(slug: string, options: { force?: boolean } = {}) {
+    const activeModule = currentModule.value
+    const currentKeys = [slug, activeModule?.id, activeModule?.slug, currentModuleKey.value]
+    if (
+      !options.force
+      && activeModule
+      && activeModule.slug === slug
+      && !isModuleDirty(...currentKeys)
+    ) {
+      return activeModule
+    }
+
+    return fetchModuleBySlug(slug)
   }
 
   return {
@@ -77,11 +125,17 @@ export const useLearningModulesStore = defineStore('learning-modules', () => {
     error,
     detailError,
     loaded,
+    dirty,
+    detailDirtyKeys,
     replaceModule,
     upsertModule,
     setCurrentModule,
+    clearCurrentModule,
+    invalidateModules,
+    invalidateModule,
     fetchModules,
     ensureModules,
     fetchModuleBySlug,
+    ensureModuleBySlug,
   }
 })

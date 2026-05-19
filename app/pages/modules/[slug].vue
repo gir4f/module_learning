@@ -56,7 +56,7 @@ import { useLearningModulesStore } from '~/stores/learningModules'
 const route = useRoute()
 const learningStore = useLearningModulesStore()
 
-await learningStore.fetchModuleBySlug(String(route.params.slug))
+await learningStore.ensureModuleBySlug(String(route.params.slug))
 
 const module = computed(() => learningStore.currentModule)
 const pending = computed(() => learningStore.pendingDetail)
@@ -64,8 +64,8 @@ const error = computed(() => learningStore.detailError)
 
 watch(() => route.params.slug, async (slug, previousSlug) => {
   if (!slug || slug === previousSlug) return
-  learningStore.setCurrentModule(null)
-  await learningStore.fetchModuleBySlug(String(slug))
+  learningStore.clearCurrentModule()
+  await learningStore.ensureModuleBySlug(String(slug))
 })
 
 useHead({
