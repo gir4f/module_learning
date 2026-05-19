@@ -84,10 +84,10 @@ The seed script creates a default admin account:
 
 Change this password before using the app outside local development.
 
-## Demo Smoke Checklist
+# Modul Ajar is available in Docs folder
 
-- Login with the seeded admin account.
-- Refresh `/admin/modules`, `/admin/modules/new`, and an editor page; the session should stay active.
-- Create a module, edit its information, add a section, edit component rows, add a link, upload a file, then delete the test data.
-- Open `/`, search/filter modules, then open `/modules/device-speed`.
-- Check dark/light mode and mobile widths around 320px and 768px.
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - high-level system shape, runtime flow, and storage boundaries
+- [API_CONTRACT.md](./API_CONTRACT.md) - current server route contracts used by the app
+- [AUTH_ACCESS.md](./AUTH_ACCESS.md) - auth, session, role guard, and upload access rules
+- [STATE_MANAGEMENT.md](./STATE_MANAGEMENT.md) - Pinia stores, UI state, and source-of-truth rules
+
