@@ -12,10 +12,18 @@ export function useDarkMode() {
   const source = useState<ThemeSource>('dark-mode-source', () => 'system')
   const ready = useState('dark-mode-ready', () => false)
 
+  function syncFromDom() {
+    if (!import.meta.client) return
+    const actual = document.documentElement.classList.contains('dark')
+    isDark.value = actual
+    mode.value = actual ? 'dark' : 'light'
+  }
+
   function apply(value = isDark.value) {
     if (!import.meta.client) return
     document.documentElement.classList.toggle('dark', value)
-    mode.value = value ? 'dark' : 'light'
+    syncFromDom()
+    ready.value = true
   }
 
   function readStoredPreference() {
@@ -31,7 +39,6 @@ export function useDarkMode() {
   function syncFromPreference() {
     const preference = resolveThemePreference(readStoredPreference(), systemPreference())
     source.value = preference.source
-    isDark.value = preference.isDark
     apply(preference.isDark)
   }
 
@@ -39,7 +46,7 @@ export function useDarkMode() {
     if (!import.meta.client) return
 
     if (initialized) {
-      syncFromPreference()
+      syncFromDom()
       ready.value = true
       return
     }
@@ -59,20 +66,23 @@ export function useDarkMode() {
   }
 
   function toggle() {
-    isDark.value = !isDark.value
     if (!import.meta.client) return
 
+    const nextValue = !document.documentElement.classList.contains('dark')
     source.value = 'user'
-    localStorage.setItem('dark-mode', String(isDark.value))
-    apply()
+    localStorage.setItem('dark-mode', String(nextValue))
+    apply(nextValue)
   }
 
   function resetToSystem() {
     if (!import.meta.client) return
     localStorage.removeItem('dark-mode')
     source.value = 'system'
-    isDark.value = systemPreference()
-    apply()
+    apply(systemPreference())
+  }
+
+  if (import.meta.client && ready.value) {
+    syncFromDom()
   }
 
   return { isDark, mode, source, ready, init, toggle, resetToSystem }
