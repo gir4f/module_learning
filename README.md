@@ -7,7 +7,7 @@ Internal learning module CMS for PT. Gitronik Dimindo Indonesia.
 - API routes live in Nuxt server routes.
 - Prisma connects to PostgreSQL.
 - Login uses bcryptjs password hashes stored on `Profile` plus h3 sessions for `ADMIN` and `VIEWER`.
-- Uploaded files are stored under `UPLOAD_DIR` and served by `/api/uploads/...`.
+- Uploaded files are stored under `UPLOAD_DIR` and served by authenticated `/api/uploads/...` routes.
 
 ## Setup
 

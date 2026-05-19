@@ -107,7 +107,7 @@ Semua server route berjalan di Nuxt/Nitro process yang sama; tidak ada backend s
 - mutating API membutuhkan admin + same-origin request
 - upload file:
   - `POST /api/uploads` admin only
-  - `GET /api/uploads/...` public-by-URL saat ini
+  - `GET /api/uploads/...` butuh login (`VIEWER` atau `ADMIN`)
 
 ## Storage
 

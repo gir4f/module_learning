@@ -375,12 +375,13 @@ Notes:
 
 Access:
 
-- public-by-URL saat ini
+- butuh login (`VIEWER` atau `ADMIN`)
 
 Behavior:
 
 - path traversal ditolak
 - file akan di-stream dengan `Content-Type` sesuai extension
+- response memakai `Cache-Control: private, no-store`
 - `404` jika file tidak ada
 
 ## Error Shape

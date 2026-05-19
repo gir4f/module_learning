@@ -2,6 +2,7 @@ import { createError, defineEventHandler, getRouterParam, setHeader, sendStream 
 import { createReadStream } from 'node:fs'
 import { promises as fs } from 'node:fs'
 import { resolve } from 'node:path'
+import { requireUser } from '../../utils/auth'
 import { uploadTargetPath } from '../../utils/uploads'
 
 const mimeTypes: Record<string, string> = {
@@ -17,6 +18,8 @@ const mimeTypes: Record<string, string> = {
 }
 
 export default defineEventHandler(async (event) => {
+  await requireUser(event)
+
   const rawPath = getRouterParam(event, 'path') || ''
   const filePath = rawPath.split('/').map(decodeURIComponent).join('/')
   if (!filePath || filePath.includes('..')) {
@@ -36,6 +39,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const extension = targetPath.slice(targetPath.lastIndexOf('.')).toLowerCase()
+  setHeader(event, 'Cache-Control', 'private, no-store')
   setHeader(event, 'Content-Type', mimeTypes[extension] || 'application/octet-stream')
   setHeader(event, 'Content-Length', stat.size)
   return sendStream(event, createReadStream(targetPath))

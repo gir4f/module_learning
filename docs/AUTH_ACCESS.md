@@ -66,9 +66,9 @@ Client auth state dikelola store `auth`:
 
 ## API Access
 
-### Public Read
+### Authenticated Read
 
-Saat ini route berikut bisa diakses tanpa login:
+Saat ini route read berikut mewajibkan login:
 
 - `GET /api/modules`
 - `GET /api/modules/:idOrSlug`
@@ -128,11 +128,9 @@ Ini cukup untuk single-instance/internal deployment, tapi belum cocok sebagai sh
 ## Upload Access Notes
 
 - create upload file -> admin only
-- serve upload file -> public-by-URL saat ini
+- serve upload file -> wajib login (`VIEWER` atau `ADMIN`)
 - upload path punya traversal guard
 - image upload bisa punya `preview.webp`
-
-Kalau nanti aplikasi benar-benar ingin full internal-only file access, `GET /api/uploads/:path` perlu diproteksi lagi. Saat ini belum.
 
 ## Current Reality Notes
 
