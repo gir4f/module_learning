@@ -60,8 +60,8 @@
       :sort="sort"
       :page="page"
       :rows="rows"
-      :pending="pending"
-      :error="error"
+      :pending="learningStore.pending"
+      :error="learningStore.error"
       :show-search="false"
       @clear="clearFilters"
       @update:page="page = $event"
@@ -72,45 +72,33 @@
 </template>
 
 <script setup lang="ts">
-import type { LearningModule } from '~/types/learning'
 import ModuleLibrary from '~/components/learning/ModuleLibrary.vue'
 import PageShell from '~/components/shared/PageShell.vue'
+import { useLearningModulesStore } from '~/stores/learningModules'
 import { moduleCategory, sortModules, type ModuleCategory, type ModuleSort } from '~/utils/moduleUi'
+import { moduleMatchesQuery } from '~/utils/search'
 
 const search = useState('learning-module-local-search', () => '')
-const debouncedSearch = ref(search.value)
 const activeCategory = ref<ModuleCategory>('semua')
 const sort = ref<ModuleSort>('default')
 const page = ref(1)
 const rows = 15
-let searchTimer: ReturnType<typeof setTimeout> | null = null
+const learningStore = useLearningModulesStore()
 
-watch(search, (value) => {
-  if (searchTimer) clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => {
-    debouncedSearch.value = value
-  }, 200)
-})
+await learningStore.ensureModules()
 
-watch([debouncedSearch, activeCategory, sort], () => {
+watch([search, activeCategory, sort], () => {
   page.value = 1
 })
 
-const api = useApiClient()
-const { data, pending, error } = await useAsyncData<LearningModule[]>('home-modules', async () => {
-  const { data } = await api.get<LearningModule[]>('/api/modules', {
-    params: debouncedSearch.value ? { search: debouncedSearch.value } : undefined,
-  })
-  return data
-}, {
-  default: () => [],
-  watch: [debouncedSearch],
+const modules = computed(() => learningStore.modules)
+const searchedModules = computed(() => {
+  if (!search.value.trim()) return modules.value
+  return modules.value.filter((module) => moduleMatchesQuery(module, search.value))
 })
-
-const modules = computed(() => data.value || [])
 const filteredModules = computed(() => {
-  if (activeCategory.value === 'semua') return modules.value
-  return modules.value.filter((module) => moduleCategory(module) === activeCategory.value)
+  if (activeCategory.value === 'semua') return searchedModules.value
+  return searchedModules.value.filter((module) => moduleCategory(module) === activeCategory.value)
 })
 const sortedModules = computed(() => sortModules(filteredModules.value, sort.value))
 const paginatedModules = computed(() => {

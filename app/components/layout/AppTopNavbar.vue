@@ -254,6 +254,8 @@
 <script setup lang="ts">
 import type { LearningModule } from '~/types/learning'
 import { useAuthStore } from '~/stores/auth'
+import { useLearningModulesStore } from '~/stores/learningModules'
+import { useModulesStore } from '~/stores/modules'
 import NavbarMobileDrawer from '~/components/layout/NavbarMobileDrawer.vue'
 
 const { mode = 'learning' } = defineProps<{
@@ -272,8 +274,11 @@ const commandInput = useTemplateRef<HTMLInputElement>('commandInput')
 const lastSearchTrigger = ref<HTMLButtonElement | null>(null)
 const localLearningSearch = useState('learning-module-local-search', () => '')
 const auth = useAuthStore()
+const learningStore = useLearningModulesStore()
+const adminModulesStore = useModulesStore()
 const { isDark, init, toggle } = useDarkMode()
 const logoSrc = '/module-assets/LogoGitronikPolos.png'
+const searchSourceModules = computed(() => mode === 'admin' ? adminModulesStore.modules : learningStore.modules)
 const {
   query,
   suggestions,
@@ -282,14 +287,18 @@ const {
   isBusy: isSearchBusy,
   moveSelection,
   highlightParts,
-} = useModuleSearch()
+} = useModuleSearch({
+  source: searchSourceModules,
+})
 const {
   query: localSearchQuery,
   suggestions: localSuggestions,
   error: localSearchError,
   isBusy: isLocalSearchBusy,
   highlightParts: highlightLocalParts,
-} = useModuleSearch()
+} = useModuleSearch({
+  source: computed(() => learningStore.modules),
+})
 
 const subtitle = computed(() => mode === 'admin' ? 'Kelola modul ajar' : 'Modul safety device')
 const usesLocalLearningSearch = computed(() => mode === 'learning' && route.path === '/')
@@ -332,6 +341,11 @@ onMounted(() => {
   init()
   if (!auth.initialized) {
     void auth.ensureProfile()
+  }
+  if (mode === 'learning') {
+    void learningStore.ensureModules()
+  } else if (!adminModulesStore.modules.length) {
+    void adminModulesStore.fetchModules()
   }
   window.addEventListener('keydown', handleShortcut)
   window.addEventListener('keydown', closeOnEscape)

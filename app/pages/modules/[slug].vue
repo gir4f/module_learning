@@ -50,14 +50,22 @@
 </template>
 
 <script setup lang="ts">
-import type { LearningModule } from '~/types/learning'
 import ModuleDocument from '~/components/learning/ModuleDocument.vue'
+import { useLearningModulesStore } from '~/stores/learningModules'
 
 const route = useRoute()
-const api = useApiClient()
-const { data: module, pending, error } = await useAsyncData<LearningModule>(`module-${route.params.slug}`, async () => {
-  const { data } = await api.get<LearningModule>(`/api/modules/${route.params.slug}`)
-  return data
+const learningStore = useLearningModulesStore()
+
+await learningStore.fetchModuleBySlug(String(route.params.slug))
+
+const module = computed(() => learningStore.currentModule)
+const pending = computed(() => learningStore.pendingDetail)
+const error = computed(() => learningStore.detailError)
+
+watch(() => route.params.slug, async (slug, previousSlug) => {
+  if (!slug || slug === previousSlug) return
+  learningStore.setCurrentModule(null)
+  await learningStore.fetchModuleBySlug(String(slug))
 })
 
 useHead({

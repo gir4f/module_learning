@@ -65,7 +65,13 @@ const AppPreset = definePreset(Aura, {
 
 
 export default defineNuxtConfig({
-  devtools: { enabled: false },
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true
+    }
+  },
   sourcemap: {
     client: false,
     server: false,

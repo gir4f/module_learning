@@ -107,6 +107,8 @@
 
 <script setup lang="ts">
 import type { LearningModule } from '~/types/learning'
+import { useLearningModulesStore } from '~/stores/learningModules'
+import { useModulesStore } from '~/stores/modules'
 
 const { modelValue, subtitle, navItems, isDark, authLabel, authPending = false, mode } = defineProps<{
   modelValue: boolean
@@ -125,39 +127,42 @@ defineEmits<{
   'auth-action': []
 }>()
 
+const learningStore = useLearningModulesStore()
+const adminModulesStore = useModulesStore()
 const searchQuery = ref('')
-const debouncedQuery = ref('')
-let searchTimer: ReturnType<typeof setTimeout> | null = null
-
-watch(searchQuery, (value) => {
-  if (searchTimer) clearTimeout(searchTimer)
-  searchTimer = setTimeout(() => {
-    debouncedQuery.value = modelValue ? value.trim() : ''
-  }, 180)
+const searchSourceModules = computed(() => mode === 'admin' ? adminModulesStore.modules : learningStore.modules)
+const {
+  query: searchStateQuery,
+  suggestions: searchResults,
+  pending: searchPending,
+} = useModuleSearch({
+  source: searchSourceModules,
 })
-
-const api = useApiClient()
-const { data: searchModules, pending: searchPending } = await useAsyncData<LearningModule[]>('mobile-drawer-module-search', async () => {
-  if (!modelValue || !debouncedQuery.value) return []
-  const { data } = await api.get<LearningModule[]>('/api/modules', {
-    params: { search: debouncedQuery.value },
-  })
-  return data
-}, {
-  default: () => [],
-  watch: [debouncedQuery, () => modelValue],
-})
-const searchResults = computed(() => searchQuery.value ? (searchModules.value || []).slice(0, 6) : [])
 
 const route = useRoute()
 watch(() => route.fullPath, () => {
   searchQuery.value = ''
 })
 
+watch(searchQuery, (value) => {
+  if (searchStateQuery.value !== value) searchStateQuery.value = value
+})
+
+watch(searchStateQuery, (value) => {
+  if (searchQuery.value !== value) searchQuery.value = value
+})
+
 watch(() => modelValue, (isOpen) => {
   if (!isOpen) {
     searchQuery.value = ''
-    debouncedQuery.value = ''
+    searchStateQuery.value = ''
+    return
+  }
+
+  if (mode === 'admin') {
+    if (!adminModulesStore.modules.length) void adminModulesStore.fetchModules()
+  } else {
+    void learningStore.ensureModules()
   }
 })
 
