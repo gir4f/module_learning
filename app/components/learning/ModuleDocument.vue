@@ -48,7 +48,7 @@
 
           <ComponentTable v-if="detail.components.length" :components="detail.components" />
           <p v-else class="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
-            Belum ada tabel komponen untuk bagian ini.
+            Belum ada tabel komponen untuk varian produk ini.
           </p>
 
           <div class="mt-5">
@@ -146,7 +146,7 @@ const quickAttachments = computed(() => {
 })
 const summaryItems = computed(() => [
   { label: 'Status', value: statusLabel.value },
-  { label: 'Bagian', value: module.details.length },
+  { label: 'Varian Produk', value: module.details.length },
   { label: 'Komponen', value: componentCount.value },
   { label: 'Lampiran', value: attachmentCount.value },
   { label: 'Waktu baca', value: `${readingTime.value} menit` },

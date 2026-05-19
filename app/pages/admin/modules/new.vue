@@ -3,7 +3,7 @@
     <div class="flex items-start justify-between gap-4">
       <div class="min-w-0">
         <h1 class="text-2xl font-black text-brand-navy dark:text-cyan-200 sm:text-3xl">Modul Baru</h1>
-        <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Buat modul dulu, lalu isi bagian dan komponennya.</p>
+        <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Buat modul dulu, lalu isi varian produk dan komponennya.</p>
       </div>
       <button type="button" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white" aria-label="Kembali ke daftar modul" @click="navigateTo('/admin/modules')">
         <i class="pi pi-arrow-left" aria-hidden="true" />

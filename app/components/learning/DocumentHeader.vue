@@ -32,7 +32,7 @@
         <dd class="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100">{{ statusLabel }}</dd>
       </div>
       <div>
-        <dt class="text-xs font-semibold uppercase text-slate-500">Bagian</dt>
+        <dt class="text-xs font-semibold uppercase text-slate-500">Varian Produk</dt>
         <dd class="mt-1 text-sm font-bold text-slate-900 dark:text-slate-100">{{ module.details.length }}</dd>
       </div>
       <div>

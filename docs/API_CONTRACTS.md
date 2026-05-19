@@ -95,7 +95,7 @@ Response item shape saat ini adalah list payload ringkas:
     {
       "id": "string",
       "slug": "section-slug",
-      "title": "Judul Bagian",
+      "title": "Judul Varian Produk",
       "summary": "string or null",
       "keywords": "string or null",
       "sortOrder": 0,
@@ -208,7 +208,7 @@ Body:
 
 ```json
 {
-  "title": "Judul Bagian",
+  "title": "Judul Varian Produk",
   "slug": "optional",
   "summary": "optional or null",
   "keywords": "optional or null",

@@ -75,7 +75,7 @@
                     </template>
                   </span>
                 </span>
-                <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }} bagian</span>
+                <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }} varian produk</span>
               </NuxtLink>
               <p v-if="isLocalSearchBusy" class="px-3 py-5 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">Mencari modul...</p>
               <p v-else-if="localSearchError" class="px-3 py-5 text-center text-sm font-semibold text-red-600 dark:text-red-300">{{ localSearchError }}</p>
@@ -235,7 +235,7 @@
                   </template>
                 </span>
               </span>
-              <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }} bagian</span>
+              <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }} varian produk</span>
             </NuxtLink>
             <p v-if="isSearchBusy" class="px-3 py-6 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">Mencari modul...</p>
             <p v-else-if="searchError" class="px-3 py-6 text-center text-sm font-semibold text-red-600 dark:text-red-300">{{ searchError }}</p>

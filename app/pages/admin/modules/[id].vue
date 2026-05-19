@@ -64,8 +64,8 @@
 
     <div v-auto-animate="{ duration: 180, easing: 'ease-in-out' }" class="space-y-4">
       <div class="flex items-center justify-between gap-3">
-        <h2 class="text-xl font-black text-slate-950 dark:text-white">Bagian Modul</h2>
-        <Button label="Tambah Bagian" icon="pi pi-plus" @click="addSection" />
+        <h2 class="text-xl font-black text-slate-950 dark:text-white">Varian Produk</h2>
+        <Button label="Tambah Varian Produk" icon="pi pi-plus" @click="addSection" />
       </div>
 
       <AdminSurface v-for="(section, index) in sectionForms" :key="section.localKey" v-auto-animate="{ duration: 190, easing: 'ease-in-out' }">
@@ -75,8 +75,8 @@
               <i class="pi font-bold" :class="expandedSections.has(section.localKey) ? 'pi-folder-open' : 'pi-folder'" aria-hidden="true" />
             </span>
             <span class="min-w-0 space-y-2">
-              <span class="block truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">{{ section.title || 'Bagian tanpa judul' }}</span>
-              <span class="block truncate text-sm font-semibold text-slate-500 dark:text-slate-400">/{{ section.slug || 'alamat-bagian' }}</span>
+              <span class="block truncate text-lg font-black text-slate-950 transition-colors group-hover:text-brand-teal dark:text-white dark:group-hover:text-cyan-400">{{ section.title || 'Varian produk tanpa judul' }}</span>
+              <span class="block truncate text-sm font-semibold text-slate-500 dark:text-slate-400">/{{ section.slug || 'alamat-varian' }}</span>
               <span class="flex flex-wrap gap-2">
                 <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-black text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                   <i class="pi pi-list-check text-[10px]" aria-hidden="true" />
@@ -103,7 +103,7 @@
             <AdminFieldGroup label="Judul" required>
               <InputText v-model.trim="section.title" class="w-full" />
             </AdminFieldGroup>
-            <p class="break-all text-sm font-semibold text-slate-500 dark:text-slate-400">Alamat bagian: /{{ section.slug || 'dibuat setelah disimpan' }}</p>
+            <p class="break-all text-sm font-semibold text-slate-500 dark:text-slate-400">Alamat varian produk: /{{ section.slug || 'dibuat setelah disimpan' }}</p>
           </div>
           <AdminFieldGroup label="Ringkasan">
             <Textarea v-model="section.summary" class="w-full" rows="3" auto-resize />
@@ -115,7 +115,7 @@
           <div class="min-w-0 space-y-3">
             <AdminSectionHeader
               title="Daftar Komponen"
-              description="Isi komponen yang dipakai di bagian ini."
+              description="Isi komponen yang dipakai di varian produk ini."
               icon="pi pi-list-check"
               :meta="`${section.components.length} komponen`"
             >
@@ -226,12 +226,12 @@
           <p v-if="sectionErrors[section.localKey]" class="rounded-xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-100">{{ sectionErrors[section.localKey] }}</p>
 
           <div class="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-800 sm:flex-row sm:items-end sm:justify-between">
-            <Button label="Hapus Bagian" icon="pi pi-trash" severity="danger" outlined class="w-full sm:w-auto" @click="confirmDeleteSection(section)" />
+            <Button label="Hapus Varian Produk" icon="pi pi-trash" severity="danger" outlined class="w-full sm:w-auto" @click="confirmDeleteSection(section)" />
             <div class="flex flex-col gap-2 sm:items-end">
               <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">
                 {{ sectionSaveStatus(section) }}
               </p>
-              <Button label="Simpan Bagian" icon="pi pi-check" :loading="savingSectionKey === section.localKey" :disabled="!hasSectionChanges(section, index) || savingSectionKey === section.localKey" class="w-full sm:w-auto" @click="saveSection(section, index)" />
+              <Button label="Simpan Varian Produk" icon="pi pi-check" :loading="savingSectionKey === section.localKey" :disabled="!hasSectionChanges(section, index) || savingSectionKey === section.localKey" class="w-full sm:w-auto" @click="saveSection(section, index)" />
             </div>
           </div>
         </div>
@@ -483,9 +483,9 @@ async function saveSection(section: SectionForm, index: number) {
     await store.saveSection(module.value.id, section.id, body)
     sectionSavedAt[section.localKey] = new Date()
     syncForms()
-    toast.success('Tersimpan', { description: 'Bagian modul disimpan.' })
+    toast.success('Tersimpan', { description: 'Varian produk modul disimpan.' })
   } catch (error) {
-    sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menyimpan bagian.')
+    sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menyimpan varian produk.')
     toast.error('Gagal menyimpan', { description: sectionErrors[section.localKey] })
   } finally {
     savingSectionKey.value = ''
@@ -493,9 +493,9 @@ async function saveSection(section: SectionForm, index: number) {
 }
 
 function sectionSaveStatus(section: SectionForm) {
-  if (savingSectionKey.value === section.localKey) return 'Menyimpan bagian...'
-  if (!section.id && hasNewSectionContent(section)) return 'Bagian baru akan dibuat saat disimpan.'
-  if (!section.id) return 'Isi bagian dulu untuk menyimpan.'
+  if (savingSectionKey.value === section.localKey) return 'Menyimpan varian produk...'
+  if (!section.id && hasNewSectionContent(section)) return 'Varian produk baru akan dibuat saat disimpan.'
+  if (!section.id) return 'Isi varian produk dulu untuk menyimpan.'
   const sectionIndex = sectionForms.value.findIndex(item => item.localKey === section.localKey)
   if (hasSectionChanges(section, sectionIndex)) return 'Ada perubahan yang belum disimpan.'
   const savedAt = sectionSavedAt[section.localKey]
@@ -550,7 +550,7 @@ function sectionBody(section: SectionForm, index: number): ModuleSectionPayload 
     }))
 
   return {
-    title: section.title.trim() || 'Bagian tanpa judul',
+    title: section.title.trim() || 'Varian produk tanpa judul',
     summary: section.summary.trim() || null,
     keywords: section.keywords.trim() || null,
     sortOrder: index,
@@ -604,31 +604,31 @@ function sectionErrorMessage(error: unknown, fallback: string) {
     return `Cek daftar komponen: ${Array.from(new Set(componentErrors)).join(', ')}.`
   }
 
-  if (fieldErrors.title) return `Judul bagian: ${fieldErrors.title}.`
+  if (fieldErrors.title) return `Judul varian produk: ${fieldErrors.title}.`
   if (Object.keys(fieldErrors).length) return Object.values(fieldErrors)[0] || fallback
   return apiErrorMessage(error, fallback)
 }
 
 function confirmDeleteSection(section: SectionForm) {
   confirm.require({
-    message: `Hapus "${section.title || 'bagian ini'}"?`,
-    header: 'Hapus bagian',
+      message: `Hapus "${section.title || 'varian produk ini'}"?`,
+      header: 'Hapus varian produk',
     icon: 'pi pi-exclamation-triangle',
     acceptProps: { label: 'Hapus', severity: 'danger', size: 'small' },
     rejectProps: { label: 'Batal', severity: 'secondary', outlined: true, size: 'small' },
     accept: async () => {
       if (!section.id) {
         removeLocalSection(section.localKey)
-        toast.success('Terhapus', { description: 'Bagian draft dihapus.' })
+        toast.success('Terhapus', { description: 'Varian produk draft dihapus.' })
         return
       }
 
       try {
         await store.deleteSection(section.id)
         syncForms()
-        toast.success('Terhapus', { description: 'Bagian modul dihapus.' })
+        toast.success('Terhapus', { description: 'Varian produk modul dihapus.' })
       } catch (error) {
-        sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menghapus bagian.')
+        sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menghapus varian produk.')
         toast.error('Gagal menghapus', { description: sectionErrors[section.localKey] })
       }
     },
@@ -651,7 +651,7 @@ function removeLocalSection(localKey: string) {
 
 async function addLink(section: SectionForm, index: number) {
   const form = linkForms[section.localKey]!
-  const targetSection = await ensureSectionSavedForAttachments(section, index, 'Gagal menyimpan bagian sebelum menambah link.')
+  const targetSection = await ensureSectionSavedForAttachments(section, index, 'Gagal menyimpan varian produk sebelum menambah link.')
   if (!targetSection?.id) return
 
   try {
@@ -677,9 +677,9 @@ function isUploadingSection(section: SectionForm) {
 }
 
 function uploadAriaLabel(section: SectionForm) {
-  if (isUploadingSection(section)) return `Sedang mengunggah lampiran untuk ${section.title || 'bagian ini'}`
-  if (dragOverSectionKey.value === section.localKey) return `Lepaskan file untuk mengunggah ke ${section.title || 'bagian ini'}`
-  return `Pilih atau tarik file lampiran untuk ${section.title || 'bagian ini'}`
+  if (isUploadingSection(section)) return `Sedang mengunggah lampiran untuk ${section.title || 'varian produk ini'}`
+  if (dragOverSectionKey.value === section.localKey) return `Lepaskan file untuk mengunggah ke ${section.title || 'varian produk ini'}`
+  return `Pilih atau tarik file lampiran untuk ${section.title || 'varian produk ini'}`
 }
 
 function uploadZoneClass(section: SectionForm) {
@@ -785,11 +785,11 @@ async function uploadFiles(files: File[], section: SectionForm, index: number) {
   }
 }
 
-async function ensureSectionSavedForAttachments(section: SectionForm, index: number, fallbackMessage = 'Gagal menyimpan bagian sebelum upload.') {
+async function ensureSectionSavedForAttachments(section: SectionForm, index: number, fallbackMessage = 'Gagal menyimpan varian produk sebelum upload.') {
   if (section.id) return section
   if (!module.value?.id) return null
 
-  section.title = section.title.trim() || 'Bagian tanpa judul'
+  section.title = section.title.trim() || 'Varian produk tanpa judul'
   savingSectionKey.value = section.localKey
   sectionErrors[section.localKey] = ''
 
@@ -858,7 +858,7 @@ function exportCsv(section: SectionForm) {
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = url
-  anchor.download = `komponen-${section.slug || 'bagian'}.csv`
+  anchor.download = `komponen-${section.slug || 'varian-produk'}.csv`
   anchor.click()
   URL.revokeObjectURL(url)
 }
@@ -933,7 +933,7 @@ async function importCsv(event: Event, section: SectionForm, index: number) {
     await nextTick()
 
     toast.success('CSV berhasil diimpor', {
-      description: `${importedComponents.length} komponen ditambahkan ke tabel bagian ini.`,
+      description: `${importedComponents.length} komponen ditambahkan ke tabel varian produk ini.`,
     })
   } catch {
     await fallbackCsvToAttachment(file, section, index, 'CSV tidak bisa diproses sebagai tabel komponen.')

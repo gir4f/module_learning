@@ -111,7 +111,7 @@ const attachmentCount = computed(() => modules.value.reduce((total, module) => {
 }, 0))
 const heroStats = computed(() => [
   { label: 'Modul', value: modules.value.length },
-  { label: 'Bagian', value: sectionCount.value },
+  { label: 'Varian Produk', value: sectionCount.value },
   { label: 'File', value: attachmentCount.value },
 ])
 

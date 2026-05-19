@@ -17,7 +17,7 @@
             Modul Ajar
           </h1>
           <p class="mt-5 max-w-2xl text-lg leading-relaxed text-cyan-50 opacity-90">
-            Kelola modul, bagian, komponen, dan file untuk materi internal.
+            Kelola modul, varian produk, komponen, dan file untuk materi internal.
           </p>
           <div class="mt-6">
             <Button label="Modul Baru" icon="pi pi-plus" class="w-full sm:w-auto font-bold rounded-xl" @click="navigateTo('/admin/modules/new')" />
@@ -29,7 +29,7 @@
             <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ store.modules.length }}</dd>
           </div>
           <div class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
-            <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">Bagian</dt>
+            <dt class="text-[11px] font-black uppercase tracking-wide text-cyan-100/90">Varian Produk</dt>
             <dd class="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{{ sectionCount }}</dd>
           </div>
           <div class="min-w-0 rounded-xl px-4 py-3 transition-colors hover:bg-white/10 min-[360px]:text-center">
@@ -113,7 +113,7 @@
                 </template>
               </span>
             </span>
-            <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }} bagian</span>
+            <span class="shrink-0 rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }} varian produk</span>
           </NuxtLink>
           <p v-if="commandBusy" class="px-3 py-6 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">Mencari modul...</p>
           <p v-else-if="commandError" class="px-3 py-6 text-center text-sm font-semibold text-red-600 dark:text-red-300">{{ commandError }}</p>
@@ -208,7 +208,7 @@ async function toggleStatus(module: LearningModule) {
 
 function confirmDelete(module: LearningModule) {
   confirm.require({
-    message: `Hapus "${module.title}"? Semua bagian, komponen, dan lampirannya ikut terhapus.`,
+    message: `Hapus "${module.title}"? Semua varian produk, komponen, dan lampirannya ikut terhapus.`,
     header: 'Hapus modul',
     icon: 'pi pi-exclamation-triangle',
     acceptProps: { label: 'Hapus', severity: 'danger', size: 'small' },

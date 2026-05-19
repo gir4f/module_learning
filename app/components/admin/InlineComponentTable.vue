@@ -34,7 +34,7 @@
                   <i class="pi pi-list-check" aria-hidden="true" />
                 </span>
                 <p class="text-sm font-bold">Belum ada komponen.</p>
-                <p class="text-xs font-semibold">Tambahkan komponen yang dipakai di bagian ini.</p>
+                <p class="text-xs font-semibold">Tambahkan komponen yang dipakai di varian produk ini.</p>
               </div>
             </td>
           </tr>

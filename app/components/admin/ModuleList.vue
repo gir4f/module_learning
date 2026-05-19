@@ -63,7 +63,7 @@
           <span>Nama Modul</span>
           <span>Status</span>
           <span>Alamat</span>
-          <span>Bagian</span>
+          <span>Varian Produk</span>
           <span>Terakhir Diubah</span>
           <span class="text-center">Aksi</span>
         </div>
@@ -122,7 +122,7 @@
             <div class="flex items-center justify-between gap-4 text-sm min-[90rem]:hidden">
               <div class="flex min-w-0 flex-col">
                 <span class="font-bold text-slate-700 dark:text-slate-200">{{ module.details?.length || 0 }}</span>
-                <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Bagian</span>
+                <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Varian Produk</span>
               </div>
               <div class="flex min-w-0 flex-col items-end">
                 <span class="font-bold text-slate-700 dark:text-slate-200">{{ formatAdminDate(module.updatedAt) }}</span>

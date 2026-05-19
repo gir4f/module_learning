@@ -55,7 +55,7 @@ Relation:
 
 ### `ModuleDetail`
 
-Bagian/section di dalam satu modul.
+Varian produk/section di dalam satu modul.
 
 Fields utama:
 
@@ -81,7 +81,7 @@ Constraint penting:
 
 ### `ComponentItem`
 
-Baris komponen/material untuk satu section.
+Baris komponen/material untuk satu varian produk.
 
 Fields utama:
 
@@ -100,7 +100,7 @@ Relation:
 
 ### `Attachment`
 
-Lampiran file atau link untuk satu section.
+Lampiran file atau link untuk satu varian produk.
 
 Fields utama:
 

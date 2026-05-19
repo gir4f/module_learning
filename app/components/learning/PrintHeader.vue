@@ -19,7 +19,7 @@
         </div>
         <div>
           <dt class="font-bold uppercase text-slate-500">Isi Modul</dt>
-          <dd class="font-semibold text-slate-900">{{ module.details.length }} bagian / {{ attachmentCount }} file</dd>
+          <dd class="font-semibold text-slate-900">{{ module.details.length }} varian produk / {{ attachmentCount }} file</dd>
         </div>
       </dl>
     </div>
