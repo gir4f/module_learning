@@ -118,8 +118,20 @@
               description="Isi komponen yang dipakai di bagian ini."
               icon="pi pi-list-check"
               :meta="`${section.components.length} komponen`"
+            >
+              <template #actions>
+                <div class="flex items-center gap-2">
+                  <Button icon="pi pi-download" label="Export CSV" size="small" outlined severity="secondary" @click="exportCsv(section)" />
+                  <Button icon="pi pi-upload" label="Import CSV" size="small" outlined severity="secondary" @click="triggerCsvImport(section)" />
+                  <input :id="`csv-import-${section.localKey}`" type="file" accept=".csv,text/csv" class="hidden" @change="importCsv($event, section, index)" />
+                </div>
+              </template>
+            </AdminSectionHeader>
+            <InlineComponentTable
+              :key="componentTableKey(section)"
+              :model-value="section.components"
+              @update:model-value="updateSectionComponents(section.localKey, $event)"
             />
-            <InlineComponentTable v-model="section.components" />
           </div>
 
           <div class="min-w-0 space-y-3">
@@ -249,6 +261,7 @@ import AdminSectionHeader from '~/components/admin/AdminSectionHeader.vue'
 import AdminSurface from '~/components/admin/AdminSurface.vue'
 import InlineComponentTable from '~/components/admin/InlineComponentTable.vue'
 import EmptyState from '~/components/shared/EmptyState.vue'
+import { useModulesStore } from '~/stores/modules'
 import { apiErrorMessage, apiFieldErrors, assignFieldErrors } from '~/utils/apiErrors'
 import { attachmentTypeFromMimeType, isAllowedUploadMimeType, isPdfAttachment, normalizedUploadMimeType, previewUrlForAttachment, uploadFile } from '~/utils/upload'
 
@@ -276,9 +289,13 @@ type SectionForm = {
 const route = useRoute()
 const confirm = useConfirm()
 const api = useApiClient()
-const { data: module, refresh } = await useAsyncData<LearningModule>(`admin-module-${route.params.id}`, async () => {
+const store = useModulesStore()
+const { data: module, refresh } = await useAsyncData<LearningModule | null>(`admin-module-${route.params.id}`, async () => {
   const { data } = await api.get<LearningModule>(`/api/modules/${route.params.id}`)
   return data
+}, {
+  default: () => null,
+  getCachedData: () => undefined,
 })
 
 const savingModule = ref(false)
@@ -288,6 +305,7 @@ const moduleFieldErrors = reactive<Record<string, string>>({})
 const sectionErrors = reactive<Record<string, string>>({})
 const expandedSections = ref(new Set<string>())
 const sectionForms = ref<SectionForm[]>([])
+const componentTableVersions = reactive<Record<string, number>>({})
 const linkForms = reactive<Record<string, { title: string, url: string }>>({})
 const openLinkFormKey = ref('')
 const dragOverSectionKey = ref('')
@@ -297,6 +315,14 @@ const uploadProgress = reactive<Record<string, { current: number, total: number 
 const lastUploadStatus = reactive<Record<string, { ok: boolean, message: string }>>({})
 const moduleSavedAt = ref<Date | null>(null)
 const sectionSavedAt = reactive<Record<string, Date>>({})
+const CSV_EXPORT_HEADERS = ['Kategori', 'Nama Komponen', 'Jumlah', 'Satuan', 'Keterangan']
+const CSV_HEADER_ALIASES = {
+  category: ['kategori', 'category', 'jenis'],
+  name: ['nama', 'nama komponen', 'komponen', 'part', 'part name', 'item', 'barang'],
+  quantity: ['jumlah', 'qty', 'quantity', 'banyak', 'kuantitas'],
+  unit: ['satuan', 'unit', 'uom'],
+  note: ['keterangan', 'note', 'catatan', 'remarks'],
+} as const
 const moduleForm = reactive({
   title: '',
   description: '',
@@ -348,7 +374,15 @@ function syncForms() {
   moduleForm.status = module.value.status
   moduleForm.sortOrder = module.value.sortOrder
   sectionForms.value = module.value.details.map(toSectionForm)
-  for (const section of sectionForms.value) ensureLinkForm(section.localKey)
+  for (const section of sectionForms.value) {
+    ensureLinkForm(section.localKey)
+    componentTableVersions[section.localKey] ??= 0
+  }
+}
+
+function syncStoreModule(moduleToSync: LearningModule | null = module.value) {
+  if (!moduleToSync?.id) return
+  store.upsertModule(moduleToSync)
 }
 
 function toSectionForm(section: ModuleDetail): SectionForm {
@@ -391,6 +425,9 @@ async function saveModule() {
   try {
     const { data } = await api.patch<LearningModule>(`/api/modules/${module.value.id}`, moduleForm)
     module.value = data
+    syncForms()
+    syncStoreModule(data)
+    await nextTick()
     moduleSavedAt.value = new Date()
     toast.success('Tersimpan', { description: 'Modul diperbarui.' })
   } catch (error) {
@@ -418,6 +455,23 @@ function addSection() {
   expandedSections.value.add(localKey)
 }
 
+function componentTableKey(section: SectionForm) {
+  return `${section.localKey}-${componentTableVersions[section.localKey] || 0}`
+}
+
+function updateSectionComponents(localKey: string, components: ComponentItem[]) {
+  const section = sectionForms.value.find(item => item.localKey === localKey)
+  if (!section) return
+  section.components = components.map((component, componentIndex) => ({
+    ...component,
+    sortOrder: componentIndex,
+  }))
+}
+
+function bumpComponentTableVersion(localKey: string) {
+  componentTableVersions[localKey] = (componentTableVersions[localKey] || 0) + 1
+}
+
 function toggleSection(key: string) {
   if (expandedSections.value.has(key)) expandedSections.value.delete(key)
   else expandedSections.value.add(key)
@@ -435,6 +489,7 @@ async function saveSection(section: SectionForm, index: number) {
     sectionSavedAt[section.localKey] = new Date()
     await refresh()
     syncForms()
+    syncStoreModule()
     toast.success('Tersimpan', { description: 'Bagian modul disimpan.' })
   } catch (error) {
     sectionErrors[section.localKey] = sectionErrorMessage(error, 'Gagal menyimpan bagian.')
@@ -578,6 +633,7 @@ function confirmDeleteSection(section: SectionForm) {
       await api.delete(`/api/details/${section.id}`)
       await refresh()
       syncForms()
+      syncStoreModule()
       toast.success('Terhapus', { description: 'Bagian modul dihapus.' })
     },
   })
@@ -586,6 +642,7 @@ function confirmDeleteSection(section: SectionForm) {
 function removeLocalSection(localKey: string) {
   sectionForms.value = sectionForms.value.filter(item => item.localKey !== localKey)
   expandedSections.value.delete(localKey)
+  delete componentTableVersions[localKey]
   delete sectionErrors[localKey]
   delete sectionSavedAt[localKey]
   delete lastUploadStatus[localKey]
@@ -613,6 +670,7 @@ async function addLink(section: SectionForm, index: number) {
     if (openLinkFormKey.value === section.localKey || openLinkFormKey.value === targetSection.localKey) openLinkFormKey.value = ''
     await refresh()
     syncForms()
+    syncStoreModule()
     toast.success('Tersimpan', { description: 'Link ditambahkan.' })
   } catch (error) {
     sectionErrors[targetSection.localKey] = sectionErrorMessage(error, 'Gagal menambah link.')
@@ -729,6 +787,7 @@ async function uploadFiles(files: File[], section: SectionForm, index: number) {
     }
     await refresh()
     syncForms()
+    syncStoreModule()
     toast.success('Terunggah', {
       description: files.length === 1 ? 'Lampiran file ditambahkan.' : `${files.length} lampiran file ditambahkan.`,
     })
@@ -755,6 +814,7 @@ async function ensureSectionSavedForAttachments(section: SectionForm, index: num
     const { data } = await api.post<ModuleDetail>(`/api/modules/${module.value.id}/details`, sectionBody(section, index))
     await refresh()
     syncForms()
+    syncStoreModule()
 
     const savedSection = sectionForms.value.find(item => item.id === data.id)
     if (savedSection) {
@@ -789,6 +849,7 @@ function confirmDeleteAttachment(attachment: Attachment) {
       await api.delete(`/api/attachments/${attachment.id}`)
       await refresh()
       syncForms()
+      syncStoreModule()
       toast.success('Terhapus', { description: 'Lampiran dihapus.' })
     },
   })
@@ -798,6 +859,212 @@ function fallbackAttachmentPreview(event: Event, attachment: Attachment) {
   const image = event.currentTarget as HTMLImageElement | null
   if (!image || image.src.endsWith(attachment.url)) return
   image.src = attachment.url
+}
+
+function exportCsv(section: SectionForm) {
+  const rows = section.components.map(component => [
+    component.category || '',
+    component.name || '',
+    component.quantity || '',
+    component.unit || '',
+    component.note || '',
+  ].map(escapeCsvField).join(','))
+  const csvContent = [CSV_EXPORT_HEADERS.join(','), ...rows].join('\n')
+  const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = `komponen-${section.slug || 'bagian'}.csv`
+  anchor.click()
+  URL.revokeObjectURL(url)
+}
+
+function triggerCsvImport(section: SectionForm) {
+  const fileInput = document.getElementById(`csv-import-${section.localKey}`) as HTMLInputElement | null
+  fileInput?.click()
+}
+
+async function importCsv(event: Event, section: SectionForm, index: number) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+
+  try {
+    const text = await file.text()
+    const rows = parseCsvTable(text)
+    if (rows.length < 2) {
+      await fallbackCsvToAttachment(file, section, index, 'Format CSV kosong atau tidak terbaca sebagai tabel komponen.')
+      return
+    }
+
+    const headers = rows[0] ?? []
+    const columnMap = {
+      category: resolveCsvColumnIndex(headers, CSV_HEADER_ALIASES.category),
+      name: resolveCsvColumnIndex(headers, CSV_HEADER_ALIASES.name),
+      quantity: resolveCsvColumnIndex(headers, CSV_HEADER_ALIASES.quantity),
+      unit: resolveCsvColumnIndex(headers, CSV_HEADER_ALIASES.unit),
+      note: resolveCsvColumnIndex(headers, CSV_HEADER_ALIASES.note),
+    }
+
+    if (columnMap.name === -1) {
+      await fallbackCsvToAttachment(file, section, index, 'Kolom nama komponen tidak ditemukan di CSV.')
+      return
+    }
+
+    const importedComponents: ComponentItem[] = []
+    for (const row of rows.slice(1)) {
+      const name = getCsvCell(row, columnMap.name)
+      const quantity = getCsvCell(row, columnMap.quantity) || '1'
+      const unit = getCsvCell(row, columnMap.unit) || 'pcs'
+      const category = getCsvCell(row, columnMap.category)
+      const note = getCsvCell(row, columnMap.note)
+
+      if (!name && !category && !note && !getCsvCell(row, columnMap.quantity) && !getCsvCell(row, columnMap.unit)) {
+        continue
+      }
+
+      if (!name) continue
+
+      importedComponents.push({
+        category,
+        name,
+        quantity,
+        unit,
+        note,
+        sortOrder: section.components.length + importedComponents.length,
+      })
+    }
+
+    if (!importedComponents.length) {
+      await fallbackCsvToAttachment(file, section, index, 'Tidak ada baris komponen valid di CSV.')
+      return
+    }
+
+    section.components = [...section.components, ...importedComponents].map((component, componentIndex) => ({
+      ...component,
+      sortOrder: componentIndex,
+    }))
+    bumpComponentTableVersion(section.localKey)
+    await nextTick()
+
+    toast.success('CSV berhasil diimpor', {
+      description: `${importedComponents.length} komponen ditambahkan ke tabel bagian ini.`,
+    })
+  } catch {
+    await fallbackCsvToAttachment(file, section, index, 'CSV tidak bisa diproses sebagai tabel komponen.')
+  }
+}
+
+async function fallbackCsvToAttachment(file: File, section: SectionForm, index: number, reason: string) {
+  toast.warning('CSV disimpan sebagai lampiran', {
+    description: `${reason} File tetap disimpan agar bisa ditinjau manual.`,
+  })
+  await uploadFiles([file], section, index)
+}
+
+function parseCsvTable(text: string) {
+  const normalized = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  const firstLine = normalized.split('\n').find(line => line.trim().length) || ''
+  const delimiter = detectCsvDelimiter(firstLine)
+  const rows: string[][] = []
+  let row: string[] = []
+  let field = ''
+  let inQuotes = false
+
+  for (let index = 0; index < normalized.length; index += 1) {
+    const char = normalized[index]
+    const nextChar = normalized[index + 1]
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        field += '"'
+        index += 1
+      } else {
+        inQuotes = !inQuotes
+      }
+      continue
+    }
+
+    if (char === delimiter && !inQuotes) {
+      row.push(field)
+      field = ''
+      continue
+    }
+
+    if (char === '\n' && !inQuotes) {
+      row.push(field)
+      if (row.some(cell => cell.trim().length)) rows.push(row.map(cell => cell.trim()))
+      row = []
+      field = ''
+      continue
+    }
+
+    field += char
+  }
+
+  if (field.length || row.length) {
+    row.push(field)
+    if (row.some(cell => cell.trim().length)) rows.push(row.map(cell => cell.trim()))
+  }
+
+  return rows
+}
+
+function detectCsvDelimiter(line: string) {
+  const delimiters = [',', ';', '\t'] as const
+  let winner = ','
+  let bestCount = -1
+
+  for (const delimiter of delimiters) {
+    const count = line.split(delimiter).length
+    if (count > bestCount) {
+      bestCount = count
+      winner = delimiter
+    }
+  }
+
+  return winner
+}
+
+function resolveCsvColumnIndex(headers: string[], aliases: readonly string[]) {
+  const normalizedHeaders = headers.map(header => normalizeCsvHeader(header))
+  let bestIndex = -1
+  let bestScore = 0
+
+  normalizedHeaders.forEach((header, index) => {
+    aliases.forEach((alias) => {
+      const normalizedAlias = normalizeCsvHeader(alias)
+      let score = 0
+      if (header === normalizedAlias) score = 4
+      else if (header.includes(normalizedAlias) || normalizedAlias.includes(header)) score = 3
+      else if (header.split(' ').some(part => normalizedAlias.includes(part) || part.includes(normalizedAlias))) score = 2
+      if (score > bestScore) {
+        bestScore = score
+        bestIndex = index
+      }
+    })
+  })
+
+  return bestIndex
+}
+
+function normalizeCsvHeader(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[_-]+/g, ' ')
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ')
+}
+
+function getCsvCell(row: string[], index: number) {
+  if (index < 0) return ''
+  return row[index]?.trim() || ''
+}
+
+function escapeCsvField(value: string) {
+  return `"${String(value).replace(/"/g, '""')}"`
 }
 
 function warnBeforeUnload(event: BeforeUnloadEvent) {

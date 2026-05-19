@@ -1,9 +1,9 @@
-import { defineEventHandler, getQuery } from 'h3'
-import { defineCachedEventHandler } from 'nitropack/runtime'
+import { defineEventHandler, getQuery, setHeader } from 'h3'
 import { getRequestRole } from '../../utils/auth'
-import { moduleInclude, prisma } from '../../utils/prisma'
+import { prisma } from '../../utils/prisma'
 
-export default defineCachedEventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
+  setHeader(event, 'Cache-Control', 'no-store')
   const query = getQuery(event)
   const search = String(query.search || '').trim()
   const role = await getRequestRole(event)
@@ -42,16 +42,6 @@ export default defineCachedEventHandler(async (event) => {
   })
 
   return modules
-}, {
-  name: 'modules-list',
-  group: 'module-api',
-  maxAge: 300,
-  swr: true,
-  shouldBypassCache: async event => await getRequestRole(event) === 'ADMIN',
-  getKey: (event) => {
-    const query = getQuery(event)
-    return ['modules', query.search || ''].join(':')
-  },
 })
 
 /**

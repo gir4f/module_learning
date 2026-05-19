@@ -20,6 +20,15 @@ export const modulePayloadSchema = z.object({
   sortOrder: z.coerce.number().int().default(0),
 })
 
+export const modulePatchPayloadSchema = z.object({
+  title: z.string().trim().min(1, 'Wajib diisi').optional(),
+  slug: z.string().trim().optional(),
+  description: z.string().trim().optional().nullable(),
+  keywords: z.string().trim().optional().nullable(),
+  status: z.enum(['DRAFT', 'PUBLISHED']).optional(),
+  sortOrder: z.coerce.number().int().optional(),
+}).refine(payload => Object.keys(payload).length > 0, 'Tidak ada perubahan.')
+
 export const detailPayloadSchema = z.object({
   title: z.string().trim().min(1, 'Wajib diisi'),
   slug: z.string().trim().optional(),

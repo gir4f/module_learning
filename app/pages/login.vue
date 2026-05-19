@@ -10,7 +10,13 @@
           Silakan masuk untuk mengelola modul pembelajaran.
         </p>
       </div>
-      <form v-auto-animate="{ duration: 170, easing: 'ease-in-out' }" class="mt-8 space-y-6" @submit.prevent="handleLogin">
+      <form
+        v-auto-animate="{ duration: 170, easing: 'ease-in-out' }"
+        method="post"
+        action="/api/auth/login"
+        class="mt-8 space-y-6"
+        @submit.prevent="handleLogin"
+      >
         <div class="space-y-4 rounded-md shadow-sm">
           <div>
             <label for="email-address" class="sr-only">Email address</label>

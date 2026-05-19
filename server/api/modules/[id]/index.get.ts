@@ -1,9 +1,9 @@
-import { createError, defineEventHandler, getRouterParam } from 'h3'
-import { defineCachedEventHandler } from 'nitropack/runtime'
+import { createError, defineEventHandler, getRouterParam, setHeader } from 'h3'
 import { getRequestRole } from '../../../utils/auth'
 import { moduleInclude, prisma } from '../../../utils/prisma'
 
-export default defineCachedEventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
+  setHeader(event, 'Cache-Control', 'no-store')
   const id = getRouterParam(event, 'id')
   const role = await getRequestRole(event)
 
@@ -21,11 +21,4 @@ export default defineCachedEventHandler(async (event) => {
 
   if (!module) throw createError({ statusCode: 404, statusMessage: 'Module not found.' })
   return module
-}, {
-  name: 'module-detail',
-  group: 'module-api',
-  maxAge: 600,
-  swr: true,
-  shouldBypassCache: async event => await getRequestRole(event) === 'ADMIN',
-  getKey: event => `module:${getRouterParam(event, 'id') || ''}`,
 })

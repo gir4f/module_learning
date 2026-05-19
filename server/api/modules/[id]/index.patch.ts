@@ -1,5 +1,5 @@
 import { defineEventHandler, getRouterParam, readBody } from 'h3'
-import { modulePayloadSchema } from '../../../../app/utils/validation'
+import { modulePatchPayloadSchema } from '../../../../app/utils/validation'
 import { requireAdmin } from '../../../utils/auth'
 import { validationError } from '../../../utils/apiError'
 import { invalidateModuleCache } from '../../../utils/cache'
@@ -9,7 +9,7 @@ import { uniqueSlug } from '../../../utils/slug'
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
   const id = getRouterParam(event, 'id')
-  const parsed = modulePayloadSchema.safeParse(await readBody(event))
+  const parsed = modulePatchPayloadSchema.safeParse(await readBody(event))
 
   if (!parsed.success) throw validationError(parsed.error)
 

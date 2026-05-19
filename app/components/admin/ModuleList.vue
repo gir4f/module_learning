@@ -68,7 +68,7 @@
           <span class="text-center">Aksi</span>
         </div>
 
-        <div v-auto-animate="{ duration: 180, easing: 'ease-in-out' }" class="grid flex-1 gap-3 min-[48rem]:grid-cols-2 min-[90rem]:grid-cols-1">
+        <div class="grid flex-1 gap-3 min-[48rem]:grid-cols-2 min-[90rem]:grid-cols-1">
           <article
             v-for="module in paginatedModules"
             :key="module.id || module.slug"
