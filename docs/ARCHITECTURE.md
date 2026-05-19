@@ -19,11 +19,13 @@ Stack utama:
   - `/` menampilkan katalog modul
   - `/modules/:slug` menampilkan detail modul
   - reader data dikelola oleh store `learning-modules`
+  - route learner membutuhkan login `VIEWER` atau `ADMIN`
 - Admin surface:
   - `/admin/modules` untuk list modul
   - `/admin/modules/new` untuk create modul
   - `/admin/modules/:id` untuk editor modul
   - admin data dikelola oleh store `modules`
+  - route admin hanya untuk `ADMIN`
 - Auth surface:
   - `/login`
   - session cookie dikelola oleh `h3-session`
@@ -97,9 +99,9 @@ Semua server route berjalan di Nuxt/Nitro process yang sama; tidak ada backend s
 
 ## Current Access Shape
 
-- learner pages saat ini bersifat public
+- learner pages saat ini bersifat internal-login
 - learner `GET /api/modules` dan `GET /api/modules/:id-or-slug`
-  - public mendapat modul `PUBLISHED`
+  - viewer mendapat modul `PUBLISHED`
   - admin yang sedang login dapat melihat draft juga
 - admin pages membutuhkan session admin
 - mutating API membutuhkan admin + same-origin request

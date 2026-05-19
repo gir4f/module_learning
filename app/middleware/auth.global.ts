@@ -1,11 +1,12 @@
 import { useAuthStore } from '~/stores/auth'
+import { resolvePostLoginRedirect, sanitizeRedirectPath } from '~/utils/authRoutes'
 
 export default defineNuxtRouteMiddleware(async (to) => {
   const auth = useAuthStore()
 
-  const isAdminRoute = to.path.startsWith('/admin')
   const isLoginRoute = to.path === '/login'
-  const safeLoginRedirect = sanitizeRedirect(to.query.redirect)
+  const isProtectedRoute = !isLoginRoute
+  const safeLoginRedirect = sanitizeRedirectPath(to.query.redirect)
 
   if (isLoginRoute && hasUnsafeLoginQuery(to.query)) {
     return navigateTo({
@@ -18,22 +19,18 @@ export default defineNuxtRouteMiddleware(async (to) => {
     await auth.ensureProfile()
   }
 
-  if (isAdminRoute && !auth.profile) {
-    return navigateTo('/login')
+  if (isProtectedRoute && !auth.profile) {
+    return navigateTo({
+      path: '/login',
+      query: { redirect: to.fullPath },
+    })
   }
 
   if (isLoginRoute && auth.profile) {
-    return navigateTo('/admin')
+    return navigateTo(resolvePostLoginRedirect(auth.profile, safeLoginRedirect))
   }
 })
 
 function hasUnsafeLoginQuery(query: Record<string, unknown>) {
   return Object.keys(query).some(key => key !== 'redirect')
-}
-
-function sanitizeRedirect(value: unknown) {
-  const redirect = Array.isArray(value) ? value[0] : value
-  if (typeof redirect !== 'string') return ''
-  if (!redirect.startsWith('/') || redirect.startsWith('//')) return ''
-  return redirect
 }

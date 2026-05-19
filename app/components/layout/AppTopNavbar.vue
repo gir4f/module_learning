@@ -321,10 +321,14 @@ const navItems = computed(() => mode === 'admin'
       { label: 'Modul Ajar', to: '/admin/modules' },
       { label: 'Halaman Modul', to: '/' },
     ]
-  : [
-      { label: 'Modul', to: '/' },
-      { label: 'Admin', to: '/admin/modules' },
-    ])
+  : auth.isAdmin
+      ? [
+          { label: 'Modul', to: '/' },
+          { label: 'Admin', to: '/admin/modules' },
+        ]
+      : [
+          { label: 'Modul', to: '/' },
+        ])
 
 watch(() => route.fullPath, () => {
   commandOpen.value = false

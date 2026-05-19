@@ -14,8 +14,8 @@ Body:
 
 ```json
 {
-  "email": "admin@gitronik.co.id",
-  "password": "admin123"
+  "email": "viewer@gitronik.co.id",
+  "password": "viewer123"
 }
 ```
 
@@ -25,8 +25,8 @@ Response success:
 {
   "profile": {
     "id": "string",
-    "email": "admin@gitronik.co.id",
-    "role": "ADMIN"
+    "email": "viewer@gitronik.co.id",
+    "role": "VIEWER"
   }
 }
 ```
@@ -36,6 +36,7 @@ Notes:
 - invalid credentials -> `400` atau `401`
 - rate limited per IP+email -> `429`
 - success login akan set session cookie
+- role `ADMIN` dan `VIEWER` sama-sama bisa login
 
 ### `GET /api/auth/me`
 

@@ -5,9 +5,9 @@
         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-teal text-white">
           <i class="pi pi-lock text-xl" aria-hidden="true" />
         </div>
-        <h2 class="mt-6 text-center text-3xl font-black tracking-tight text-slate-900 dark:text-white">Admin Login</h2>
+        <h2 class="mt-6 text-center text-3xl font-black tracking-tight text-slate-900 dark:text-white">Login Internal</h2>
         <p class="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
-          Silakan masuk untuk mengelola modul pembelajaran.
+          Masuk sebagai admin atau viewer untuk membuka modul pembelajaran internal.
         </p>
       </div>
       <form
@@ -75,6 +75,7 @@
 
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
+import { resolvePostLoginRedirect } from '~/utils/authRoutes'
 
 const email = ref('')
 const password = ref('')
@@ -82,6 +83,7 @@ const error = ref('')
 const loading = ref(false)
 
 const auth = useAuthStore()
+const route = useRoute()
 
 useHead({
   bodyAttrs: {
@@ -97,8 +99,8 @@ async function handleLogin() {
   loading.value = true
   error.value = ''
   try {
-    await auth.login(email.value, password.value)
-    navigateTo('/admin')
+    const profile = await auth.login(email.value, password.value)
+    await navigateTo(resolvePostLoginRedirect(profile, route.query.redirect))
   } catch (err: any) {
     error.value = err.data?.statusMessage || 'Gagal masuk. Periksa kembali email dan password Anda.'
   } finally {

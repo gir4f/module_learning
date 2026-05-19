@@ -6,6 +6,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   const adminHash = await bcrypt.hash('admin123', 12)
+  const viewerHash = await bcrypt.hash('viewer123', 12)
   await prisma.profile.upsert({
     where: { email: 'admin@gitronik.co.id' },
     update: { passwordHash: adminHash, role: 'ADMIN' },
@@ -15,6 +16,18 @@ async function main() {
       fullName: 'Admin',
       passwordHash: adminHash,
       role: 'ADMIN',
+    },
+  })
+
+  await prisma.profile.upsert({
+    where: { email: 'viewer@gitronik.co.id' },
+    update: { passwordHash: viewerHash, role: 'VIEWER' },
+    create: {
+      id: 'seed-viewer',
+      email: 'viewer@gitronik.co.id',
+      fullName: 'Viewer',
+      passwordHash: viewerHash,
+      role: 'VIEWER',
     },
   })
 

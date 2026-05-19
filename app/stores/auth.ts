@@ -3,6 +3,7 @@ import axios from 'axios'
 import type { Profile } from '~/types/learning'
 import { apiErrorMessage } from '~/utils/apiErrors'
 import { shouldRefreshAuthState } from '~/utils/authRefresh'
+import { homeRouteForProfile } from '~/utils/authRoutes'
 
 export const useAuthStore = defineStore('auth', () => {
   const profile = ref<Profile | null>(null)
@@ -14,7 +15,9 @@ export const useAuthStore = defineStore('auth', () => {
   let fetchInFlight: Promise<Profile | null> | null = null
 
   const isAdmin = computed(() => profile.value?.role === 'ADMIN')
+  const isViewer = computed(() => profile.value?.role === 'VIEWER')
   const isAuthenticated = computed(() => Boolean(profile.value))
+  const homeRoute = computed(() => homeRouteForProfile(profile.value))
 
   async function fetchProfile(options: { force?: boolean } = {}) {
     if (fetchInFlight && !options.force) return fetchInFlight
@@ -112,7 +115,9 @@ export const useAuthStore = defineStore('auth', () => {
     lastFetchedAt,
     lastResolvedAuthState,
     isAdmin,
+    isViewer,
     isAuthenticated,
+    homeRoute,
     fetchProfile,
     ensureProfile,
     refreshProfileIfStale,

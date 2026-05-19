@@ -2,7 +2,7 @@
 
 ## Summary
 
-Aplikasi memakai session cookie berbasis `h3-session` dan role `ADMIN` / `VIEWER`.
+Aplikasi memakai session cookie berbasis `h3-session` dan role `ADMIN` / `VIEWER`. Saat ini seluruh surface app membutuhkan login; beda role menentukan tujuan redirect dan akses admin.
 
 Komponen utama auth/access:
 
@@ -53,15 +53,16 @@ Client auth state dikelola store `auth`:
 
 - `/login`
   - public
-  - kalau user sudah login, redirect ke `/admin`
+  - kalau `ADMIN` sudah login, redirect ke `/admin/modules`
+  - kalau `VIEWER` sudah login, redirect ke `/`
   - query login selain `redirect` akan dibersihkan
 - `/admin` dan `/admin/**`
   - frontend middleware menuntut user login
   - middleware `admin.ts` juga menuntut `role === 'ADMIN'`
 - `/`
-  - public
+  - wajib login (`VIEWER` atau `ADMIN`)
 - `/modules/:slug`
-  - public
+  - wajib login (`VIEWER` atau `ADMIN`)
 
 ## API Access
 
@@ -139,6 +140,7 @@ Dokumen ini sengaja merekam kondisi repo sekarang, bukan aspirasi fase sebelumny
 
 Yang penting:
 
-- learner pages dan learner APIs saat ini masih public-read
+- learner pages sekarang internal-login; learner read API masih mempertahankan kontrak role-aware yang sama
+- learner route access sekarang internal-login untuk `VIEWER` dan `ADMIN`
 - admin mutations sudah dilindungi session admin + same-origin guard
 - auth store di client sudah menjadi source of truth auth state

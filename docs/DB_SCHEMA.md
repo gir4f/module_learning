@@ -173,6 +173,7 @@ Artinya ketika modul dihapus, section, komponen, dan attachment record ikut terh
 Seed default saat ini membuat:
 
 - akun admin `admin@gitronik.co.id`
+- akun viewer `viewer@gitronik.co.id`
 - module data dari `app/data/seedModules`
 
 Kalau credential/seed berubah, source of truth-nya tetap file [prisma/seed.ts].

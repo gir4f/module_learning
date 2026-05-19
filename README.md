@@ -6,7 +6,7 @@ Internal learning module CMS for PT. Gitronik Dimindo Indonesia.
 - Admin CRUD uses simple full-page editors with PrimeVue controls where useful.
 - API routes live in Nuxt server routes.
 - Prisma connects to PostgreSQL.
-- Login uses bcryptjs password hashes stored on `Profile` plus h3 sessions.
+- Login uses bcryptjs password hashes stored on `Profile` plus h3 sessions for `ADMIN` and `VIEWER`.
 - Uploaded files are stored under `UPLOAD_DIR` and served by `/api/uploads/...`.
 
 ## Setup
@@ -75,14 +75,18 @@ pm2 restart modul-ajar --update-env
 
 Behind Nginx/SSL, forward `Host`, `X-Forwarded-Host`, and `X-Forwarded-Proto` so same-origin API protection keeps working.
 
-## Admin Bootstrap
+## Bootstrap Accounts
 
-The seed script creates a default admin account:
+The seed script creates default local accounts:
 
-- Email: `admin@gitronik.co.id`
-- Password: `admin123`
+- Admin
+  - Email: `admin@gitronik.co.id`
+  - Password: `admin123`
+- Viewer
+  - Email: `viewer@gitronik.co.id`
+  - Password: `viewer123`
 
-Change this password before using the app outside local development.
+Change these passwords before using the app outside local development.
 
 ## Docs
 
