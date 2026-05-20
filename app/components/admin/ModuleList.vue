@@ -351,6 +351,10 @@ function handleSearchEscape() {
 }
 
 function handleGlobalShortcut(event: KeyboardEvent) {
+  if (event.key === 'Escape' && selectedIds.value.length > 0) {
+    clearSelection()
+    return
+  }
   if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'k') return
   if (window.matchMedia('(max-width: 1023px)').matches) return
   event.preventDefault()

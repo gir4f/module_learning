@@ -59,7 +59,7 @@
       </form>
     </AdminSurface>
 
-    <div v-auto-animate="{ duration: 180, easing: 'ease-in-out' }" class="space-y-4">
+    <div ref="sectionsContainerEl" v-auto-animate="{ duration: 180, easing: 'ease-in-out' }" class="space-y-4">
       <div class="flex items-center justify-between gap-3">
         <h2 class="text-xl font-black text-slate-950 dark:text-white">Varian Produk</h2>
         <Button label="Tambah Varian Produk" icon="pi pi-plus" @click="addSection" />
@@ -276,7 +276,7 @@
         :actions="sectionBulkActions"
         :busy="sectionBulkBusy"
         :on-cancel="clearSectionSelection"
-        :position-style="{ position: 'sticky', bottom: '1rem', left: '50%', transform: 'translateX(-50%)' }"
+        :position-style="sectionPillStyle"
       />
     </Transition>
 
@@ -371,6 +371,8 @@ const attachmentSelections = ref<Record<string, Set<string>>>({})
 const attachmentBulkBusy = ref(false)
 const attachmentBulkProgress = ref<{ current: number; total: number }>({ current: 0, total: 0 })
 const sectionForms = ref<SectionForm[]>([])
+const sectionsContainerEl = useTemplateRef<HTMLElement>('sectionsContainerEl')
+const sectionContainerCenter = ref(0)
 const componentTableVersions = reactive<Record<string, number>>({})
 const linkForms = reactive<Record<string, { title: string, url: string }>>({})
 const openLinkFormKey = ref('')
@@ -409,6 +411,19 @@ const hasUnsavedChanges = computed(() => {
   return sectionForms.value.some((section, index) => hasSectionChanges(section, index))
 })
 
+const sectionPillStyle = computed(() => ({
+  left: `${sectionContainerCenter.value}px`,
+  transform: 'translateX(-50%)',
+}))
+
+function updateSectionContainerCenter() {
+  if (!sectionsContainerEl.value) return
+  const rect = sectionsContainerEl.value.getBoundingClientRect()
+  sectionContainerCenter.value = rect.left + rect.width / 2
+}
+
+let sectionResizeObserver: ResizeObserver | null = null
+
 watch(module, syncForms, { immediate: true })
 watch(() => route.params.id, async (id, previousId) => {
   if (!id || id === previousId) return
@@ -420,12 +435,20 @@ onMounted(() => {
   window.addEventListener('beforeunload', warnBeforeUnload)
   window.addEventListener('keydown', handleEditorKeydown)
   window.addEventListener('scroll', handleMobileBackScroll, { passive: true })
+  window.addEventListener('resize', updateSectionContainerCenter, { passive: true })
+  updateSectionContainerCenter()
+  if (sectionsContainerEl.value) {
+    sectionResizeObserver = new ResizeObserver(updateSectionContainerCenter)
+    sectionResizeObserver.observe(sectionsContainerEl.value)
+  }
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', warnBeforeUnload)
   window.removeEventListener('keydown', handleEditorKeydown)
   window.removeEventListener('scroll', handleMobileBackScroll)
+  window.removeEventListener('resize', updateSectionContainerCenter)
+  sectionResizeObserver?.disconnect()
 })
 
 onBeforeRouteLeave(() => {
@@ -1156,6 +1179,17 @@ function handleEditorKeydown(event: KeyboardEvent) {
   if (event.key !== 'Escape') return
   if (openLinkFormKey.value) {
     closeLinkForm(openLinkFormKey.value)
+    return
+  }
+  if (selectedSectionKeys.value.size > 0) {
+    clearSectionSelection()
+    return
+  }
+  const activeAttachmentKey = Object.keys(attachmentSelections.value).find(
+    key => attachmentSelections.value[key]?.size > 0,
+  )
+  if (activeAttachmentKey) {
+    clearAttachmentSelection(activeAttachmentKey)
     return
   }
   dragOverSectionKey.value = ''

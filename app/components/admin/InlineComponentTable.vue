@@ -167,6 +167,20 @@ function clearSelection() {
   selectedKeys.value = new Set()
 }
 
+function handleComponentKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape' && selectedKeys.value.size > 0) {
+    clearSelection()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleComponentKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleComponentKeydown)
+})
+
 function bulkDeleteComponents() {
   model.value = model.value
     .filter(row => !selectedKeys.value.has(rowKey(row)))
