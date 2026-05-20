@@ -1,4 +1,5 @@
 <template>
+  <div>
   <section v-if="module" class="space-y-8 pb-12">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div class="min-w-0 flex-1">
@@ -323,6 +324,7 @@
     :title="pdfPreviewAttachment?.title"
     @close="pdfPreviewAttachment = null"
   />
+  </div>
 </template>
 
 <script setup lang="ts">
