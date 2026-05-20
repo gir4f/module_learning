@@ -1,5 +1,12 @@
 @import "tailwindcss";
 @plugin "tailwindcss-primeui";
+
+/*
+ * Dark mode variant: class-based (.dark on <html>).
+ * OS preference is handled by the head script and useDarkMode composable
+ * which add/remove the .dark class. The .theme-icon and .theme-label-*
+ * CSS rules below handle the icon/label swap without JS using @media directly.
+ */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -583,6 +590,31 @@ summary::-webkit-details-marker {
   ::view-transition-new(root) {
     animation: none !important;
   }
+}
+
+/*
+ * Theme toggle button icon — switches between moon (light mode) and sun (dark mode)
+ * using CSS only, so it's correct from the very first paint with no hydration flash.
+ * .theme-icon uses the primeicons font; the ::before content is swapped by the dark variant.
+ */
+.theme-icon::before {
+  content: "\e9c7"; /* pi-moon */
+}
+
+.dark .theme-icon::before {
+  content: "\e9c8"; /* pi-sun */
+}
+
+.theme-label-dark {
+  display: none;
+}
+
+.dark .theme-label-dark {
+  display: inline;
+}
+
+.dark .theme-label-light {
+  display: none;
 }
 
 .toc-scrollbar {

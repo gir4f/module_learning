@@ -6,14 +6,13 @@ import {
   type ThemePreference,
 } from '~/utils/themePreference'
 
-let initialized = false
 let mediaQuery: MediaQueryList | null = null
 let mediaQueryHandler: ((event: MediaQueryListEvent) => void) | null = null
+let listenerAttached = false
 
 export function useDarkMode() {
   const preference = useState<ThemePreference>('theme-preference', () => 'system')
   const resolvedMode = useState<ThemeMode>('theme-resolved', () => 'light')
-  const ready = useState('theme-ready', () => false)
   const isDark = computed(() => resolvedMode.value === 'dark')
 
   function systemPrefersDark() {
@@ -29,10 +28,18 @@ export function useDarkMode() {
     if (!import.meta.client) return
 
     const root = document.documentElement
-    root.classList.toggle('dark', resolution.mode === 'dark')
+    if (nextPreference === 'system') {
+      // Remove both override classes — CSS @media handles it natively, no flash
+      root.classList.remove('dark', 'light')
+    } else if (nextPreference === 'dark') {
+      root.classList.add('dark')
+      root.classList.remove('light')
+    } else {
+      root.classList.add('light')
+      root.classList.remove('dark')
+    }
     root.dataset.themePreference = resolution.preference
     root.dataset.themeResolved = resolution.mode
-    ready.value = true
   }
 
   function readStoredPreference() {
@@ -45,34 +52,40 @@ export function useDarkMode() {
     localStorage.setItem(THEME_STORAGE_KEY, nextPreference)
   }
 
-  function syncFromPreference(nextPreference = readStoredPreference()) {
-    applyResolvedState(nextPreference)
+  function syncFromStorage() {
+    applyResolvedState(readStoredPreference())
   }
 
   function init() {
     if (!import.meta.client) return
 
-    syncFromPreference()
+    syncFromStorage()
 
-    if (!initialized) {
+    if (!listenerAttached) {
       mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
       mediaQueryHandler = () => {
+        // Only update Vue state — CSS already reacts natively.
+        // We still need to keep resolvedMode in sync so the button icon is correct.
         if (preference.value !== 'system') return
-        applyResolvedState('system')
+        resolvedMode.value = systemPrefersDark() ? 'dark' : 'light'
       }
       mediaQuery.addEventListener('change', mediaQueryHandler)
-      initialized = true
+      listenerAttached = true
     }
-
-    ready.value = true
   }
 
   function toggle() {
     if (!import.meta.client) return
-
+    // Cycle: if currently dark (either via class or OS) → force light
+    //        if currently light → force dark
     const nextPreference: ThemePreference = resolvedMode.value === 'dark' ? 'light' : 'dark'
     writeStoredPreference(nextPreference)
-    applyResolvedState(nextPreference)
+
+    if (document.startViewTransition) {
+      document.startViewTransition(() => applyResolvedState(nextPreference))
+    } else {
+      applyResolvedState(nextPreference)
+    }
   }
 
   function resetToSystem() {
@@ -81,5 +94,5 @@ export function useDarkMode() {
     applyResolvedState('system')
   }
 
-  return { preference, resolvedMode, isDark, ready, init, toggle, resetToSystem }
+  return { preference, resolvedMode, isDark, init, toggle, resetToSystem }
 }

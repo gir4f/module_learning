@@ -90,7 +90,12 @@ export default defineNuxtConfig({
       ],
       script: [
         {
-          innerHTML: `(function(){try{var key='dark-mode';var stored=localStorage.getItem(key);var preference=(stored==='dark'||stored==='true')?'dark':(stored==='light'||stored==='false')?'light':'system';var prefers=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=preference==='dark'||(preference==='system'&&prefers)?'dark':'light';var root=document.documentElement;root.classList.toggle('dark',resolved==='dark');root.dataset.themePreference=preference;root.dataset.themeResolved=resolved;}catch(e){}})();`,
+          // Applies stored theme override before first paint — zero flash.
+          // For 'system' preference (no stored value), we remove both .dark and
+          // .light so the CSS @media (prefers-color-scheme: dark) variant takes
+          // over natively. This means first-time visitors never need JS for
+          // correct theming.
+          innerHTML: `(function(){try{var key='dark-mode';var stored=localStorage.getItem(key);var preference=(stored==='dark'||stored==='true')?'dark':(stored==='light'||stored==='false')?'light':'system';var root=document.documentElement;if(preference==='dark'){root.classList.add('dark');root.classList.remove('light');}else if(preference==='light'){root.classList.add('light');root.classList.remove('dark');}else{root.classList.remove('dark','light');}root.dataset.themePreference=preference;}catch(e){}})();`,
           tagPosition: 'head',
         },
       ],

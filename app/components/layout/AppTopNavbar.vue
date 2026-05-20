@@ -128,13 +128,11 @@
         <!-- Dark mode toggle -->
         <button
           type="button"
-          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition duration-150 hover:border-brand-teal hover:bg-slate-50 hover:text-brand-teal focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 disabled:cursor-wait disabled:opacity-70 dark:border-slate-700 dark:text-slate-300 dark:hover:border-cyan-400 dark:hover:bg-slate-800 dark:hover:text-cyan-400 dark:focus-visible:ring-cyan-950"
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-300 text-slate-600 transition duration-150 hover:border-brand-teal hover:bg-slate-50 hover:text-brand-teal focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-700 dark:text-slate-300 dark:hover:border-cyan-400 dark:hover:bg-slate-800 dark:hover:text-cyan-400 dark:focus-visible:ring-cyan-950"
           :aria-label="themeButtonLabel"
-          :disabled="!themeButtonReady"
           @click="toggle"
         >
-          <i v-if="themeButtonReady" :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true" />
-          <span v-else aria-hidden="true" class="block h-4 w-4" />
+          <i class="pi theme-icon" aria-hidden="true" />
         </button>
 
         <!-- Desktop Auth button -->
@@ -278,14 +276,10 @@ const localLearningSearch = useState('learning-module-local-search', () => '')
 const auth = useAuthStore()
 const learningStore = useLearningModulesStore()
 const adminModulesStore = useModulesStore()
-const { isDark, toggle, ready, init } = useDarkMode()
+const { isDark, toggle, init } = useDarkMode()
 const logoSrc = '/module-assets/LogoGitronikPolos.png'
-const themeMounted = ref(false)
-const themeButtonReady = computed(() => themeMounted.value && ready.value)
-const themeButtonLabel = computed(() => {
-  if (!themeButtonReady.value) return 'Ganti tema'
-  return isDark.value ? 'Gunakan mode terang' : 'Gunakan mode gelap'
-})
+// aria-label is fine to be reactive — it's not visible content, no flash
+const themeButtonLabel = computed(() => isDark.value ? 'Gunakan mode terang' : 'Gunakan mode gelap')
 const searchSourceModules = computed(() => mode === 'admin' ? adminModulesStore.modules : learningStore.modules)
 const {
   query,
@@ -350,7 +344,6 @@ watch(drawerOpen, (isOpen) => {
 })
 
 onMounted(() => {
-  themeMounted.value = true
   init()
   if (mode === 'learning') {
     void learningStore.ensureModules()
