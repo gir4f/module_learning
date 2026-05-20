@@ -1,7 +1,7 @@
 <template>
   <div v-if="attachments.length" class="space-y-3">
     <h3 class="text-sm font-bold uppercase text-slate-500 dark:text-slate-400">Lampiran</h3>
-    <div v-auto-animate="{ duration: 180, easing: 'ease-in-out' }" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <div v-auto-animate="learnerAutoAnimateConfig" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <article
         v-for="attachment in sortedAttachments"
         :key="attachment.id || attachment.url"
@@ -76,6 +76,7 @@
 
 <script setup lang="ts">
 import type { Attachment } from '~/types/learning'
+import { learnerAutoAnimateConfig } from '~/utils/motion'
 import { isPdfAttachment, previewUrlForAttachment } from '~/utils/upload'
 const ImageLightbox = defineAsyncComponent(() => import('~/components/shared/ImageLightbox.vue'))
 const PdfPreviewModal = defineAsyncComponent(() => import('~/components/shared/PdfPreviewModal.vue'))

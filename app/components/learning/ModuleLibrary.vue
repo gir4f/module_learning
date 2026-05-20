@@ -1,5 +1,5 @@
 <template>
-  <div v-auto-animate="{ duration: 170, easing: 'ease-in-out' }" class="space-y-5">
+  <div v-auto-animate="learnerAutoAnimateConfig" class="space-y-5">
     <div v-if="showSearch" class="sticky top-[73px] z-20 rounded-lg border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
       <div class="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
         <ModuleSearch v-model="searchModel" />
@@ -73,7 +73,7 @@
 
     <div
       v-else
-      v-auto-animate="{ duration: 180, easing: 'ease-in-out' }"
+      v-auto-animate="learnerAutoAnimateConfig"
       class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 min-[96rem]:grid-cols-5"
     >
       <ModuleCard
@@ -109,6 +109,7 @@ import LoadingBlock from '~/components/shared/LoadingBlock.vue'
 import ModuleCard from '~/components/learning/ModuleCard.vue'
 import ModuleSearch from '~/components/learning/ModuleSearch.vue'
 import SortSelect from '~/components/shared/SortSelect.vue'
+import { learnerAutoAnimateConfig } from '~/utils/motion'
 import { categoryTabs, type ModuleCategory, type ModuleSort } from '~/utils/moduleUi'
 
 const { modules, totalCount, activeCategory, pending, error, showSearch, page = 1, rows = 15 } = defineProps<{

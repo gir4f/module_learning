@@ -24,14 +24,14 @@
         </div>
       </aside>
 
-      <div class="min-w-0 space-y-5">
+      <div v-auto-animate="learnerAutoAnimateConfig" class="min-w-0 space-y-5">
         <DocumentHeader :module="module" />
         <details class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 lg:hidden">
           <summary class="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-black text-slate-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:text-slate-100 dark:focus-visible:ring-cyan-950">
             <span>Daftar isi</span>
             <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ module.details.length }}</span>
           </summary>
-          <ol class="mt-3 grid gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+          <ol v-auto-animate="learnerAutoAnimateConfig" class="mt-3 grid gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
             <li v-for="detail in module.details" :key="detail.slug">
               <a
                 :href="`#${detail.slug}`"
@@ -69,7 +69,7 @@
         <div class="sticky top-24 space-y-4 no-print">
           <section class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">Ringkasan modul</h2>
-            <dl class="mt-4 grid gap-3">
+            <dl v-auto-animate="learnerAutoAnimateConfig" class="mt-4 grid gap-3">
               <div v-for="item in summaryItems" :key="item.label" class="rounded-lg bg-slate-50 p-3 dark:bg-slate-950">
                 <dt class="text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">{{ item.label }}</dt>
                 <dd class="mt-1 text-sm font-black text-slate-900 dark:text-slate-100">{{ item.value }}</dd>
@@ -100,7 +100,7 @@
               <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">Lampiran cepat</h2>
               <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ attachmentCount }}</span>
             </div>
-            <div v-if="quickAttachments.length" class="mt-3 space-y-2">
+            <div v-if="quickAttachments.length" v-auto-animate="learnerAutoAnimateConfig" class="mt-3 space-y-2">
               <a
                 v-for="attachment in quickAttachments"
                 :key="attachment.id || attachment.url"
@@ -149,6 +149,7 @@ import ComponentTable from '~/components/learning/ComponentTable.vue'
 import DocumentHeader from '~/components/learning/DocumentHeader.vue'
 import PrintHeader from '~/components/learning/PrintHeader.vue'
 import SectionNav from '~/components/learning/SectionNav.vue'
+import { learnerAutoAnimateConfig } from '~/utils/motion'
 
 const { module } = defineProps<{
   module: LearningModule

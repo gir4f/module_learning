@@ -80,7 +80,7 @@
           <span class="text-center">Aksi</span>
         </div>
 
-        <div class="grid flex-1 gap-3 min-[48rem]:grid-cols-2 min-[96rem]:grid-cols-1">
+        <div v-auto-animate="learnerAutoAnimateConfig" class="grid flex-1 gap-3 min-[48rem]:grid-cols-2 min-[96rem]:grid-cols-1">
           <article
             v-for="module in paginatedModules"
             :key="module.id || module.slug"
@@ -236,6 +236,7 @@ import AdminSurface from '~/components/admin/AdminSurface.vue'
 import EmptyState from '~/components/shared/EmptyState.vue'
 import SortSelect from '~/components/shared/SortSelect.vue'
 import { formatAdminDate } from '~/utils/adminModuleUi'
+import { learnerAutoAnimateConfig } from '~/utils/motion'
 import { sortModules, type ModuleSort } from '~/utils/moduleUi'
 
 const props = withDefaults(defineProps<{

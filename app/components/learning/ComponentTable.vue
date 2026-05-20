@@ -45,7 +45,7 @@
       </table>
     </div>
 
-    <div v-auto-animate="{ duration: 160, easing: 'ease-out' }" class="grid gap-3 sm:hidden">
+    <div v-auto-animate="learnerAutoAnimateConfig" class="grid gap-3 sm:hidden">
       <details
         v-for="group in groupedComponents"
         :key="group.category"
@@ -86,6 +86,7 @@
 
 <script setup lang="ts">
 import type { ComponentItem } from '~/types/learning'
+import { learnerAutoAnimateConfig } from '~/utils/motion'
 
 const { components } = defineProps<{
   components: ComponentItem[]

@@ -1,5 +1,5 @@
 <template>
-  <nav v-auto-animate="{ duration: 170, easing: 'ease-in-out' }" class="hidden lg:block relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 no-print" aria-label="Daftar isi modul">
+  <nav v-auto-animate="learnerAutoAnimateConfig" class="hidden lg:block relative overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 no-print" aria-label="Daftar isi modul">
     <div class="absolute left-0 top-0 h-full w-1 bg-slate-100 dark:bg-slate-800" aria-hidden="true">
       <div class="w-full bg-brand-teal transition-all" :style="{ height: `${progress}%` }" />
     </div>
@@ -37,6 +37,7 @@
 
 <script setup lang="ts">
 import type { ModuleDetail } from '~/types/learning'
+import { learnerAutoAnimateConfig } from '~/utils/motion'
 
 const { details } = defineProps<{
   details: ModuleDetail[]
