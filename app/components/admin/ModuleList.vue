@@ -4,7 +4,7 @@
       <div ref="cardEl">
         <div class="grid gap-3 border-b border-slate-200 p-4 dark:border-slate-800 min-[90rem]:grid-cols-[minmax(0,1fr)_auto_auto] min-[90rem]:items-end">
           <div class="flex min-w-0 flex-col gap-1.5">
-            <p v-if="!props.pending || props.modules.length" class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <p v-if="!props.pending || props.modules.length" class="text-s font-semibold text-slate-500 dark:text-slate-400">
               Menampilkan {{ paginatedModules.length }} dari {{ sortedModules.length }} modul
             </p>
             <label class="relative min-w-0">
@@ -61,7 +61,7 @@
       </div>
 
       <div v-else class="flex h-full flex-col p-4 sm:p-5">
-        <div class="mb-3 hidden grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] items-center gap-4 rounded-xl bg-slate-100 px-4 py-3 text-[11px] font-black uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300 min-[96rem]:grid">
+        <div class="mb-3 hidden grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(8rem,11rem)_11.5rem_10rem_11.5rem] items-center gap-4 rounded-xl bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300 min-[96rem]:grid">
           <label class="flex items-center justify-center">
             <span class="sr-only">Pilih semua modul di halaman aktif</span>
             <input
@@ -75,7 +75,7 @@
           <span>Nama Modul</span>
           <span>Status</span>
           <span>Alamat</span>
-          <span>Varian Produk</span>
+          <span class="text-center">Varian Produk</span>
           <span>Terakhir Diubah</span>
           <span class="text-center">Aksi</span>
         </div>
@@ -84,7 +84,7 @@
           <article
             v-for="module in paginatedModules"
             :key="module.id || module.slug"
-            class="group grid min-w-0 gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50 sm:p-4 min-[96rem]:grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(10rem,13rem)_7rem_10rem_11.5rem] min-[96rem]:items-center"
+            class="group grid min-w-0 gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50 sm:p-4 min-[96rem]:grid-cols-[2.5rem_minmax(13rem,1fr)_8.5rem_minmax(8rem,11rem)_11.5rem_10rem_11.5rem] min-[96rem]:items-center"
           >
             <div class="flex items-start justify-between gap-3 min-[96rem]:items-center min-[96rem]:justify-center">
               <label class="flex items-center justify-center">
@@ -121,7 +121,7 @@
 
             <button
               type="button"
-              class="hidden w-fit justify-self-start rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[96rem]:inline-flex min-[96rem]:-ml-2.5"
+              class="hidden w-fit justify-self-start rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[96rem]:inline-flex"
               :class="statusClass(module.status)"
               :disabled="props.busy"
               @click="$emit('toggle-status', module)"
@@ -133,7 +133,7 @@
               /{{ module.slug }}
             </p>
 
-            <div class="hidden min-w-0 min-[96rem]:block">
+            <div class="hidden min-w-0 text-center min-[96rem]:block">
               <span class="font-bold text-slate-700 dark:text-slate-200">{{ module.details?.length || 0 }}</span>
             </div>
 

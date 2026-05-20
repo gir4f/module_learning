@@ -107,9 +107,10 @@
             v-for="item in navItems"
             :key="item.to"
             :to="item.to"
-            class="rounded-xl px-3 py-2 font-bold text-slate-600 transition hover:bg-slate-100 hover:text-brand-navy dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-cyan-200"
+            class="inline-flex items-center gap-2 rounded-xl px-3 py-2 font-bold text-slate-600 transition hover:bg-slate-100 hover:text-brand-navy dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-cyan-200"
             :class="isActive(item.to) ? 'bg-slate-100 text-brand-navy dark:bg-slate-800 dark:text-cyan-200' : ''"
           >
+            <i v-if="item.icon" :class="[item.icon, 'text-xs']" aria-hidden="true" />
             {{ item.label }}
           </NuxtLink>
         </nav>
@@ -175,6 +176,7 @@
     <Teleport to="body">
       <div
         v-if="commandOpen"
+        ref="commandPaletteRoot"
         class="fixed inset-0 z-50 flex items-start justify-center bg-slate-950/25 px-4 pt-20 backdrop-blur-[2px] sm:pt-24"
         role="dialog"
         aria-modal="true"
@@ -205,7 +207,7 @@
               </button>
             </div>
           </div>
-          <div class="max-h-[55vh] overflow-y-auto p-2">
+          <div class="max-h-[70dvh] overflow-y-auto p-2">
             <NuxtLink
               v-for="(module, index) in suggestions"
               :key="module.slug"
@@ -269,6 +271,7 @@ const localSearchOpen = ref(false)
 const searchTrigger = useTemplateRef<HTMLButtonElement>('searchTrigger')
 const mobileSearchTrigger = useTemplateRef<HTMLButtonElement>('mobileSearchTrigger')
 const localSearchRoot = useTemplateRef<HTMLElement>('localSearchRoot')
+const commandPaletteRoot = useTemplateRef<HTMLElement>('commandPaletteRoot')
 const localSearchInput = useTemplateRef<HTMLInputElement>('localSearchInput')
 const commandInput = useTemplateRef<HTMLInputElement>('commandInput')
 const lastSearchTrigger = ref<HTMLButtonElement | null>(null)
@@ -276,6 +279,9 @@ const localLearningSearch = useState('learning-module-local-search', () => '')
 const auth = useAuthStore()
 const learningStore = useLearningModulesStore()
 const adminModulesStore = useModulesStore()
+
+useFocusTrap(commandPaletteRoot, commandOpen)
+
 const { isDark, toggle, init } = useDarkMode()
 const logoSrc = '/module-assets/LogoGitronikPolos.png'
 // aria-label is fine to be reactive — it's not visible content, no flash
@@ -312,16 +318,16 @@ const authLabel = computed(() => {
 })
 const navItems = computed(() => mode === 'admin'
   ? [
-      { label: 'Modul Ajar', to: '/admin/modules' },
-      { label: 'Halaman Modul', to: '/' },
+      { label: 'Modul Ajar', to: '/admin/modules', icon: 'pi pi-book' },
+      { label: 'Halaman Modul', to: '/', icon: 'pi pi-external-link' },
     ]
   : auth.isAdmin
       ? [
-          { label: 'Modul', to: '/' },
-          { label: 'Admin', to: '/admin/modules' },
+          { label: 'Modul', to: '/', icon: 'pi pi-book' },
+          { label: 'Admin', to: '/admin/modules', icon: 'pi pi-cog' },
         ]
       : [
-          { label: 'Modul', to: '/' },
+          { label: 'Modul', to: '/', icon: 'pi pi-book' },
         ])
 
 watch(() => route.fullPath, () => {

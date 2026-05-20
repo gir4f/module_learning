@@ -10,10 +10,10 @@ export function timeAgo(dateString?: string | null) {
   const day = 24 * hour
   const month = 30 * day
 
-  if (diffMs < minute) return 'Just now'
-  if (diffMs < hour) return `${Math.floor(diffMs / minute)} minutes ago`
-  if (diffMs < day) return `${Math.floor(diffMs / hour)} hours ago`
-  if (diffMs < month) return `${Math.floor(diffMs / day)} days ago`
+  if (diffMs < minute) return 'baru saja'
+  if (diffMs < hour) return `${Math.floor(diffMs / minute)} menit lalu`
+  if (diffMs < day) return `${Math.floor(diffMs / hour)} jam lalu`
+  if (diffMs < month) return `${Math.floor(diffMs / day)} hari lalu`
 
   return new Intl.DateTimeFormat('id-ID', {
     day: '2-digit',

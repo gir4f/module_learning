@@ -7,6 +7,7 @@
     <Transition name="drawer-slide">
       <aside
         v-if="modelValue"
+        ref="drawerRoot"
         class="fixed inset-y-0 right-0 z-80 flex h-dvh w-full max-w-sm flex-col overflow-hidden border-l border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-950 sm:w-[24rem] xl:hidden"
         aria-label="Menu mobile"
       >
@@ -82,7 +83,25 @@
               :class="isActive(item.to) ? 'bg-slate-100 text-brand-navy dark:bg-slate-800 dark:text-cyan-200' : ''"
               @click="$emit('update:modelValue', false)"
             >
-              <span>{{ item.label }}</span>
+              <span class="flex items-center gap-2">
+                <i v-if="item.icon" :class="[item.icon, 'text-xs text-brand-teal dark:text-cyan-300']" aria-hidden="true" />
+                {{ item.label }}
+              </span>
+              <i class="pi pi-arrow-right text-xs text-slate-400" aria-hidden="true" />
+            </NuxtLink>
+
+            <!-- Audit log link (admin only) -->
+            <NuxtLink
+              v-if="mode === 'admin'"
+              to="/admin/audit-logs"
+              class="flex min-h-12 items-center justify-between rounded-2xl px-4 py-3 font-black text-slate-700 transition duration-150 hover:bg-slate-100 active:scale-[0.99] dark:text-slate-200 dark:hover:bg-slate-800"
+              :class="isActive('/admin/audit-logs') ? 'bg-slate-100 text-brand-navy dark:bg-slate-800 dark:text-cyan-200' : ''"
+              @click="$emit('update:modelValue', false)"
+            >
+              <span class="flex items-center gap-2">
+                <i class="pi pi-history text-xs text-brand-teal dark:text-cyan-300" aria-hidden="true" />
+                Aktivitas Terbaru
+              </span>
               <i class="pi pi-arrow-right text-xs text-slate-400" aria-hidden="true" />
             </NuxtLink>
           </nav>
@@ -113,7 +132,7 @@ import { useModulesStore } from '~/stores/modules'
 const { modelValue, subtitle, navItems, isDark, authLabel, authPending = false, mode } = defineProps<{
   modelValue: boolean
   subtitle: string
-  navItems: Array<{ label: string; to: string }>
+  navItems: Array<{ label: string; to: string; icon?: string }>
   isDark: boolean
   authLabel: string
   authPending?: boolean
@@ -129,6 +148,7 @@ defineEmits<{
 
 const learningStore = useLearningModulesStore()
 const adminModulesStore = useModulesStore()
+const drawerRoot = useTemplateRef<HTMLElement>('drawerRoot')
 const searchQuery = ref('')
 const searchSourceModules = computed(() => mode === 'admin' ? adminModulesStore.modules : learningStore.modules)
 const {
@@ -138,6 +158,8 @@ const {
 } = useModuleSearch({
   source: searchSourceModules,
 })
+
+useFocusTrap(drawerRoot, computed(() => modelValue))
 
 const route = useRoute()
 watch(() => route.fullPath, () => {

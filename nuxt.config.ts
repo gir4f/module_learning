@@ -100,7 +100,7 @@ export default defineNuxtConfig({
         },
       ],
     },
-    pageTransition: false,
+    pageTransition: { name: 'page', mode: 'out-in' },
   },
   vite: {
     plugins: [tailwindcss()],

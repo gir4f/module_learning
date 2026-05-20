@@ -19,7 +19,7 @@
       >
         <div class="space-y-4 rounded-md shadow-sm">
           <div>
-            <label for="email-address" class="sr-only">Email address</label>
+            <label for="email-address" class="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Alamat Email</label>
             <input
               id="email-address"
               v-model="email"
@@ -32,7 +32,7 @@
             >
           </div>
           <div>
-            <label for="password" class="sr-only">Password</label>
+            <label for="password" class="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-300">Kata Sandi</label>
             <input
               id="password"
               v-model="password"

@@ -142,6 +142,17 @@ export const useModulesStore = defineStore('modules', () => {
   }
 
   async function updateModule(id: string, payload: Partial<LearningModule>) {
+    const previousModule = modules.value.find(m => m.id === id)
+    const previousCurrentModule = currentModule.value?.id === id ? { ...currentModule.value } : null
+
+    if (previousModule) {
+      const optimisticModule = { ...previousModule, ...payload } as LearningModule
+      replaceModule(id, optimisticModule)
+      if (currentModule.value?.id === id || currentModuleKey.value === id) {
+        setCurrentModule(optimisticModule)
+      }
+    }
+
     pendingMutation.value = true
     try {
       const api = useApiClient()
@@ -152,17 +163,31 @@ export const useModulesStore = defineStore('modules', () => {
       replaceModule(id, module)
       invalidateLearnerModules(module)
       return module
+    } catch (error) {
+      if (previousModule) replaceModule(id, previousModule)
+      if (previousCurrentModule) setCurrentModule(previousCurrentModule)
+      throw error
     } finally {
       pendingMutation.value = false
     }
   }
 
   async function deleteModule(id: string) {
+    const previousModule = modules.value.find(module => module.id === id)
+    const previousCurrentModule = currentModule.value?.id === id ? { ...currentModule.value } : null
+
+    if (previousModule) {
+      removeModule(id)
+      if (currentModule.value?.id === id || currentModuleKey.value === id) {
+        setCurrentModule(null)
+      }
+    }
+
     pendingMutation.value = true
     try {
       const deletedModule = currentModule.value?.id === id
         ? currentModule.value
-        : modules.value.find(module => module.id === id) || null
+        : previousModule || null
       const api = useApiClient()
       await api.delete(`/api/modules/${id}`)
       if (currentModule.value?.id === id || currentModuleKey.value === id) {
@@ -170,16 +195,31 @@ export const useModulesStore = defineStore('modules', () => {
       }
       removeModule(id)
       invalidateLearnerModules(deletedModule)
+    } catch (error) {
+      if (previousModule) upsertModule(previousModule)
+      if (previousCurrentModule) setCurrentModule(previousCurrentModule)
+      throw error
     } finally {
       pendingMutation.value = false
     }
   }
 
   async function bulkUpdateStatus(ids: string[], status: PublishStatus) {
+    const resolvedIds = uniqueIds(ids)
+    const targetModules = modules.value.filter(module => module.id && resolvedIds.includes(module.id))
+    const previousStates = new Map(targetModules.map(m => [m.id, { ...m }]))
+    const previousCurrentModule = currentModule.value && resolvedIds.includes(currentModule.value.id) ? { ...currentModule.value } : null
+
+    targetModules.forEach(m => {
+      if (m.id) {
+        const optimistic = { ...m, status } as LearningModule
+        replaceModule(m.id, optimistic)
+        if (currentModule.value?.id === m.id) setCurrentModule(optimistic)
+      }
+    })
+
     pendingMutation.value = true
     try {
-      const resolvedIds = uniqueIds(ids)
-      const targetModules = modules.value.filter(module => module.id && resolvedIds.includes(module.id))
       const targetKeys = targetModules.flatMap(module => [module.id, module.slug])
       const api = useApiClient()
       const { data } = await api.patch<BulkModuleMutationResult>('/api/modules/bulk', {
@@ -198,16 +238,32 @@ export const useModulesStore = defineStore('modules', () => {
         currentModule.value?.slug,
       ])
       return data
+    } catch (error) {
+      previousStates.forEach((prevModule, id) => {
+        if (id) replaceModule(id, prevModule)
+      })
+      if (previousCurrentModule) setCurrentModule(previousCurrentModule)
+      throw error
     } finally {
       pendingMutation.value = false
     }
   }
 
   async function bulkDeleteModules(ids: string[]) {
+    const resolvedIds = uniqueIds(ids)
+    const targetModules = modules.value.filter(module => module.id && resolvedIds.includes(module.id))
+    const previousStates = new Map(targetModules.map(m => [m.id, { ...m }]))
+    const previousCurrentModule = currentModule.value && resolvedIds.includes(currentModule.value.id) ? { ...currentModule.value } : null
+
+    targetModules.forEach(m => {
+      if (m.id) removeModule(m.id)
+    })
+    if (currentModule.value?.id && resolvedIds.includes(currentModule.value.id)) {
+      setCurrentModule(null)
+    }
+
     pendingMutation.value = true
     try {
-      const resolvedIds = uniqueIds(ids)
-      const targetModules = modules.value.filter(module => module.id && resolvedIds.includes(module.id))
       const targetKeys = targetModules.flatMap(module => [module.id, module.slug])
       const currentKeys = [currentModule.value?.id, currentModule.value?.slug]
       const api = useApiClient()
@@ -225,6 +281,12 @@ export const useModulesStore = defineStore('modules', () => {
         ...currentKeys,
       ])
       return data
+    } catch (error) {
+      previousStates.forEach((prevModule) => {
+        upsertModule(prevModule)
+      })
+      if (previousCurrentModule) setCurrentModule(previousCurrentModule)
+      throw error
     } finally {
       pendingMutation.value = false
     }

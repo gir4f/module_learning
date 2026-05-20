@@ -19,6 +19,8 @@
             {{ item.label }}
           </NuxtLink>
         </nav>
+
+        <LayoutAuditSidebarCard />
         
         <div class="flex flex-col gap-2 border-t border-slate-200 pt-4 dark:border-slate-800">
           <button type="button" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-900" @click="toggleDark">

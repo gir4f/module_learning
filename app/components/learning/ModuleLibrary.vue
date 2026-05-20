@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_11rem] sm:items-start sm:gap-x-4">
+    <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_11rem] sm:items-center sm:gap-x-4">
       <div class="flex min-h-5 flex-wrap items-center gap-3">
         <p class="text-sm font-semibold leading-5 text-slate-600 dark:text-slate-300">
           Menampilkan {{ modules.length }} dari {{ totalCount }} modul<span v-if="searchModel"> untuk "{{ searchModel }}"</span>
@@ -31,7 +31,7 @@
         SORT
       </span>
 
-      <div class="scrollbar-hidden flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+      <div class="scrollbar-hidden flex items-center gap-2 overflow-x-auto py-1.5 px-1 -mx-1">
         <button
           v-for="tab in categoryTabs"
           :key="tab.value"

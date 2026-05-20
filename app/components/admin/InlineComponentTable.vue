@@ -37,11 +37,11 @@
                 >
               </label>
             </td>
-            <td class="p-2"><input v-model="row.category" class="cell-input" placeholder="Power"></td>
-            <td class="p-2"><input v-model="row.name" class="cell-input" placeholder="Nama komponen"></td>
-            <td class="p-2"><input v-model="row.quantity" class="cell-input" placeholder="1"></td>
+            <td class="p-2"><input v-model="row.category" class="cell-input" placeholder="Contoh: Mekanik"></td>
+            <td class="p-2"><input v-model="row.name" class="cell-input" placeholder="Contoh: Baut M3"></td>
+            <td class="p-2"><input v-model="row.quantity" class="cell-input" placeholder="0"></td>
             <td class="p-2"><input v-model="row.unit" class="cell-input" placeholder="pcs"></td>
-            <td class="p-2"><input v-model="row.note" class="cell-input" placeholder="Catatan opsional"></td>
+            <td class="p-2"><input v-model="row.note" class="cell-input" placeholder="Opsional"></td>
             <td class="p-2 pr-4 text-right">
               <button type="button" class="inline-flex h-9 w-9 items-center justify-center rounded-xl text-red-500 transition-colors hover:bg-red-50 hover:text-red-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-red-100 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300 dark:focus-visible:ring-red-950" :aria-label="`Hapus komponen baris ${index + 1}`" @click="removeRow(index)">
                 <i class="pi pi-trash" aria-hidden="true" />
@@ -51,13 +51,13 @@
         </tbody>
         <tbody v-else>
           <tr>
-            <td colspan="7" class="px-4 py-8 text-center">
+            <td colspan="7" class="px-4 py-10 text-center">
               <div class="mx-auto flex max-w-sm flex-col items-center gap-2 text-slate-500 dark:text-slate-400">
-                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-brand-teal dark:bg-slate-800 dark:text-cyan-300">
-                  <i class="pi pi-list-check" aria-hidden="true" />
+                <span class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-brand-teal dark:bg-slate-800 dark:text-cyan-300">
+                  <i class="pi pi-list-check text-xl" aria-hidden="true" />
                 </span>
-                <p class="text-sm font-bold">Belum ada komponen.</p>
-                <p class="text-xs font-semibold">Tambahkan komponen yang dipakai di varian produk ini.</p>
+                <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Belum ada komponen.</p>
+                <p class="text-xs font-semibold">Tekan "Tambah Komponen" untuk menambahkan komponen material.</p>
               </div>
             </td>
           </tr>
@@ -85,18 +85,21 @@
           </button>
         </div>
         <div class="grid gap-3">
-          <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Kategori<input v-model="row.category" class="cell-input" placeholder="Power"></label>
-          <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Nama<input v-model="row.name" class="cell-input" placeholder="Nama komponen"></label>
+          <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Kategori<input v-model="row.category" class="cell-input" placeholder="Contoh: Mekanik, Elektrik"></label>
+          <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Nama<input v-model="row.name" class="cell-input" placeholder="Contoh: Baut M3, Resistor 220R"></label>
           <div class="grid grid-cols-2 gap-3">
-            <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Jumlah<input v-model="row.quantity" class="cell-input" placeholder="1"></label>
-            <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Satuan<input v-model="row.unit" class="cell-input" placeholder="pcs"></label>
+            <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Jumlah<input v-model="row.quantity" class="cell-input" placeholder="0"></label>
+            <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Satuan<input v-model="row.unit" class="cell-input" placeholder="pcs, meter, kg"></label>
           </div>
-          <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Catatan<input v-model="row.note" class="cell-input" placeholder="Catatan opsional"></label>
+          <label class="grid gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">Catatan<input v-model="row.note" class="cell-input" placeholder="Opsional, misal: 1/4W"></label>
         </div>
       </article>
-      <div v-if="!model.length" class="rounded-2xl border border-dashed border-slate-200 bg-white p-5 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
-        <i class="pi pi-list-check text-xl text-brand-teal dark:text-cyan-300" aria-hidden="true" />
-        <p class="mt-2 text-sm font-bold">Belum ada komponen.</p>
+      <div v-if="!model.length" class="rounded-2xl border border-dashed border-slate-200 bg-white p-6 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+        <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+          <i class="pi pi-list-check text-xl text-brand-teal dark:text-cyan-300" aria-hidden="true" />
+        </span>
+        <p class="mt-3 text-sm font-bold text-slate-700 dark:text-slate-200">Belum ada komponen.</p>
+        <p class="mt-1 text-xs font-semibold">Tekan "Tambah Komponen" untuk menambahkan komponen material.</p>
       </div>
     </div>
 

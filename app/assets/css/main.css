@@ -184,6 +184,11 @@ summary::-webkit-details-marker {
 
 .p-button {
   gap: 0.45rem;
+  transition: transform 0.1s ease, background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.p-button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .p-button .p-button-icon-left {
@@ -247,6 +252,14 @@ summary::-webkit-details-marker {
   background: #1e293b;
 }
 
+.p-datatable-tbody > tr {
+  transition: transform 0.15s ease-out;
+}
+
+.p-datatable-tbody > tr:hover {
+  transform: translateX(4px);
+}
+
 .p-datatable .is-admin-selected-row > td {
   background: #fafeff !important;
   border-color: #a5f3fc !important;
@@ -260,8 +273,8 @@ summary::-webkit-details-marker {
 .cell-input {
   width: 100%;
   border-radius: 0.5rem;
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid rgb(226 232 240);
+  background: rgb(248 250 252);
   padding: 0.5rem 0.75rem;
   color: rgb(15 23 42);
   outline: none;
@@ -269,7 +282,8 @@ summary::-webkit-details-marker {
 }
 
 .cell-input:hover {
-  background: rgba(241, 245, 249, 0.5);
+  background: rgba(241, 245, 249, 0.8);
+  border-color: rgb(203 213 225);
 }
 
 .cell-input:focus {
@@ -279,11 +293,14 @@ summary::-webkit-details-marker {
 }
 
 .dark .cell-input {
+  border-color: rgb(51 65 85);
+  background: rgb(15 23 42);
   color: rgb(241 245 249);
 }
 
 .dark .cell-input:hover {
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgb(71 85 105);
 }
 
 .dark .cell-input:focus {

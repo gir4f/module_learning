@@ -16,6 +16,7 @@ model Profile {
   role      UserRole @default(VIEWER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  auditLogs AuditLog[]
 }
 
 model Module {
@@ -89,4 +90,36 @@ enum AttachmentType {
   SPREADSHEET
   FILE
   LINK
+}
+
+model AuditLog {
+  id            String          @id @default(cuid())
+  action        AuditAction
+  entityType    AuditEntityType
+  entityId      String          @db.VarChar(50)
+  entityLabel   String          @db.VarChar(200)
+  actorId       String?
+  actorEmail    String          @db.VarChar(254)
+  actorName     String?         @db.VarChar(200)
+  payloadBefore Json?
+  payloadAfter  Json?
+  createdAt     DateTime        @default(now())
+
+  actor         Profile?        @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt(sort: Desc)])
+  @@index([entityType, entityId])
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum AuditEntityType {
+  MODULE
+  MODULE_DETAIL
+  COMPONENT_ITEM
+  ATTACHMENT
 }

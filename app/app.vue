@@ -1,5 +1,9 @@
 <template>
   <div>
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-[9999] focus:rounded-lg focus:bg-brand-teal focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:shadow-lg focus:outline-none"
+    >Langsung ke konten utama</a>
     <NuxtLoadingIndicator color="#0d9488" :height="4" />
     <NuxtLayout>
       <NuxtPage />

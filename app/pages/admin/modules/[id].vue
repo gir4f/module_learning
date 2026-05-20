@@ -1,11 +1,16 @@
 <template>
-  <section v-if="module" class="space-y-6 pb-12">
+  <section v-if="module" class="space-y-8 pb-12">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div class="min-w-0 flex-1">
         <div class="flex items-start justify-between gap-3 sm:block">
           <div class="min-w-0">
             <h1 class="truncate text-2xl font-black text-brand-navy dark:text-cyan-200 sm:text-3xl">{{ module.title }}</h1>
             <p class="mt-1 break-all text-sm font-medium text-slate-500 dark:text-slate-400">/{{ module.slug }}</p>
+            <nav class="mt-2 text-sm text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
+              <NuxtLink to="/admin/modules" class="font-semibold hover:text-brand-navy dark:hover:text-white">Modul</NuxtLink>
+              <span class="mx-2">/</span>
+              <span class="font-semibold text-brand-navy dark:text-cyan-200">{{ module.title }}</span>
+            </nav>
           </div>
         </div>
       </div>
@@ -59,10 +64,21 @@
       </form>
     </AdminSurface>
 
-    <div ref="sectionsContainerEl" v-auto-animate="{ duration: 180, easing: 'ease-in-out' }" class="space-y-4">
-      <div class="flex items-center justify-between gap-3">
-        <h2 class="text-xl font-black text-slate-950 dark:text-white">Varian Produk</h2>
-        <Button label="Tambah Varian Produk" icon="pi pi-plus" @click="addSection" />
+    <div ref="sectionsContainerEl" v-auto-animate="{ duration: 180, easing: 'ease-in-out' }" class="space-y-5">
+      <div class="flex items-center justify-between gap-3 pb-1">
+        <div class="flex items-center gap-3">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+            <i class="pi pi-box text-base font-bold" aria-hidden="true" />
+          </span>
+          <span>
+            <span class="block text-xl font-black text-slate-950 dark:text-white">Varian Produk</span>
+            <span class="block text-sm font-semibold text-slate-500 dark:text-slate-400">Daftar varian produk yang tersedia.</span>
+          </span>
+        </div>
+        <Button label="Tambah Varian Produk" icon="pi pi-plus" @click="addSection" class="hidden sm:inline-flex" />
+        <button type="button" class="sm:hidden inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-teal text-white shadow-sm transition hover:bg-brand-teal/90 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-200 dark:focus-visible:ring-cyan-900" aria-label="Tambah Varian Produk" @click="addSection">
+          <i class="pi pi-plus text-sm leading-none" style="display:flex;align-items:center;justify-content:center;" aria-hidden="true" />
+        </button>
       </div>
 
       <AdminSurface v-for="(section, index) in sectionForms" :key="section.localKey" v-auto-animate="{ duration: 190, easing: 'ease-in-out' }">
@@ -189,9 +205,11 @@
                 <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined @click="confirmDeleteAttachment(attachment)" />
               </div>
             </div>
-            <p v-else class="flex items-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-3 text-sm font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
-              <i class="pi pi-inbox text-brand-teal dark:text-cyan-300" aria-hidden="true" />
-              <span>Belum ada lampiran.</span>
+            <p v-else class="flex items-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-4 text-sm font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-brand-teal shadow-sm dark:bg-slate-800 dark:text-cyan-300">
+                <i class="pi pi-inbox" aria-hidden="true" />
+              </span>
+              <span>Belum ada lampiran. Upload file atau tambahkan link untuk varian ini.</span>
             </p>
 
             <Transition name="bulk-pill">
@@ -702,7 +720,7 @@ function sectionErrorMessage(error: unknown, fallback: string) {
 
 function confirmDeleteSection(section: SectionForm) {
   confirm.require({
-      message: `Hapus "${section.title || 'varian produk ini'}"?`,
+      message: `Hapus varian produk "${section.title || 'tanpa judul'}"? Komponen dan lampiran di dalamnya akan ikut terhapus.`,
       header: 'Hapus varian produk',
     icon: 'pi pi-exclamation-triangle',
     acceptProps: { label: 'Hapus', severity: 'danger', size: 'small' },
@@ -762,7 +780,7 @@ function clearSectionSelection() {
 function handleSectionBulkDelete() {
   const count = selectedSectionKeys.value.size
   confirm.require({
-    message: `Hapus ${count} varian produk yang dipilih?`,
+    message: `Hapus ${count} varian produk yang dipilih? Komponen dan lampiran yang terkait juga akan ikut terhapus.`,
     header: 'Hapus varian produk',
     icon: 'pi pi-exclamation-triangle',
     acceptProps: { label: 'Hapus', severity: 'danger', size: 'small' },
@@ -833,7 +851,7 @@ function handleAttachmentBulkDelete(sectionKey: string) {
   if (!selection || selection.size === 0) return
   const count = selection.size
   confirm.require({
-    message: `Hapus ${count} lampiran yang dipilih?`,
+    message: `Hapus ${count} lampiran yang dipilih? File yang sudah di-upload juga akan dihapus dari server.`,
     header: 'Hapus lampiran',
     icon: 'pi pi-exclamation-triangle',
     acceptProps: { label: 'Hapus', severity: 'danger', size: 'small' },
@@ -1032,7 +1050,7 @@ async function ensureSectionSavedForAttachments(section: SectionForm, index: num
 
 function confirmDeleteAttachment(attachment: Attachment) {
   confirm.require({
-    message: `Hapus "${attachment.title}"?`,
+    message: `Hapus lampiran "${attachment.title}"? File akan dihapus permanen dari server.`,
     header: 'Hapus lampiran',
     icon: 'pi pi-exclamation-triangle',
     acceptProps: { label: 'Hapus', severity: 'danger', size: 'small' },
