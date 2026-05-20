@@ -121,7 +121,7 @@
 
             <button
               type="button"
-              class="hidden w-fit justify-self-start rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[96rem]:inline-flex"
+              class="hidden w-fit justify-self-start rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 min-[96rem]:inline-flex min-[96rem]:-ml-2.5"
               :class="statusClass(module.status)"
               :disabled="props.busy"
               @click="$emit('toggle-status', module)"
