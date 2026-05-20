@@ -7,9 +7,6 @@
             <h1 class="truncate text-2xl font-black text-brand-navy dark:text-cyan-200 sm:text-3xl">{{ module.title }}</h1>
             <p class="mt-1 break-all text-sm font-medium text-slate-500 dark:text-slate-400">/{{ module.slug }}</p>
           </div>
-          <button type="button" class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white dark:focus-visible:ring-cyan-950 sm:hidden" aria-label="Kembali ke daftar modul" @click="navigateTo('/admin/modules')">
-            <i class="pi pi-arrow-left" aria-hidden="true" />
-          </button>
         </div>
       </div>
       <div class="flex shrink-0 items-center gap-2">
@@ -71,6 +68,16 @@
       <AdminSurface v-for="(section, index) in sectionForms" :key="section.localKey" v-auto-animate="{ duration: 190, easing: 'ease-in-out' }">
         <button type="button" class="group flex w-full items-start justify-between gap-4 border-b border-slate-200 p-5 text-left transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-cyan-100 dark:border-slate-800 dark:hover:bg-slate-800/50 dark:focus-visible:ring-cyan-950" :aria-expanded="expandedSections.has(section.localKey)" @click="toggleSection(section.localKey)">
           <div class="flex min-w-0 items-start gap-4">
+            <label class="flex items-center justify-center" @click.stop>
+              <span class="sr-only">Pilih varian produk {{ section.title || 'tanpa judul' }}</span>
+              <input
+                type="checkbox"
+                class="h-4 w-4 rounded border-slate-300 text-brand-teal focus:ring-cyan-200 dark:border-slate-600 dark:bg-slate-900 dark:focus:ring-cyan-900"
+                :checked="selectedSectionKeys.has(section.localKey)"
+                :disabled="sectionBulkBusy"
+                @change="handleSectionSelectionChange(section.localKey, $event)"
+              >
+            </label>
             <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors group-hover:bg-brand-teal group-hover:text-white dark:bg-slate-800 dark:text-slate-400 dark:group-hover:bg-brand-teal-dark">
               <i class="pi font-bold" :class="expandedSections.has(section.localKey) ? 'pi-folder-open' : 'pi-folder'" aria-hidden="true" />
             </span>
@@ -143,30 +150,42 @@
             />
             <div v-if="section.attachments.length" v-auto-animate="{ duration: 160, easing: 'ease-in-out' }" class="grid gap-2">
               <div v-for="attachment in section.attachments" :key="attachment.id || attachment.url" class="flex min-w-0 flex-col gap-3 rounded-xl border border-slate-200 p-3 shadow-sm dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
-                <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 items-center gap-3 rounded-lg font-bold text-brand-teal hover:underline focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:focus-visible:ring-cyan-950" :aria-label="attachmentActionLabel(attachment)" @click="handleAttachmentOpen($event, attachment)">
-                  <span v-if="isPdfAttachment(attachment)" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-500 dark:bg-red-950/40">
-                    <i class="pi pi-file-pdf" aria-hidden="true" />
-                  </span>
-                  <img
-                    v-else-if="attachment.type === 'IMAGE'"
-                    :src="previewUrlForAttachment(attachment)"
-                    :alt="attachment.title"
-                    class="h-12 w-16 shrink-0 rounded-lg bg-slate-100 object-cover dark:bg-slate-800"
-                    loading="lazy"
-                    @error="fallbackAttachmentPreview($event, attachment)"
-                  >
-                  <span v-else class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                    <i :class="attachmentIconClass(attachment)" aria-hidden="true" />
-                  </span>
-                  <span class="flex min-w-0 flex-col gap-1.5">
-                    <span class="block truncate">{{ attachment.title }}</span>
-                    <span class="flex flex-wrap gap-1.5">
-                      <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ attachmentTypeLabel(attachment) }}</span>
-                      <span v-if="attachment.sizeBytes" class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ formatBytes(attachment.sizeBytes) }}</span>
+                <div class="flex min-w-0 items-center gap-3">
+                  <label class="flex shrink-0 items-center justify-center" @click.stop>
+                    <span class="sr-only">Pilih lampiran {{ attachment.title }}</span>
+                    <input
+                      type="checkbox"
+                      class="h-4 w-4 rounded border-slate-300 text-brand-teal focus:ring-cyan-200 dark:border-slate-600 dark:bg-slate-900 dark:focus:ring-cyan-900"
+                      :checked="!!attachment.id && getAttachmentSelection(section.localKey).has(attachment.id)"
+                      :disabled="attachmentBulkBusy || !attachment.id"
+                      @change="attachment.id && handleAttachmentSelectionChange(section.localKey, attachment.id, $event)"
+                    >
+                  </label>
+                  <a :href="attachment.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 items-center gap-3 rounded-lg font-bold text-brand-teal hover:underline focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:focus-visible:ring-cyan-950" :aria-label="attachmentActionLabel(attachment)" @click="handleAttachmentOpen($event, attachment)">
+                    <span v-if="isPdfAttachment(attachment)" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-500 dark:bg-red-950/40">
+                      <i class="pi pi-file-pdf" aria-hidden="true" />
                     </span>
-                    <span class="block truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ attachment.type }} · {{ attachment.mimeType || attachment.url }}</span>
-                  </span>
-                </a>
+                    <img
+                      v-else-if="attachment.type === 'IMAGE'"
+                      :src="previewUrlForAttachment(attachment)"
+                      :alt="attachment.title"
+                      class="h-12 w-16 shrink-0 rounded-lg bg-slate-100 object-cover dark:bg-slate-800"
+                      loading="lazy"
+                      @error="fallbackAttachmentPreview($event, attachment)"
+                    >
+                    <span v-else class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                      <i :class="attachmentIconClass(attachment)" aria-hidden="true" />
+                    </span>
+                    <span class="flex min-w-0 flex-col gap-1.5">
+                      <span class="block truncate">{{ attachment.title }}</span>
+                      <span class="flex flex-wrap gap-1.5">
+                        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ attachmentTypeLabel(attachment) }}</span>
+                        <span v-if="attachment.sizeBytes" class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-300">{{ formatBytes(attachment.sizeBytes) }}</span>
+                      </span>
+                      <span class="block truncate text-xs font-medium text-slate-500 dark:text-slate-400">{{ attachment.type }} · {{ attachment.mimeType || attachment.url }}</span>
+                    </span>
+                  </a>
+                </div>
                 <Button label="Hapus" icon="pi pi-trash" size="small" severity="danger" outlined @click="confirmDeleteAttachment(attachment)" />
               </div>
             </div>
@@ -174,6 +193,18 @@
               <i class="pi pi-inbox text-brand-teal dark:text-cyan-300" aria-hidden="true" />
               <span>Belum ada lampiran.</span>
             </p>
+
+            <Transition name="bulk-pill">
+              <BulkActionPill
+                v-if="getAttachmentSelection(section.localKey).size > 0"
+                :selected-count="getAttachmentSelection(section.localKey).size"
+                :actions="attachmentBulkActions(section.localKey)"
+                :busy="attachmentBulkBusy"
+                :on-cancel="() => clearAttachmentSelection(section.localKey)"
+                :count-label="attachmentBulkCountLabel(section.localKey)"
+                :position-style="{ position: 'sticky', bottom: '1rem', left: '50%', transform: 'translateX(-50%)' }"
+              />
+            </Transition>
 
             <button
               v-if="openLinkFormKey !== section.localKey"
@@ -237,6 +268,30 @@
         </div>
       </AdminSurface>
     </div>
+
+    <Transition name="bulk-pill">
+      <BulkActionPill
+        v-if="selectedSectionKeys.size > 0"
+        :selected-count="selectedSectionKeys.size"
+        :actions="sectionBulkActions"
+        :busy="sectionBulkBusy"
+        :on-cancel="clearSectionSelection"
+        :position-style="{ position: 'sticky', bottom: '1rem', left: '50%', transform: 'translateX(-50%)' }"
+      />
+    </Transition>
+
+    <Transition name="back-pill">
+      <button
+        v-if="showMobileBack"
+        type="button"
+        class="fixed bottom-6 left-1/2 z-30 -translate-x-1/2 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-5 py-2.5 text-sm font-bold text-slate-700 shadow-lg backdrop-blur-md transition hover:border-brand-teal hover:text-brand-navy focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-200 dark:hover:border-cyan-400 dark:hover:text-cyan-200 dark:focus-visible:ring-cyan-950 sm:hidden"
+        aria-label="Kembali ke daftar modul"
+        @click="goBack"
+      >
+        <i class="pi pi-arrow-left text-xs" aria-hidden="true" />
+        Kembali
+      </button>
+    </Transition>
   </section>
 
   <AdminSurface v-else padded>
@@ -260,6 +315,7 @@ import AdminFieldGroup from '~/components/admin/AdminFieldGroup.vue'
 import AdminSectionHeader from '~/components/admin/AdminSectionHeader.vue'
 import AdminSurface from '~/components/admin/AdminSurface.vue'
 import InlineComponentTable from '~/components/admin/InlineComponentTable.vue'
+import BulkActionPill, { type BulkAction } from '~/components/shared/BulkActionPill.vue'
 import EmptyState from '~/components/shared/EmptyState.vue'
 import { useModulesStore, type ModuleAttachmentPayload, type ModuleSectionPayload } from '~/stores/modules'
 import { apiErrorMessage, apiFieldErrors, assignFieldErrors } from '~/utils/apiErrors'
@@ -309,6 +365,11 @@ const moduleError = ref('')
 const moduleFieldErrors = reactive<Record<string, string>>({})
 const sectionErrors = reactive<Record<string, string>>({})
 const expandedSections = ref(new Set<string>())
+const selectedSectionKeys = ref(new Set<string>())
+const sectionBulkBusy = ref(false)
+const attachmentSelections = ref<Record<string, Set<string>>>({})
+const attachmentBulkBusy = ref(false)
+const attachmentBulkProgress = ref<{ current: number; total: number }>({ current: 0, total: 0 })
 const sectionForms = ref<SectionForm[]>([])
 const componentTableVersions = reactive<Record<string, number>>({})
 const linkForms = reactive<Record<string, { title: string, url: string }>>({})
@@ -320,6 +381,8 @@ const uploadProgress = reactive<Record<string, { current: number, total: number 
 const lastUploadStatus = reactive<Record<string, { ok: boolean, message: string }>>({})
 const moduleSavedAt = ref<Date | null>(null)
 const sectionSavedAt = reactive<Record<string, Date>>({})
+const showMobileBack = ref(true)
+let lastScrollY = 0
 const moduleForm = reactive({
   title: '',
   description: '',
@@ -356,11 +419,13 @@ watch(() => route.params.id, async (id, previousId) => {
 onMounted(() => {
   window.addEventListener('beforeunload', warnBeforeUnload)
   window.addEventListener('keydown', handleEditorKeydown)
+  window.addEventListener('scroll', handleMobileBackScroll, { passive: true })
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', warnBeforeUnload)
   window.removeEventListener('keydown', handleEditorKeydown)
+  window.removeEventListener('scroll', handleMobileBackScroll)
 })
 
 onBeforeRouteLeave(() => {
@@ -641,15 +706,135 @@ function confirmDeleteSection(section: SectionForm) {
 function removeLocalSection(localKey: string) {
   sectionForms.value = sectionForms.value.filter(item => item.localKey !== localKey)
   expandedSections.value.delete(localKey)
+  selectedSectionKeys.value.delete(localKey)
   delete componentTableVersions[localKey]
   delete sectionErrors[localKey]
   delete sectionSavedAt[localKey]
   delete lastUploadStatus[localKey]
   delete uploadProgress[localKey]
   delete linkForms[localKey]
+  delete attachmentSelections.value[localKey]
   if (openLinkFormKey.value === localKey) openLinkFormKey.value = ''
   if (dragOverSectionKey.value === localKey) dragOverSectionKey.value = ''
   if (uploadingSectionKey.value === localKey) uploadingSectionKey.value = ''
+}
+
+const sectionBulkActions: BulkAction[] = [
+  { key: 'delete', label: 'Hapus', icon: 'pi pi-trash', severity: 'danger', handler: () => handleSectionBulkDelete() },
+]
+
+function handleSectionSelectionChange(localKey: string, event: Event) {
+  const checked = (event.target as HTMLInputElement).checked
+  if (checked) {
+    selectedSectionKeys.value.add(localKey)
+  } else {
+    selectedSectionKeys.value.delete(localKey)
+  }
+}
+
+function clearSectionSelection() {
+  selectedSectionKeys.value.clear()
+}
+
+function handleSectionBulkDelete() {
+  const count = selectedSectionKeys.value.size
+  confirm.require({
+    message: `Hapus ${count} varian produk yang dipilih?`,
+    header: 'Hapus varian produk',
+    icon: 'pi pi-exclamation-triangle',
+    acceptProps: { label: 'Hapus', severity: 'danger', size: 'small' },
+    rejectProps: { label: 'Batal', severity: 'secondary', outlined: true, size: 'small' },
+    accept: async () => {
+      sectionBulkBusy.value = true
+      const keys = [...selectedSectionKeys.value]
+      try {
+        for (const key of keys) {
+          const section = sectionForms.value.find(item => item.localKey === key)
+          if (!section) continue
+          if (section.id) {
+            await store.deleteSection(section.id)
+          } else {
+            sectionForms.value = sectionForms.value.filter(item => item.localKey !== key)
+          }
+        }
+        syncForms()
+        selectedSectionKeys.value.clear()
+        toast.success('Terhapus', { description: `${count} varian produk dihapus.` })
+      } catch (error) {
+        toast.error('Gagal menghapus', { description: apiErrorMessage(error, 'Gagal menghapus varian produk.') })
+      } finally {
+        sectionBulkBusy.value = false
+      }
+    },
+  })
+}
+
+function getAttachmentSelection(sectionKey: string): Set<string> {
+  if (!attachmentSelections.value[sectionKey]) {
+    attachmentSelections.value[sectionKey] = new Set<string>()
+  }
+  return attachmentSelections.value[sectionKey]
+}
+
+function handleAttachmentSelectionChange(sectionKey: string, attachmentId: string, event: Event) {
+  const checked = (event.target as HTMLInputElement).checked
+  const set = getAttachmentSelection(sectionKey)
+  if (checked) {
+    set.add(attachmentId)
+  } else {
+    set.delete(attachmentId)
+  }
+}
+
+function clearAttachmentSelection(sectionKey: string) {
+  if (attachmentSelections.value[sectionKey]) {
+    attachmentSelections.value[sectionKey].clear()
+  }
+}
+
+function attachmentBulkActions(sectionKey: string): BulkAction[] {
+  return [
+    { key: 'delete', label: 'Hapus', icon: 'pi pi-trash', severity: 'danger', handler: () => handleAttachmentBulkDelete(sectionKey) },
+  ]
+}
+
+function attachmentBulkCountLabel(sectionKey: string): string | undefined {
+  if (!attachmentBulkBusy.value) return undefined
+  const { current, total } = attachmentBulkProgress.value
+  if (total === 0) return undefined
+  return `Menghapus ${current}/${total}...`
+}
+
+function handleAttachmentBulkDelete(sectionKey: string) {
+  const selection = attachmentSelections.value[sectionKey]
+  if (!selection || selection.size === 0) return
+  const count = selection.size
+  confirm.require({
+    message: `Hapus ${count} lampiran yang dipilih?`,
+    header: 'Hapus lampiran',
+    icon: 'pi pi-exclamation-triangle',
+    acceptProps: { label: 'Hapus', severity: 'danger', size: 'small' },
+    rejectProps: { label: 'Batal', severity: 'secondary', outlined: true, size: 'small' },
+    accept: async () => {
+      attachmentBulkBusy.value = true
+      const ids = [...selection]
+      attachmentBulkProgress.value = { current: 0, total: ids.length }
+      try {
+        for (const id of ids) {
+          attachmentBulkProgress.value.current++
+          await store.deleteAttachment(id)
+        }
+        clearAttachmentSelection(sectionKey)
+        syncForms()
+        toast.success('Terhapus', { description: `${count} lampiran dihapus.` })
+      } catch (error) {
+        toast.error('Gagal menghapus', { description: apiErrorMessage(error, 'Gagal menghapus lampiran.') })
+      } finally {
+        attachmentBulkBusy.value = false
+        attachmentBulkProgress.value = { current: 0, total: 0 }
+      }
+    },
+  })
 }
 
 async function addLink(section: SectionForm, index: number) {
@@ -1006,4 +1191,29 @@ function formatBytes(bytes: number) {
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
+
+function handleMobileBackScroll() {
+  const currentY = window.scrollY
+  showMobileBack.value = currentY < lastScrollY || currentY < 80
+  lastScrollY = currentY
+}
+
+function goBack() {
+  const router = useRouter()
+  if (window.history.length > 1) router.back()
+  else navigateTo('/admin/modules')
+}
 </script>
+
+<style scoped>
+.back-pill-enter-active,
+.back-pill-leave-active {
+  transition: transform 200ms ease-out, opacity 200ms ease-out;
+}
+
+.back-pill-enter-from,
+.back-pill-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 0.75rem);
+}
+</style>

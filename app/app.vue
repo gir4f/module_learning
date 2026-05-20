@@ -8,7 +8,21 @@
       <Toaster position="top-right" :theme="toasterTheme" richColors />
       <component :is="ScrollToTop" />
     </ClientOnly>
-    <ConfirmDialog :style="{ width: '28rem', maxWidth: '90vw' }" />
+    <ConfirmDialog
+      :pt="{
+        root: { class: 'rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900' },
+        header: { class: 'flex items-center justify-between gap-3 px-5 pt-4 pb-0' },
+        title: { class: 'text-base font-black text-slate-900 dark:text-white' },
+        headerActions: { class: 'flex items-center' },
+        content: { class: 'px-5 py-3' },
+        message: { class: 'flex items-center gap-3' },
+        icon: { class: 'shrink-0 text-lg text-amber-500 dark:text-amber-400' },
+        pcMessage: { class: 'text-sm font-semibold text-slate-600 dark:text-slate-300' },
+        footer: { class: 'flex items-center justify-end gap-2 px-5 pb-4 pt-1' },
+        mask: { class: 'backdrop-blur-sm bg-slate-950/50 dark:bg-slate-950/70' },
+      }"
+      :style="{ width: '26rem', maxWidth: '90vw' }"
+    />
   </div>
 </template>
 

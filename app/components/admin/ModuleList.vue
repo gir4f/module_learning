@@ -4,7 +4,7 @@
       <div ref="cardEl">
         <div class="grid gap-3 border-b border-slate-200 p-4 dark:border-slate-800 min-[90rem]:grid-cols-[minmax(0,1fr)_auto_auto] min-[90rem]:items-end">
           <div class="flex min-w-0 flex-col gap-1.5">
-            <p v-if="!props.pending" class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            <p v-if="!props.pending || props.modules.length" class="text-xs font-semibold text-slate-500 dark:text-slate-400">
               Menampilkan {{ paginatedModules.length }} dari {{ sortedModules.length }} modul
             </p>
             <label class="relative min-w-0">
@@ -53,7 +53,7 @@
           />
         </div>
 
-      <div v-if="props.pending" class="p-6 text-sm font-semibold text-slate-500 dark:text-slate-400">Memuat modul...</div>
+      <div v-if="props.pending && !props.modules.length" class="p-6 text-sm font-semibold text-slate-500 dark:text-slate-400">Memuat modul...</div>
       <div v-else-if="!filteredModules.length" class="p-6">
         <EmptyState title="Modul tidak ditemukan" description="Coba kata kunci lain atau buat modul baru." icon="pi pi-search">
           <Button label="Modul Baru" icon="pi pi-plus" @click="$emit('create')" />
@@ -169,7 +169,7 @@
       </div>
     </AdminSurface>
 
-    <div v-if="!props.pending && sortedModules.length > 10" class="mt-4 flex justify-center border-t border-slate-200 pt-4 dark:border-slate-800">
+    <div v-if="(!props.pending || props.modules.length) && sortedModules.length > 10" class="mt-4 flex justify-center border-t border-slate-200 pt-4 dark:border-slate-800">
       <Paginator
         v-model:first="firstRow"
         :rows="10"
@@ -179,53 +179,14 @@
     </div>
 
     <Transition name="bulk-pill">
-      <div
+      <BulkActionPill
         v-if="selectedIds.length"
-        class="fixed bottom-5 z-50 inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/90 py-1.5 pl-4 pr-1.5 shadow-xl ring-1 ring-black/5 backdrop-blur-md dark:border-slate-700/80 dark:bg-slate-900/90 dark:ring-white/5 sm:gap-3 sm:py-2 sm:pl-5 sm:pr-2"
-        :style="pillStyle"
-      >
-        <p class="whitespace-nowrap text-xs font-black text-slate-800 dark:text-slate-100 sm:text-sm">
-          {{ selectedIds.length }} dipilih
-        </p>
-        <div class="flex items-center gap-1 sm:gap-1.5">
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded-full bg-brand-teal px-2.5 py-1.5 text-[11px] font-bold text-white shadow-sm transition hover:bg-brand-teal/90 disabled:opacity-50 sm:px-3 sm:py-1.5 sm:text-xs"
-            :disabled="props.busy"
-            @click="emitBulkStatus('PUBLISHED')"
-          >
-            <i class="pi pi-globe text-[10px]" aria-hidden="true" />
-            <span class="hidden min-[28rem]:inline">Publikasi</span>
-          </button>
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-2.5 py-1.5 text-[11px] font-bold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-3 sm:py-1.5 sm:text-xs"
-            :disabled="props.busy"
-            @click="emitBulkStatus('DRAFT')"
-          >
-            <i class="pi pi-file-edit text-[10px]" aria-hidden="true" />
-            <span class="hidden min-[28rem]:inline">Draf</span>
-          </button>
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white px-2.5 py-1.5 text-[11px] font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:bg-slate-800 dark:text-red-400 dark:hover:bg-red-950/50 sm:px-3 sm:py-1.5 sm:text-xs"
-            :disabled="props.busy"
-            @click="$emit('bulk-delete', [...selectedIds])"
-          >
-            <i class="pi pi-trash text-[10px]" aria-hidden="true" />
-            <span class="hidden min-[28rem]:inline">Hapus</span>
-          </button>
-          <button
-            type="button"
-            class="inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50 dark:hover:bg-slate-700 dark:hover:text-slate-200 sm:h-8 sm:w-8"
-            :disabled="props.busy"
-            aria-label="Batal pilih"
-            @click="clearSelection"
-          >
-            <i class="pi pi-times text-xs" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
+        :selected-count="selectedIds.length"
+        :actions="bulkActions"
+        :busy="props.busy"
+        :on-cancel="clearSelection"
+        :position-style="pillStyle"
+      />
     </Transition>
   </div>
 </template>
@@ -233,6 +194,7 @@
 <script setup lang="ts">
 import type { LearningModule, PublishStatus } from '~/types/learning'
 import AdminSurface from '~/components/admin/AdminSurface.vue'
+import BulkActionPill, { type BulkAction } from '~/components/shared/BulkActionPill.vue'
 import EmptyState from '~/components/shared/EmptyState.vue'
 import SortSelect from '~/components/shared/SortSelect.vue'
 import { formatAdminDate } from '~/utils/adminModuleUi'
@@ -274,6 +236,12 @@ const statusOptions: Array<{ label: string, value: 'ALL' | PublishStatus }> = [
 const firstRow = ref(0)
 const selectedIds = ref<string[]>([])
 const cardCenter = ref(0)
+
+const bulkActions: BulkAction[] = [
+  { key: 'publish', label: 'Publikasi', icon: 'pi pi-globe', severity: 'primary', handler: () => emitBulkStatus('PUBLISHED') },
+  { key: 'draft', label: 'Draf', icon: 'pi pi-file-edit', severity: 'secondary', handler: () => emitBulkStatus('DRAFT') },
+  { key: 'delete', label: 'Hapus', icon: 'pi pi-trash', severity: 'danger', handler: () => emit('bulk-delete', [...selectedIds.value]) },
+]
 
 const filteredModules = computed(() => {
   const query = search.value.trim().toLowerCase()
@@ -389,16 +357,3 @@ function handleGlobalShortcut(event: KeyboardEvent) {
   emit('open-command-palette')
 }
 </script>
-
-<style>
-.bulk-pill-enter-active,
-.bulk-pill-leave-active {
-  transition: transform 180ms ease-out, opacity 180ms ease-out;
-}
-
-.bulk-pill-enter-from,
-.bulk-pill-leave-to {
-  opacity: 0;
-  transform: translateY(0.75rem);
-}
-</style>

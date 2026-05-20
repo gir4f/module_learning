@@ -204,7 +204,6 @@ async function toggleStatus(module: LearningModule) {
     await store.updateModule(module.id, {
       status: module.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED',
     })
-    await store.fetchModules()
     toast.success('Status diperbarui', { description: 'Status publikasi modul berubah.' })
   } catch (error) {
     toast.error('Error', { description: apiErrorMessage(error, 'Gagal memperbarui status.') })
@@ -234,7 +233,6 @@ function confirmDelete(module: LearningModule) {
       if (!module.id) return
       try {
         await store.deleteModule(module.id)
-        await store.fetchModules()
         toast.success('Terhapus', { description: 'Modul dihapus.' })
       } catch (error) {
         toast.error('Error', { description: apiErrorMessage(error, 'Gagal menghapus modul.') })
