@@ -2,7 +2,7 @@
 
 ## Summary
 
-Schema database saat ini didefinisikan di [prisma/schema.prisma](</C:/Users/pppercivalll/Documents/Kuliah/Materi Kuliah/SEM 6/Project KP/module_learning/prisma/schema.prisma>).
+Schema database saat ini didefinisikan di [prisma/schema.prisma](</C:/Users/pppercivalll/Documents/Kuliah/Materi Kuliah/SEM 6/Project KP/module_learning/prisma/schema.prisma>), dengan histori perubahan schema dikelola lewat [prisma/migrations](</C:/Users/pppercivalll/Documents/Kuliah/Materi Kuliah/SEM 6/Project KP/module_learning/prisma/migrations>).
 
 Provider:
 
@@ -11,6 +11,16 @@ Provider:
 ORM:
 
 - `Prisma`
+
+## Migration Workflow
+
+Database sekarang bersifat migration-backed.
+
+- `prisma/schema.prisma` adalah definisi model yang diinginkan.
+- `prisma/migrations` adalah histori perubahan schema yang harus ikut version control.
+- Untuk development, jalankan `npm run db:migrate` agar migration baru dibuat dan diterapkan.
+- Untuk production/deploy, jalankan `npx prisma migrate deploy` agar hanya migration yang sudah committed yang diterapkan.
+- Jangan edit `prisma/migrations/migration_lock.toml` secara manual.
 
 ## Main Tables
 

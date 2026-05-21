@@ -5,7 +5,7 @@ Internal learning module CMS for PT. Gitronik Dimindo Indonesia.
 - Learner pages use Nuxt, Vue, TypeScript, and Tailwind CSS.
 - Admin CRUD uses simple full-page editors with PrimeVue controls where useful.
 - API routes live in Nuxt server routes.
-- Prisma connects to PostgreSQL.
+- Prisma connects to PostgreSQL, with schema changes tracked through `prisma/migrations`.
 - Login uses bcryptjs password hashes stored on `Profile` plus h3 sessions for `ADMIN` and `VIEWER`.
 - Uploaded files are stored under `UPLOAD_DIR` and served by authenticated `/api/uploads/...` routes.
 
@@ -26,7 +26,7 @@ Use `npm.cmd` on Windows PowerShell:
 
 ```sh
 npm.cmd install
-npx.cmd prisma generate
+npm.cmd run db:migrate
 npm.cmd run db:seed
 npm.cmd run dev -- --host 127.0.0.1 --port 3000
 ```
@@ -47,10 +47,20 @@ npm.cmd test
 | `npm run type-check` | TypeScript type checking |
 | `npm test` | Jalankan unit tests (Vitest) |
 | `npm run db:generate` | Generate Prisma Client |
-| `npm run db:migrate` | Jalankan Prisma migrations |
+| `npm run db:migrate` | Buat/aplikasikan Prisma migration untuk development |
 | `npm run db:seed` | Seed data awal ke database |
 | `npm run audit:assets` | Audit image assets >1MB — lihat [Scripts](#scripts) |
 | `npm run optimize:assets` | Optimasi image spesifik — lihat [Scripts](#scripts) |
+
+## Database Migrations
+
+Skema database dikelola lewat Prisma migrations.
+
+- Source model ada di `prisma/schema.prisma`.
+- Histori perubahan schema ada di `prisma/migrations` dan harus ikut version control.
+- Untuk development, gunakan `npm run db:migrate` setelah mengubah schema atau saat bootstrap database baru.
+- Untuk production, gunakan `npx prisma migrate deploy`, bukan `migrate dev`.
+- `DIRECT_URL` wajib tersedia karena Prisma memakai koneksi direct untuk perubahan schema.
 
 ## Scripts
 

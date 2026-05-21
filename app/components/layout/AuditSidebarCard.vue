@@ -34,8 +34,8 @@
     </div>
 
     <!-- Entry list -->
-    <ul v-else class="flex flex-col gap-3 px-4 pb-4">
-      <li v-for="entry in items.slice(0, 15)" :key="entry.id" class="text-xs">
+    <ul v-else class="flex flex-col gap-3 px-4 pb-3">
+      <li v-for="entry in items.slice(0, 13)" :key="entry.id" class="text-xs">
         <div class="flex items-center justify-between gap-2">
           <span class="font-semibold text-slate-700 dark:text-slate-300 truncate">{{ resolveActorDisplay(entry) }}</span>
           <span class="shrink-0 text-[10px] text-slate-400 dark:text-slate-500">{{ formatTime(entry.createdAt) }}</span>

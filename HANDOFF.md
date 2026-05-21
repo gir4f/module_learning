@@ -372,6 +372,7 @@ root/
 ├── package.json                     # Dependencies & scripts
 ├── prisma/
 │   ├── schema.prisma                # Skema database
+│   ├── migrations/                  # Histori Prisma migrations
 │   ├── seed.ts                      # Script seed data awal
 │   └── seed-sql.ts                  # Alternatif seed via SQL
 ├── scripts/
@@ -386,9 +387,10 @@ root/
 
 ## 7. Skema Database
 
-**Provider**: PostgreSQL  
-**ORM**: Prisma  
-**Schema**: `prisma/schema.prisma`
+- **Provider**: PostgreSQL
+- **ORM**: Prisma
+- **Schema**: `prisma/schema.prisma`
+- **Migrations**: `prisma/migrations`
 
 ### Entity Relationship Diagram
 
@@ -714,10 +716,9 @@ npm test
    npm install
    ```
 
-5. **Generate Prisma Client & jalankan migrasi**
+5. **Jalankan Prisma migration**
    ```bash
-   npx prisma generate
-   npx prisma migrate dev
+   npm run db:migrate
    ```
 
 6. **Seed data awal**
@@ -740,7 +741,7 @@ npm test
 | `npm run type-check` | TypeScript type checking |
 | `npm test` | Jalankan unit tests |
 | `npm run db:generate` | Generate Prisma Client |
-| `npm run db:migrate` | Jalankan Prisma migrations |
+| `npm run db:migrate` | Buat/aplikasikan Prisma migration untuk development |
 | `npm run db:seed` | Seed data awal ke database |
 | `npm run audit:assets` | Audit asset yang tidak terpakai |
 | `npm run optimize:assets` | Optimasi asset |
@@ -817,7 +818,7 @@ npx prisma db seed
 
 2. **Tidak Ada Fitur "Lupa Password"**: Saat ini belum ada mekanisme reset password. Jika user lupa password, admin harus mengubah `passwordHash` langsung di database.
 
-3. **Tidak Ada Prisma Migrations di Repo**: Folder `prisma/migrations` tidak ada di repository karena `prisma migrate dev` belum pernah dijalankan secara formal. Untuk production pertama kali, jalankan `npx prisma migrate dev` terlebih dahulu untuk men-generate migration files, lalu commit ke repository.
+3. **Prisma Migrations Menjadi Source of Truth Schema**: Folder `prisma/migrations` sudah ada di repository dan wajib ikut version control. Untuk perubahan schema, update `prisma/schema.prisma`, jalankan `npm run db:migrate` di development, lalu commit migration yang dihasilkan. Untuk production, gunakan `npx prisma migrate deploy`.
 
 4. **Pencarian Server-Side Sederhana**: Pencarian modul di API menggunakan filter teks biasa (`LIKE`). Untuk volume data besar, bisa mempertimbangkan untuk integrasi full-text search PostgreSQL atau engine pencarian terpisah.
 

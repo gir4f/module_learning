@@ -35,8 +35,8 @@
     <section class="rounded-2xl border border-slate-200 bg-white/95 px-5 py-4 shadow-[0_18px_50px_rgba(15,23,42,0.05)] backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/95">
       <div class="flex flex-col gap-y-1 gap-x-4 xl:grid xl:grid-cols-[1fr_auto] xl:items-center xl:gap-x-5 xl:gap-y-1">
         
-        <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 xl:col-start-1 xl:row-start-1 xl:self-end">
-          Filter Aktivitas
+        <p class="text-[11px] font-black uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400 xl:col-start-1 xl:row-start-1 xl:self-end xl:translate-y-1">
+        Filter Aktivitas
         </p>
 
         <div class="hidden xl:grid xl:grid-cols-[10.5rem_10.5rem_15rem] xl:gap-3 xl:col-start-2 xl:row-start-1 xl:self-end">
@@ -45,7 +45,7 @@
           <span class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Tanggal</span>
         </div>
 
-        <p class="text-[15px] font-bold text-slate-700 dark:text-slate-300 xl:col-start-1 xl:row-start-2 xl:pt-1.5">
+        <p class="text-[16px] font-bold text-slate-700 dark:text-slate-300 xl:col-start-1 xl:row-start-2 s:pt-1.8">
           Menampilkan {{ paginatedEntries.length }} dari {{ filteredEntries.length }} aktivitas
         </p>
 

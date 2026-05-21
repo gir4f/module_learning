@@ -122,6 +122,7 @@ Semua server route berjalan di Nuxt/Nitro process yang sama; tidak ada backend s
 ## Storage
 
 - database: PostgreSQL
+  - perubahan schema dikelola lewat Prisma migrations di `prisma/migrations`
 - upload file: filesystem lokal di `UPLOAD_DIR`
 - preview image:
   - image upload dapat menghasilkan `.preview.webp`
@@ -135,6 +136,7 @@ Semua server route berjalan di Nuxt/Nitro process yang sama; tidak ada backend s
 - Konsistensi admin -> learner dijaga di level Pinia: mutasi admin meng-invalidasi learner store, lalu learner revalidate saat surface-nya dibuka lagi.
 - List modul memakai payload ringkas, sedangkan detail modul memakai payload lengkap dari `moduleInclude`.
 - `server/utils/cache.ts` masih ada, tetapi saat ini bukan mekanisme utama konsistensi client state.
+- Perubahan database harus dilakukan lewat `prisma/schema.prisma` + Prisma migration, lalu migration hasilnya ikut dicommit.
 
 ## Vue Page Component Rules
 
