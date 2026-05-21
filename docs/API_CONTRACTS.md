@@ -197,6 +197,74 @@ Atau:
 
 untuk delete idempotent ketika row sudah hilang lebih dulu.
 
+## Bulk Operations
+
+### `PATCH /api/modules/bulk`
+
+Access:
+
+- admin only
+
+Bulk update status modul.
+
+Body:
+
+```json
+{
+  "ids": ["module-id-1", "module-id-2"],
+  "status": "DRAFT | PUBLISHED"
+}
+```
+
+Response:
+
+```json
+{
+  "requestedCount": 2,
+  "affectedCount": 2,
+  "missingIds": []
+}
+```
+
+Notes:
+
+- `missingIds` berisi ID yang tidak ditemukan di database
+- setiap modul yang berhasil di-update menghasilkan satu `AuditLog` entry
+- response `affectedCount` bisa lebih kecil dari `requestedCount` jika ada ID invalid
+
+### `DELETE /api/modules/bulk`
+
+Access:
+
+- admin only
+
+Bulk delete modul beserta semua detail, komponen, dan attachment.
+
+Body:
+
+```json
+{
+  "ids": ["module-id-1", "module-id-2"]
+}
+```
+
+Response:
+
+```json
+{
+  "requestedCount": 2,
+  "affectedCount": 2,
+  "missingIds": []
+}
+```
+
+Notes:
+
+- file upload terkait dihapus dari filesystem setelah transaction berhasil
+- cascade delete berlaku: detail, komponen, dan attachment record ikut terhapus
+- satu `AuditLog` entry per top-level module yang dihapus (bukan per child record)
+- jika `ids` kosong atau semua invalid, `affectedCount` akan `0`
+
 ## Module Details
 
 ### `POST /api/modules/:id/details`
@@ -404,6 +472,7 @@ Access:
 Query params:
 
 - `take` jumlah item per page (default: 50)
+- `limit` alias untuk `take` (dipakai oleh sidebar card)
 - `cursor` ID cursor untuk pagination selanjutnya
 - `entityType` filter berdasarkan tipe entity (`MODULE`, `MODULE_DETAIL`, `COMPONENT_ITEM`, `ATTACHMENT`)
 - `actorId` filter berdasarkan ID aktor
@@ -433,3 +502,10 @@ Notes:
 
 - cursor-based pagination (bukan offset)
 - `nextCursor` bernilai `null` jika sudah di halaman terakhir
+- field `payloadBefore`/`payloadAfter` ada di database (tipe `Json?`) tetapi sengaja **tidak di-expose** di response API — hanya untuk forensik internal
+
+### `POST/PATCH/PUT/DELETE /api/audit-logs`
+
+Semua method selain `GET` mengembalikan **405 Method Not Allowed**.
+
+Route ini adalah guard intentional untuk mencegah mutasi langsung terhadap data audit log melalui API. Audit log hanya ditulis secara internal oleh server saat terjadi operasi CRUD pada modul, detail, komponen, atau attachment.

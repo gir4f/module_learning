@@ -39,6 +39,40 @@ npm.cmd run build
 npm.cmd test
 ```
 
+| Perintah | Keterangan |
+|:---------|:-----------|
+| `npm run dev` | Development server (Nuxt) |
+| `npm run build` | Build production — custom wrapper, lihat [Scripts](#scripts) |
+| `npm run start` | Jalankan output production (`node .output/server/index.mjs`) |
+| `npm run type-check` | TypeScript type checking |
+| `npm test` | Jalankan unit tests (Vitest) |
+| `npm run db:generate` | Generate Prisma Client |
+| `npm run db:migrate` | Jalankan Prisma migrations |
+| `npm run db:seed` | Seed data awal ke database |
+| `npm run audit:assets` | Audit image assets >1MB — lihat [Scripts](#scripts) |
+| `npm run optimize:assets` | Optimasi image spesifik — lihat [Scripts](#scripts) |
+
+## Scripts
+
+Ketiga script di `scripts/` adalah custom Node.js scripts:
+
+### `npm run build` → `scripts/build.mjs`
+
+Wrapper untuk `nuxt build` yang memfilter noise warning sourcemap dari plugin `@tailwindcss/vite`. Tailwind CSS v4 menghasilkan banyak peringatan `Sourcemap is likely to be incorrect` yang tidak berbahaya tapi mengganggu output terminal. Script ini:
+
+- Spawn `nuxt build` sebagai child process
+- Pipe stdout/stderr melalui filter baris demi baris
+- Suppress baris yang mengandung peringatan sourcemap Tailwind
+- Forward exit code dan signal dengan benar
+
+### `npm run audit:assets` → `scripts/audit-assets.mjs`
+
+Audit image di `public/module-assets/`. Walk direktori, temukan semua file image (avif, gif, jpeg, jpg, png, webp), laporkan ukurannya, dan exit code 1 jika ada yang >1MB. Cocok untuk CI check sebelum deploy.
+
+### `npm run optimize:assets` → `scripts/optimize-assets.mjs`
+
+Optimasi gambar tertentu di `public/module-assets/` menggunakan Sharp. Resize ke max 1600×1600px dan compress (JPEG mozjpeg quality 78 / PNG palette). **Catatan**: daftar file di-hardcode (4 file spesifik) — ini one-time script, bukan optimizer generik.
+
 ## Production Deploy
 
 Required environment:
@@ -64,6 +98,8 @@ npm run build
 Start the Nuxt server from the generated output:
 
 ```sh
+npm run start
+# atau langsung:
 node .output/server/index.mjs
 ```
 

@@ -159,6 +159,38 @@ Action utama:
 - `fetchPage(take)`
 - `resetState()`
 
+### `audit-recent`
+
+File:
+
+- `app/stores/auditRecent.ts`
+
+Tanggung jawab:
+
+- recent audit log entries untuk admin sidebar card
+- stale-refresh logic (threshold 15 detik via `shouldRefreshAuditRecent`)
+- coalescing: kalau fetch sedang jalan, request baru di-queue, bukan di-drop
+- background refresh saat navigasi antar halaman admin dan window focus
+
+Dipakai oleh:
+
+- `AuditSidebarCard.vue` (admin sidebar)
+
+Current state fields:
+
+- `items`
+- `loading`
+- `error`
+- `lastFetchedAt`
+- `refreshQueued`
+
+Action utama:
+
+- `fetchRecent(limit)`
+- `refreshIfStale(limit)`
+- `triggerBackgroundRefresh(limit)`
+- `resetState()`
+
 ## Local State That Still Exists
 
 `useState()` yang memang masih wajar dipakai:

@@ -155,7 +155,7 @@ Berikut adalah ringkasan fase pengembangan berdasarkan riwayat commit:
 - [x] Database seed script untuk data awal.
 - [x] Custom build script yang menyembunyikan noise sourcemap Tailwind.
 - [x] Asset audit & optimize scripts.
-- [x] 18 unit test files dengan Vitest.
+- [x] 19 unit test files dengan Vitest.
 
 ---
 
@@ -227,6 +227,7 @@ app/
 │   ├── layout/                      # Komponen tata letak
 │   │   ├── AdminSidebar.vue         # Sidebar navigasi admin
 │   │   ├── AppTopNavbar.vue         # Navbar utama (23KB - sangat kompleks)
+│   │   ├── AuditSidebarCard.vue     # Card aktivitas terbaru di sidebar admin
 │   │   ├── LearningFooter.vue       # Footer halaman learner
 │   │   ├── LearningHeader.vue       # Header halaman learner
 │   │   └── NavbarMobileDrawer.vue   # Drawer navigasi mobile
@@ -242,7 +243,6 @@ app/
 │   │   └── SectionNav.vue           # Navigasi antar varian produk
 │   └── shared/                      # Komponen reusable lintas surface
 │       ├── BulkActionPill.vue       # Pill operasi massal (hapus, dll.)
-│       ├── BulkActionPill.test.ts   # Unit test BulkActionPill
 │       ├── EmptyState.vue           # Tampilan state kosong
 │       ├── ErrorNotice.vue          # Tampilan error
 │       ├── ImageLightbox.vue        # Lightbox gambar fullscreen
@@ -282,14 +282,17 @@ app/
 │   └── 01.auth-resume.client.ts     # Restore session auth saat app load
 ├── stores/
 │   ├── auditLog.ts                  # Store riwayat aktivitas admin
+│   ├── auditRecent.ts               # Store aktivitas terbaru untuk sidebar card
 │   ├── auth.ts                      # Store autentikasi (login/logout/profile)
 │   ├── learningModules.ts           # Store data modul untuk learner
 │   └── modules.ts                   # Store data & CRUD modul untuk admin (10KB)
 ├── types/
+│   ├── audit.ts                     # TypeScript interfaces untuk audit log
 │   └── learning.ts                  # TypeScript interfaces untuk modul
 └── utils/
     ├── adminModuleUi.ts             # Helper UI admin
     ├── apiErrors.ts                 # Helper parsing error API
+    ├── auditClient.ts               # Helper fetch & filter audit log (stale-refresh, pagination)
     ├── auditDisplay.ts              # Helper tampilan audit log (label aksi, entity)
     ├── authRefresh.ts               # Helper refresh auth
     ├── authRoutes.ts                # Helper routing auth (redirect logic)
@@ -400,6 +403,7 @@ root/
 │ role (enum)     │
 │ createdAt       │
 │ updatedAt       │
+│ auditLogs  →[]  │
 └─────────────────┘
 
 ┌─────────────────┐       ┌──────────────────┐
@@ -432,6 +436,22 @@ root/
               └────────────┘ │ sortOrder  │
                              │ createdAt  │
                              └────────────┘
+
+┌───────────────────┐
+│     AuditLog       │
+│───────────────────│
+│ id            PK  │
+│ action    (enum)  │
+│ entityType (enum) │
+│ entityId          │
+│ entityLabel       │
+│ actorId      FK?  │──N:1──→ Profile (SetNull)
+│ actorEmail        │
+│ actorName         │
+│ payloadBefore Json│
+│ payloadAfter Json │
+│ createdAt         │
+└───────────────────┘
 ```
 
 ### Enums
@@ -441,10 +461,16 @@ root/
 | `UserRole` | `ADMIN`, `VIEWER` |
 | `PublishStatus` | `DRAFT`, `PUBLISHED` |
 | `AttachmentType` | `IMAGE`, `SPREADSHEET`, `FILE`, `LINK` |
+| `AuditAction` | `CREATE`, `UPDATE`, `DELETE` |
+| `AuditEntityType` | `MODULE`, `MODULE_DETAIL`, `COMPONENT_ITEM`, `ATTACHMENT` |
 
 ### Cascade Delete
 
 Menghapus `Module` akan **otomatis menghapus** semua `ModuleDetail`, `ComponentItem`, dan `Attachment` yang terkait.
+
+### AuditLog Delete Behavior
+
+`Profile → AuditLog` memakai **`onDelete: SetNull`** — jika profile dihapus, `actorId` menjadi `null` tapi record audit log **tetap ada** untuk keperluan forensik.
 
 ---
 
@@ -536,6 +562,16 @@ State management mengikuti aturan ketat:
 - Action: `login()`, `logout()`, `ensureProfile()`, `refreshProfile()`.
 - Computed: `isAdmin`, `isAuthenticated`.
 
+### Store: `auditLog` (`app/stores/auditLog.ts`)
+- State: `items`, `loading`, `error`, `nextCursor`.
+- Action: `applyFilters()`, `fetchPage()`, `resetState()`.
+
+### Store: `auditRecent` (`app/stores/auditRecent.ts`)
+- State: `items`, `loading`, `error`, `lastFetchedAt`, `refreshQueued`.
+- Action: `fetchRecent()`, `refreshIfStale()`, `triggerBackgroundRefresh()`, `resetState()`.
+- Dipakai oleh `AuditSidebarCard.vue` di sidebar admin.
+- Stale-refresh logic: threshold 15 detik, coalescing request.
+
 ### Store: `learningModules` (`app/stores/learningModules.ts`)
 - State: `modules`, `currentModule`, `pending`, `error`, `dirty`.
 - Action: `fetchModules()`, `ensureModules()`, `fetchModuleBySlug()`, `invalidateModules()`.
@@ -563,11 +599,11 @@ Kontrak API lengkap sudah didokumentasikan di `docs/API_CONTRACTS.md`. Berikut r
 |:-------|:---------|:-----------|
 | `GET` | `/api/modules` | List modul (query: `search`) |
 | `POST` | `/api/modules` | Buat modul baru (admin) |
+| `PATCH` | `/api/modules/bulk` | Bulk update status (admin) |
+| `DELETE` | `/api/modules/bulk` | Bulk delete (admin) |
 | `GET` | `/api/modules/:idOrSlug` | Detail modul |
 | `PATCH` | `/api/modules/:id` | Update modul (admin) |
 | `DELETE` | `/api/modules/:id` | Hapus modul (admin) |
-| `PATCH` | `/api/modules/bulk` | Bulk update status (admin) |
-| `DELETE` | `/api/modules/bulk` | Bulk delete (admin) |
 
 ### Details (Varian Produk)
 | Method | Endpoint | Keterangan |
@@ -612,12 +648,15 @@ Kontrak API lengkap sudah didokumentasikan di `docs/API_CONTRACTS.md`. Berikut r
 
 Framework: **Vitest** (konfigurasi: `npm test` → `vitest run --pool=threads`)
 
-### Unit Test Files (18 file)
+### Unit Test Files (19 file)
+
+Semua test berada di `tests/unit/` kecuali `validation.test.ts` yang ada di `test/`.
 
 | File | Menguji |
 |:-----|:--------|
 | `adminModuleUi.test.ts` | Helper UI admin module |
 | `apiErrors.test.ts` | Parsing error API |
+| `auditClient.test.ts` | Helper fetch, filter, pagination, stale-refresh audit log |
 | `auditDisplay.test.ts` | Helper tampilan audit log |
 | `auditLog.test.ts` | Pencatatan audit log ke database |
 | `auditPagination.test.ts` | Pagination dan filter audit log |

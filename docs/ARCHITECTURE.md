@@ -69,6 +69,10 @@ State dibagi seperti ini:
 - `app/stores/auditLog.ts`
   - admin audit log list dengan cursor pagination
   - filter berdasarkan entity type dan actor
+- `app/stores/auditRecent.ts`
+  - recent audit log entries untuk admin sidebar card
+  - stale-refresh logic (15 detik threshold)
+  - background refresh saat navigasi admin dan window focus
 
 `useState()` masih dipakai untuk UI-only state kecil, misalnya:
 
