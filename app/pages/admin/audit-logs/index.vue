@@ -102,158 +102,162 @@
       </div>
     </section>
 
-    <div v-if="showLoadingState" class="space-y-3">
-      <div v-for="i in 5" :key="i" class="h-20 animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
-    </div>
-
-    <div
-      v-else-if="showEmptyState"
-      class="rounded-[28px] border border-slate-200 bg-white px-6 py-16 text-center shadow-[0_18px_50px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-950"
-    >
-      <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
-        <i class="pi pi-history text-2xl text-brand-teal dark:text-cyan-300" aria-hidden="true" />
-      </span>
-      <p class="mt-4 text-base font-bold text-slate-700 dark:text-slate-200">
-        {{ store.items.length === 0 ? 'Belum ada riwayat aktivitas.' : 'Tidak ada aktivitas yang cocok dengan filter.' }}
-      </p>
-      <p class="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-400">
-        {{ store.items.length === 0 ? 'Data aktivitas akan muncul setelah ada perubahan pada sistem.' : 'Coba ubah tanggal, kategori, atau pengguna untuk melihat aktivitas lain.' }}
-      </p>
-    </div>
-
-    <section
-      v-else-if="showContentState"
-      class="space-y-4"
-    >
-      <div class="grid gap-3 md:hidden">
-        <article
-          v-for="entry in paginatedEntries"
-          :key="`mobile-${entry.id}`"
-          class="rounded-[28px] border border-slate-200 bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.04)] transition-all hover:border-brand-teal/40 hover:shadow-[0_22px_45px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/40"
-        >
-          <div class="grid gap-3 min-[460px]:grid-cols-2">
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60">
-              <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Waktu</p>
-              <p class="mt-2 text-sm font-bold text-slate-700 dark:text-slate-200">{{ formatAbsoluteDate(entry.createdAt) }}</p>
-            </div>
-
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60">
-              <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Aksi</p>
-              <span :class="actionMeta(entry.action).badgeClass" class="mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wide">
-                <i :class="actionMeta(entry.action).icon" aria-hidden="true" />
-                {{ actionMeta(entry.action).label }}
-              </span>
-            </div>
-          </div>
-
-          <div class="mt-4 rounded-2xl bg-slate-50 p-4 dark:bg-slate-950/70">
-            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Item yang Diubah</p>
-            <p class="mt-2 text-base font-black text-slate-950 dark:text-slate-100">{{ entry.entityLabel }}</p>
-          </div>
-
-          <div class="mt-4 grid gap-3 min-[460px]:grid-cols-2">
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60">
-              <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Kategori</p>
-              <span :class="entityMeta(entry.entityType).chipClass" class="mt-2 inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-bold">
-                <i :class="entityMeta(entry.entityType).icon" aria-hidden="true" />
-                {{ entityMeta(entry.entityType).label }}
-              </span>
-            </div>
-
-            <div class="rounded-2xl border border-slate-200/80 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60">
-              <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Pengguna</p>
-              <p class="mt-2 text-sm font-bold text-slate-700 dark:text-slate-200">{{ resolveActorDisplay(entry) }}</p>
-            </div>
-          </div>
-        </article>
+    <div v-auto-animate="auditLogsAutoAnimateConfig" class="space-y-4">
+      <div v-if="showLoadingState" class="space-y-3">
+        <div v-for="i in 5" :key="i" class="h-20 animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
       </div>
 
-      <div class="hidden overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-950 md:block">
-        <div class="overflow-x-auto">
-          <table class="w-full min-w-[58rem] text-left text-sm">
-            <thead>
-              <tr class="border-b border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-900">
-                <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                  Waktu
-                </th>
-                <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                  Pengguna
-                </th>
-                <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                  Aksi
-                </th>
-                <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                  Kategori
-                </th>
-                <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                  Item yang Diubah
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-              <tr
-                v-for="entry in paginatedEntries"
-                :key="entry.id"
-                class="transition-all duration-200 hover:bg-slate-50/80 dark:hover:bg-slate-900/70"
-              >
-                <td class="whitespace-nowrap px-5 py-4 align-top text-slate-600 dark:text-slate-400">
-                  <span class="block font-semibold text-slate-700 dark:text-slate-200">
-                    {{ formatAbsoluteDate(entry.createdAt) }}
-                  </span>
-                </td>
-
-                <td class="whitespace-nowrap px-5 py-4 align-top">
-                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ resolveActorDisplay(entry) }}</span>
-                </td>
-
-                <td class="whitespace-nowrap px-5 py-4 align-top">
-                  <span :class="actionMeta(entry.action).badgeClass" class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wide">
-                    <i :class="actionMeta(entry.action).icon" aria-hidden="true" />
-                    {{ actionMeta(entry.action).label }}
-                  </span>
-                </td>
-
-                <td class="whitespace-nowrap px-5 py-4 align-top">
-                  <span :class="entityMeta(entry.entityType).chipClass" class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-bold">
-                    <i :class="entityMeta(entry.entityType).icon" aria-hidden="true" />
-                    {{ entityMeta(entry.entityType).label }}
-                  </span>
-                </td>
-
-                <td class="max-w-[24rem] px-5 py-4 align-top">
-                  <span class="line-clamp-2 font-bold text-slate-800 dark:text-slate-200">{{ entry.entityLabel }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div v-if="filteredEntries.length > rows" class="flex justify-center border-t border-slate-200 pt-4 dark:border-slate-800">
-        <Paginator
-          v-model:first="firstRow"
-          :rows="rows"
-          :total-records="filteredEntries.length"
-          template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        />
-      </div>
-    </section>
-
-    <div
-      v-if="store.error"
-      class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-900 dark:bg-red-950/30"
-    >
-      <p class="text-sm font-semibold text-red-700 dark:text-red-300">
-        Gagal memuat riwayat aktivitas.
-      </p>
-      <button
-        type="button"
-        class="mt-2 text-sm font-bold text-red-600 hover:underline dark:text-red-400"
-        :disabled="store.loading"
-        @click="retryFetch"
+      <div
+        v-else-if="showEmptyState"
+        class="rounded-[28px] border border-slate-200 bg-white px-6 py-16 text-center shadow-[0_18px_50px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-950"
       >
-        Coba lagi
-      </button>
+        <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+          <i class="pi pi-history text-2xl text-brand-teal dark:text-cyan-300" aria-hidden="true" />
+        </span>
+        <p class="mt-4 text-base font-bold text-slate-700 dark:text-slate-200">
+          {{ store.items.length === 0 ? 'Belum ada riwayat aktivitas.' : 'Tidak ada aktivitas yang cocok dengan filter.' }}
+        </p>
+        <p class="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-400">
+          {{ store.items.length === 0 ? 'Data aktivitas akan muncul setelah ada perubahan pada sistem.' : 'Coba ubah tanggal, kategori, atau pengguna untuk melihat aktivitas lain.' }}
+        </p>
+      </div>
+
+      <section
+        v-else-if="showContentState"
+        class="space-y-4"
+      >
+        <div v-auto-animate="auditLogsAutoAnimateConfig" class="grid gap-3 md:hidden">
+          <article
+            v-for="entry in paginatedEntries"
+            :key="`mobile-${entry.id}`"
+            class="rounded-[28px] border border-slate-200 bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.04)] transition-all hover:border-brand-teal/40 hover:shadow-[0_22px_45px_rgba(15,23,42,0.08)] dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/40"
+          >
+            <div class="grid gap-3 min-[460px]:grid-cols-2">
+              <div class="rounded-2xl border border-slate-200/80 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60">
+                <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Waktu</p>
+                <p class="mt-2 text-sm font-bold text-slate-700 dark:text-slate-200">{{ formatAbsoluteDate(entry.createdAt) }}</p>
+              </div>
+
+              <div class="rounded-2xl border border-slate-200/80 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60">
+                <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Aksi</p>
+                <span :class="actionMeta(entry.action).badgeClass" class="mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wide">
+                  <i :class="actionMeta(entry.action).icon" aria-hidden="true" />
+                  {{ actionMeta(entry.action).label }}
+                </span>
+              </div>
+            </div>
+
+            <div class="mt-4 rounded-2xl bg-slate-50 p-4 dark:bg-slate-950/70">
+              <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Item yang Diubah</p>
+              <p class="mt-2 text-base font-black text-slate-950 dark:text-slate-100">{{ entry.entityLabel }}</p>
+            </div>
+
+            <div class="mt-4 grid gap-3 min-[460px]:grid-cols-2">
+              <div class="rounded-2xl border border-slate-200/80 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60">
+                <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Kategori</p>
+                <span :class="entityMeta(entry.entityType).chipClass" class="mt-2 inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-bold">
+                  <i :class="entityMeta(entry.entityType).icon" aria-hidden="true" />
+                  {{ entityMeta(entry.entityType).label }}
+                </span>
+              </div>
+
+              <div class="rounded-2xl border border-slate-200/80 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60">
+                <p class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Pengguna</p>
+                <p class="mt-2 text-sm font-bold text-slate-700 dark:text-slate-200">{{ resolveActorDisplay(entry) }}</p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="hidden overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-950 md:block">
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[58rem] text-left text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-900">
+                  <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Waktu
+                  </th>
+                  <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Pengguna
+                  </th>
+                  <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Aksi
+                  </th>
+                  <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Kategori
+                  </th>
+                  <th class="whitespace-nowrap px-5 py-4 text-[11px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                    Item yang Diubah
+                  </th>
+                </tr>
+              </thead>
+              <tbody v-auto-animate="auditLogsAutoAnimateConfig" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <tr
+                  v-for="entry in paginatedEntries"
+                  :key="entry.id"
+                  class="transition-all duration-200 hover:bg-slate-50/80 dark:hover:bg-slate-900/70"
+                >
+                  <td class="whitespace-nowrap px-5 py-4 align-top text-slate-600 dark:text-slate-400">
+                    <span class="block font-semibold text-slate-700 dark:text-slate-200">
+                      {{ formatAbsoluteDate(entry.createdAt) }}
+                    </span>
+                  </td>
+
+                  <td class="whitespace-nowrap px-5 py-4 align-top">
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ resolveActorDisplay(entry) }}</span>
+                  </td>
+
+                  <td class="whitespace-nowrap px-5 py-4 align-top">
+                    <span :class="actionMeta(entry.action).badgeClass" class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wide">
+                      <i :class="actionMeta(entry.action).icon" aria-hidden="true" />
+                      {{ actionMeta(entry.action).label }}
+                    </span>
+                  </td>
+
+                  <td class="whitespace-nowrap px-5 py-4 align-top">
+                    <span :class="entityMeta(entry.entityType).chipClass" class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-bold">
+                      <i :class="entityMeta(entry.entityType).icon" aria-hidden="true" />
+                      {{ entityMeta(entry.entityType).label }}
+                    </span>
+                  </td>
+
+                  <td class="max-w-[24rem] px-5 py-4 align-top">
+                    <span class="line-clamp-2 font-bold text-slate-800 dark:text-slate-200">{{ entry.entityLabel }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div v-auto-animate="auditLogsAutoAnimateConfig" class="space-y-4">
+          <div v-if="filteredEntries.length > rows" class="flex justify-center border-t border-slate-200 pt-4 dark:border-slate-800">
+            <Paginator
+              v-model:first="firstRow"
+              :rows="rows"
+              :total-records="filteredEntries.length"
+              template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+            />
+          </div>
+        </div>
+      </section>
+
+      <div
+        v-if="store.error"
+        class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-900 dark:bg-red-950/30"
+      >
+        <p class="text-sm font-semibold text-red-700 dark:text-red-300">
+          Gagal memuat riwayat aktivitas.
+        </p>
+        <button
+          type="button"
+          class="mt-2 text-sm font-bold text-red-600 hover:underline dark:text-red-400"
+          :disabled="store.loading"
+          @click="retryFetch"
+        >
+          Coba lagi
+        </button>
+      </div>
     </div>
 
     <Transition name="back-pill">
@@ -272,6 +276,7 @@
 </template>
 
 <script setup lang="ts">
+import type { AutoAnimateOptions } from '@formkit/auto-animate'
 import type { AuditAction, AuditEntityType, AuditListFilters } from '~/types/audit'
 import { useAuditLogStore } from '~/stores/auditLog'
 import { filterAuditEntries, getAuditDayKey, paginateAuditEntries, shouldResetAuditPagination } from '~/utils/auditClient'
@@ -335,6 +340,10 @@ const FALLBACK_ENTITY_META = {
   label: 'Lainnya',
   icon: 'pi pi-tag',
   chipClass: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200',
+}
+const auditLogsAutoAnimateConfig: Partial<AutoAnimateOptions> = {
+  duration: 170,
+  easing: 'ease-out',
 }
 
 const filterEntityType = ref<AuditEntityType | 'ALL'>('ALL')
