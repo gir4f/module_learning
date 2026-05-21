@@ -32,11 +32,34 @@ export function shouldRefreshAuditRecent(
   return now - lastFetchedAt >= staleMs
 }
 
+export function getAuditDayKey(dateInput: string | Date): string {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
+
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Jakarta',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+
+  const year = parts.find(part => part.type === 'year')?.value || '0000'
+  const month = parts.find(part => part.type === 'month')?.value || '00'
+  const day = parts.find(part => part.type === 'day')?.value || '00'
+
+  return `${year}-${month}-${day}`
+}
+
 export function filterAuditEntries(entries: AuditEntry[], filters: AuditListFilters): AuditEntry[] {
   return entries.filter((entry) => {
     const matchesEntityType = filters.entityType === 'ALL' || entry.entityType === filters.entityType
     const matchesActor = filters.actorId === 'ALL' || entry.actorId === filters.actorId
-    return matchesEntityType && matchesActor
+    const hasDateFilter = Boolean(filters.dateFrom || filters.dateTo)
+    const entryDayKey = hasDateFilter ? getAuditDayKey(entry.createdAt) : ''
+    const matchesDateFrom = !filters.dateFrom || (!!entryDayKey && entryDayKey >= filters.dateFrom)
+    const matchesDateTo = !filters.dateTo || (!!entryDayKey && entryDayKey <= filters.dateTo)
+
+    return matchesEntityType && matchesActor && matchesDateFrom && matchesDateTo
   })
 }
 
@@ -48,5 +71,8 @@ export function shouldResetAuditPagination(
   previous: AuditListFilters,
   next: AuditListFilters,
 ): boolean {
-  return previous.entityType !== next.entityType || previous.actorId !== next.actorId
+  return previous.entityType !== next.entityType
+    || previous.actorId !== next.actorId
+    || previous.dateFrom !== next.dateFrom
+    || previous.dateTo !== next.dateTo
 }

@@ -4,6 +4,7 @@ import {
   AUDIT_RECENT_STALE_MS,
   fetchAllAuditEntries,
   filterAuditEntries,
+  getAuditDayKey,
   paginateAuditEntries,
   shouldRefreshAuditRecent,
   shouldResetAuditPagination,
@@ -65,9 +66,46 @@ describe('audit page client helpers', () => {
       makeEntry('2', { entityType: 'ATTACHMENT', actorId: 'admin-1' }),
       makeEntry('3', { entityType: 'ATTACHMENT', actorId: 'admin-2' }),
     ]
-    const filters: AuditListFilters = { entityType: 'ATTACHMENT', actorId: 'admin-1' }
+    const filters: AuditListFilters = {
+      entityType: 'ATTACHMENT',
+      actorId: 'admin-1',
+      dateFrom: null,
+      dateTo: null,
+    }
 
     expect(filterAuditEntries(entries, filters).map(entry => entry.id)).toEqual(['2'])
+  })
+
+  it('treats a single selected date as an exact-day filter in Asia/Jakarta', () => {
+    const entries = [
+      makeEntry('1', { createdAt: '2026-05-20T17:15:00.000Z' }),
+      makeEntry('2', { createdAt: '2026-05-21T16:30:00.000Z' }),
+      makeEntry('3', { createdAt: '2026-05-21T17:15:00.000Z' }),
+    ]
+    const filters: AuditListFilters = {
+      entityType: 'ALL',
+      actorId: 'ALL',
+      dateFrom: '2026-05-21',
+      dateTo: '2026-05-21',
+    }
+
+    expect(filterAuditEntries(entries, filters).map(entry => entry.id)).toEqual(['1', '2'])
+  })
+
+  it('filters entries inclusively across a Jakarta date range', () => {
+    const entries = [
+      makeEntry('1', { createdAt: '2026-05-20T17:15:00.000Z' }),
+      makeEntry('2', { createdAt: '2026-05-21T17:15:00.000Z' }),
+      makeEntry('3', { createdAt: '2026-05-22T17:15:00.000Z' }),
+    ]
+    const filters: AuditListFilters = {
+      entityType: 'ALL',
+      actorId: 'ALL',
+      dateFrom: '2026-05-21',
+      dateTo: '2026-05-22',
+    }
+
+    expect(filterAuditEntries(entries, filters).map(entry => entry.id)).toEqual(['1', '2'])
   })
 
   it('paginates filtered entries using first-row slicing', () => {
@@ -77,15 +115,26 @@ describe('audit page client helpers', () => {
 
   it('signals pagination reset when filters change', () => {
     expect(shouldResetAuditPagination(
-      { entityType: 'ALL', actorId: 'ALL' },
-      { entityType: 'MODULE', actorId: 'ALL' },
+      { entityType: 'ALL', actorId: 'ALL', dateFrom: null, dateTo: null },
+      { entityType: 'MODULE', actorId: 'ALL', dateFrom: null, dateTo: null },
+    )).toBe(true)
+  })
+
+  it('signals pagination reset when date filters change', () => {
+    expect(shouldResetAuditPagination(
+      { entityType: 'ALL', actorId: 'ALL', dateFrom: null, dateTo: null },
+      { entityType: 'ALL', actorId: 'ALL', dateFrom: '2026-05-21', dateTo: '2026-05-21' },
     )).toBe(true)
   })
 
   it('does not reset pagination when filters stay the same', () => {
     expect(shouldResetAuditPagination(
-      { entityType: 'ATTACHMENT', actorId: 'admin-1' },
-      { entityType: 'ATTACHMENT', actorId: 'admin-1' },
+      { entityType: 'ATTACHMENT', actorId: 'admin-1', dateFrom: '2026-05-21', dateTo: '2026-05-22' },
+      { entityType: 'ATTACHMENT', actorId: 'admin-1', dateFrom: '2026-05-21', dateTo: '2026-05-22' },
     )).toBe(false)
+  })
+
+  it('builds stable Jakarta day keys from ISO timestamps', () => {
+    expect(getAuditDayKey('2026-05-20T17:15:00.000Z')).toBe('2026-05-21')
   })
 })

@@ -11,15 +11,15 @@
       </div>
     </div>
 
-    <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_11rem] sm:items-center sm:gap-x-4">
-      <div class="flex min-h-5 flex-wrap items-center gap-3">
-        <p class="text-sm font-semibold leading-5 text-slate-600 dark:text-slate-300">
+    <div class="flex flex-col gap-y-1 gap-x-4 md:grid md:grid-cols-[1fr_auto] md:items-center md:gap-x-6 md:gap-y-1">
+      <div class="flex flex-wrap items-center gap-3 md:col-start-1 md:row-start-1">
+        <p class="text-[15px] font-bold text-slate-700 dark:text-slate-200">
           Menampilkan {{ modules.length }} dari {{ totalCount }} modul<span v-if="searchModel"> untuk "{{ searchModel }}"</span>
         </p>
         <button
           v-if="searchModel || activeCategory !== 'semua'"
           type="button"
-          class="inline-flex min-h-5 items-center gap-1.5 rounded-md border border-slate-300 px-2 py-0.5 text-xs font-semibold text-slate-700 hover:border-brand-teal focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:text-slate-200"
+          class="inline-flex min-h-6 items-center gap-1.5 rounded-md border border-slate-300 px-2 py-0.5 text-xs font-bold text-slate-700 hover:border-brand-teal focus:outline-none focus:ring-4 focus:ring-cyan-100 dark:border-slate-700 dark:text-slate-200"
           @click="$emit('clear')"
         >
           <i class="pi pi-times text-[10px]" aria-hidden="true" />
@@ -27,11 +27,11 @@
         </button>
       </div>
 
-      <span class="hidden min-h-5 items-center text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400 sm:flex">
+      <span class="hidden text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 md:block md:col-start-2 md:row-start-1">
         SORT
       </span>
 
-      <div class="scrollbar-hidden flex items-center gap-2 overflow-x-auto py-1.5 px-1 -mx-1">
+      <div class="scrollbar-hidden flex items-center gap-2 overflow-x-auto py-1 px-1 -mx-1 md:col-start-1 md:row-start-2">
         <button
           v-for="tab in categoryTabs"
           :key="tab.value"
@@ -44,12 +44,14 @@
         </button>
       </div>
 
-      <SortSelect
-        :model-value="sort"
-        label=""
-        class="w-full sm:[&_.p-select]:min-h-11"
-        @update:model-value="$emit('update:sort', $event)"
-      />
+      <div class="w-full mt-3 md:mt-0 md:col-start-2 md:row-start-2 md:w-56">
+        <SortSelect
+          :model-value="sort"
+          label=""
+          class="w-full [&_.p-select]:min-h-11"
+          @update:model-value="$emit('update:sort', $event)"
+        />
+      </div>
     </div>
 
     <LoadingBlock v-if="pending" :rows="6" />

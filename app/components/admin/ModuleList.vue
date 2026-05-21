@@ -2,13 +2,17 @@
   <div>
     <AdminSurface>
       <div ref="cardEl">
-        <div class="grid gap-3 border-b border-slate-200 p-4 dark:border-slate-800 min-[90rem]:grid-cols-[minmax(0,1fr)_auto_auto] min-[90rem]:items-end">
-          <div class="flex min-w-0 flex-col gap-1.5">
-            <p v-if="!props.pending || props.modules.length" class="text-s font-semibold text-slate-500 dark:text-slate-400">
-              Menampilkan {{ paginatedModules.length }} dari {{ sortedModules.length }} modul
-            </p>
-            <label class="relative min-w-0">
-              <span class="sr-only">Cari modul</span>
+        <div class="flex flex-col gap-y-3 border-b border-slate-200 p-4 dark:border-slate-800 min-[90rem]:grid min-[90rem]:grid-cols-[minmax(0,1fr)_auto_auto] min-[90rem]:items-center min-[90rem]:gap-x-6 min-[90rem]:gap-y-1.5">
+          <p v-if="!props.pending || props.modules.length" class="text-sm font-semibold text-slate-500 dark:text-slate-400 min-[90rem]:col-start-1 min-[90rem]:row-start-1 min-[90rem]:self-end">
+            Menampilkan {{ paginatedModules.length }} dari {{ sortedModules.length }} modul
+          </p>
+
+          <span class="hidden text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 min-[90rem]:block min-[90rem]:col-start-3 min-[90rem]:row-start-1 min-[90rem]:self-end">
+            Sort
+          </span>
+
+          <label class="relative min-w-0 min-[90rem]:col-start-1 min-[90rem]:row-start-2">
+            <span class="sr-only">Cari modul</span>
             <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true" />
             <input
               ref="searchInput"
@@ -31,9 +35,8 @@
             </button>
             <kbd v-else class="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-black text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 sm:inline-flex">Ctrl K</kbd>
           </label>
-          </div>
 
-          <div class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800 min-[48rem]:w-full min-[90rem]:w-auto">
+          <div class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800 min-[48rem]:w-full min-[90rem]:col-start-2 min-[90rem]:row-start-2 min-[90rem]:w-auto">
             <button
               v-for="option in statusOptions"
               :key="option.value"
@@ -46,11 +49,15 @@
             </button>
           </div>
 
-          <SortSelect
-            :model-value="sort"
-            class="w-full min-[90rem]:w-44"
-            @update:model-value="sort = $event"
-          />
+          <div class="grid gap-1.5 min-[90rem]:block min-[90rem]:col-start-3 min-[90rem]:row-start-2">
+            <span class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 min-[90rem]:hidden">Sort</span>
+            <SortSelect
+              :model-value="sort"
+              label=""
+              class="w-full min-[90rem]:w-44"
+              @update:model-value="sort = $event"
+            />
+          </div>
         </div>
 
       <div v-if="props.pending && !props.modules.length" class="p-6 text-sm font-semibold text-slate-500 dark:text-slate-400">Memuat modul...</div>

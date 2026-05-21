@@ -22,4 +22,6 @@ export interface AuditLogListResponse {
 export interface AuditListFilters {
   entityType: AuditEntityType | 'ALL'
   actorId: string | 'ALL'
+  dateFrom: string | null
+  dateTo: string | null
 }
