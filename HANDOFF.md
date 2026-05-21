@@ -5,7 +5,7 @@
 > **Repository**: `gir4f/module_learning`  
 > **Penyusun**: Intern Developer  
 > **Tanggal Serah Terima**: 22 Mei 2026  
-> **Periode Pengembangan**: 4 Mei 2026 – 19 Mei 2026 (61 commits)
+> **Periode Pengembangan**: 4 Mei 2026 – 21 Mei 2026
 
 ---
 
@@ -101,6 +101,14 @@ Berikut adalah ringkasan fase pengembangan berdasarkan riwayat commit:
 - Implementasi **Fuzzy Logic pada CSV Import** untuk pencocokan data komponen.
 - Penambahan unit test untuk `authRoutes`, `authRefresh`, `themePreference`, `moduleBulkValidation`, `csvUtils`, dan `csvImportLimits`.
 
+### Fase 5 — Audit Log & Stabilisasi (20–21 Mei 2026)
+- Implementasi **Audit Log** — pencatatan riwayat aktivitas admin (create, update, delete).
+- Halaman admin **Riwayat Aktivitas** (`/admin/audit-logs`) dengan filter kategori dan pengguna.
+- Penambahan komponen **BulkActionPill** untuk operasi massal varian produk dan lampiran.
+- Penambahan composable `useFocusTrap` untuk aksesibilitas modal/dialog.
+- Fix **Vue single-root-node** pada halaman editor modul agar kompatibel dengan `<Transition>` NuxtPage.
+- Penambahan unit test untuk `auditDisplay`, `auditLog`, `auditPagination`, dan `bulkActions`.
+
 ---
 
 ## 4. Fitur yang Sudah Selesai
@@ -126,10 +134,12 @@ Berikut adalah ringkasan fase pengembangan berdasarkan riwayat commit:
   - Upload & kelola lampiran file (gambar, PDF, spreadsheet).
   - Otomatis generate preview `.webp` untuk gambar.
 - [x] Bulk operations: hapus massal & ubah status massal.
+- [x] Bulk operations varian produk dan lampiran (BulkActionPill).
 - [x] CSV Import dengan fuzzy matching untuk komponen.
 - [x] Command Palette untuk navigasi cepat.
 - [x] AutoAnimate untuk transisi yang halus.
 - [x] Tombol "SIMPAN" yang otomatis disable jika tidak ada perubahan.
+- [x] **Audit Log** — Riwayat aktivitas admin (`/admin/audit-logs`).
 
 ### Autentikasi & Keamanan
 - [x] Login dengan email & password.
@@ -145,7 +155,7 @@ Berikut adalah ringkasan fase pengembangan berdasarkan riwayat commit:
 - [x] Database seed script untuk data awal.
 - [x] Custom build script yang menyembunyikan noise sourcemap Tailwind.
 - [x] Asset audit & optimize scripts.
-- [x] 14 unit test files dengan Vitest.
+- [x] 18 unit test files dengan Vitest.
 
 ---
 
@@ -231,6 +241,8 @@ app/
 │   │   ├── PrintHeader.vue          # Header khusus cetak
 │   │   └── SectionNav.vue           # Navigasi antar varian produk
 │   └── shared/                      # Komponen reusable lintas surface
+│       ├── BulkActionPill.vue       # Pill operasi massal (hapus, dll.)
+│       ├── BulkActionPill.test.ts   # Unit test BulkActionPill
 │       ├── EmptyState.vue           # Tampilan state kosong
 │       ├── ErrorNotice.vue          # Tampilan error
 │       ├── ImageLightbox.vue        # Lightbox gambar fullscreen
@@ -242,6 +254,7 @@ app/
 ├── composables/
 │   ├── useApiClient.ts              # Axios instance terpusat
 │   ├── useDarkMode.ts               # Composable dark/light mode
+│   ├── useFocusTrap.ts              # Focus trap untuk modal/dialog (aksesibilitas)
 │   ├── useModuleEditor.ts           # Helper editor modul admin
 │   └── useModuleSearch.ts           # Logic pencarian & filter modul
 ├── data/
@@ -255,6 +268,8 @@ app/
 ├── pages/
 │   ├── admin/
 │   │   ├── index.vue                # Redirect ke /admin/modules
+│   │   ├── audit-logs/
+│   │   │   └── index.vue            # Halaman riwayat aktivitas admin
 │   │   └── modules/
 │   │       ├── index.vue            # Daftar modul admin (13KB)
 │   │       ├── new.vue              # Halaman buat modul baru
@@ -266,6 +281,7 @@ app/
 ├── plugins/
 │   └── 01.auth-resume.client.ts     # Restore session auth saat app load
 ├── stores/
+│   ├── auditLog.ts                  # Store riwayat aktivitas admin
 │   ├── auth.ts                      # Store autentikasi (login/logout/profile)
 │   ├── learningModules.ts           # Store data modul untuk learner
 │   └── modules.ts                   # Store data & CRUD modul untuk admin (10KB)
@@ -274,11 +290,13 @@ app/
 └── utils/
     ├── adminModuleUi.ts             # Helper UI admin
     ├── apiErrors.ts                 # Helper parsing error API
+    ├── auditDisplay.ts              # Helper tampilan audit log (label aksi, entity)
     ├── authRefresh.ts               # Helper refresh auth
     ├── authRoutes.ts                # Helper routing auth (redirect logic)
     ├── csvImportLimits.ts           # Konstanta batas CSV import
     ├── csvUtils.ts                  # Parser CSV dengan fuzzy matching (7KB)
     ├── moduleUi.ts                  # Helper UI modul
+    ├── motion.ts                    # Helper animasi/transisi
     ├── search.ts                    # Fungsi pencarian lokal
     ├── slug.ts                      # Generator slug
     ├── themePreference.ts           # Helper preferensi tema
@@ -320,6 +338,12 @@ server/
 │   │   └── [componentId]/
 │   │       ├── index.patch.ts       # PATCH  /api/components/:componentId
 │   │       └── index.delete.ts      # DELETE /api/components/:componentId
+│   ├── audit-logs/
+│   │   ├── index.get.ts             # GET /api/audit-logs (list riwayat)
+│   │   ├── index.post.ts            # POST /api/audit-logs (catat aktivitas)
+│   │   ├── index.patch.ts           # PATCH /api/audit-logs
+│   │   ├── index.put.ts             # PUT /api/audit-logs
+│   │   └── index.delete.ts          # DELETE /api/audit-logs
 │   ├── uploads/
 │   │   └── [...path].get.ts         # GET /api/uploads/:path (serve file)
 │   └── uploads.post.ts              # POST /api/uploads (upload file)
@@ -327,6 +351,7 @@ server/
 │   └── auth.ts                      # Same-origin guard + session check
 └── utils/
     ├── apiError.ts                  # Helper error response
+    ├── auditLog.ts                  # Helper pencatatan audit log ke database
     ├── auth.ts                      # Session management (h3-session)
     ├── cache.ts                     # Cache utility (ada tapi bukan mekanisme utama)
     ├── moduleBulk.ts                # Validasi bulk operations
@@ -567,6 +592,11 @@ Kontrak API lengkap sudah didokumentasikan di `docs/API_CONTRACTS.md`. Berikut r
 | `POST` | `/api/uploads` | Upload file (admin, max 10MB) |
 | `GET` | `/api/uploads/:path` | Serve file (wajib login) |
 
+### Audit Logs
+| Method | Endpoint | Keterangan |
+|:-------|:---------|:-----------|
+| `GET` | `/api/audit-logs` | List riwayat aktivitas (admin, cursor pagination) |
+
 ### Format Error
 
 ```json
@@ -582,14 +612,18 @@ Kontrak API lengkap sudah didokumentasikan di `docs/API_CONTRACTS.md`. Berikut r
 
 Framework: **Vitest** (konfigurasi: `npm test` → `vitest run --pool=threads`)
 
-### Unit Test Files (14 file)
+### Unit Test Files (18 file)
 
 | File | Menguji |
 |:-----|:--------|
 | `adminModuleUi.test.ts` | Helper UI admin module |
 | `apiErrors.test.ts` | Parsing error API |
+| `auditDisplay.test.ts` | Helper tampilan audit log |
+| `auditLog.test.ts` | Pencatatan audit log ke database |
+| `auditPagination.test.ts` | Pagination dan filter audit log |
 | `authRefresh.test.ts` | Logika refresh autentikasi |
 | `authRoutes.test.ts` | Routing dan redirect autentikasi |
+| `bulkActions.test.ts` | BulkActionPill dan operasi massal |
 | `csvImportLimits.test.ts` | Batas-batas CSV import |
 | `csvUtils.test.ts` | Parser CSV dan fuzzy matching |
 | `moduleBulkValidation.test.ts` | Validasi bulk operations |
@@ -748,6 +782,12 @@ npx prisma db seed
 
 4. **Pencarian Server-Side Sederhana**: Pencarian modul di API menggunakan filter teks biasa (`LIKE`). Untuk volume data besar, bisa mempertimbangkan untuk integrasi full-text search PostgreSQL atau engine pencarian terpisah.
 
+### Catatan Teknis Penting
+
+5. **Vue Single-Root-Node pada Page Components**: Semua file `.vue` di `app/pages/` **wajib** memiliki **satu root element** di dalam `<template>`. Nuxt menggunakan `<Transition>` untuk animasi antar halaman, dan Vue's `<Transition>` tidak bisa menganimasikan komponen dengan multiple root nodes. Jika halaman membutuhkan beberapa elemen root-level (misalnya konten utama + modal), bungkus semuanya dalam satu `<div>` wrapper.
+
+6. **Audit Log Belum Memiliki Retention Policy**: Data audit log saat ini tidak memiliki batas penyimpanan atau mekanisme pembersihan otomatis. Untuk penggunaan jangka panjang, pertimbangkan untuk menambahkan cron job atau retention policy yang menghapus log lama.
+
 ---
 
 ## 16. Rekomendasi Pengembangan Masa Depan
@@ -766,7 +806,8 @@ Saat ini autentikasi menggunakan Cookie-based Session (`h3-session`) yang **sang
 ### 16.2 Fitur Tambahan yang Bisa Dipertimbangkan
 
 - **Reset Password**: Implementasi fitur "Lupa Password".
-- **Audit Log**: Mencatat siapa yang mengubah/menghapus modul dan kapan.
+- ~~**Audit Log**: Mencatat siapa yang mengubah/menghapus modul dan kapan.~~ ✅ Sudah diimplementasikan.
+- **Audit Log Retention**: Pembersihan otomatis data audit log lama.
 - **Versioning Modul**: Riwayat perubahan modul (undo/rollback).
 - **Notifikasi**: Pemberitahuan saat modul baru dipublikasikan (mungkin bisa diimplementasikan bareng dengan PWA).
 - **PWA**: Barangkali web modul ajar butuh offline mode dan native-like mobile.
@@ -797,4 +838,4 @@ Dokumentasi teknis detail sudah tersedia di folder `docs/`:
 
 ---
 
-> *Dokumen ini disusun sebagai serah terima (handoff) proyek Modul Ajar dari intern developer kepada tim pengembang selanjutnya di PT. Gitronik Dimindo Indonesia. Semua informasi di atas mencerminkan kondisi repository per tanggal 20 Mei 2026.*
+> *Dokumen ini disusun sebagai serah terima (handoff) proyek Modul Ajar dari intern developer kepada tim pengembang selanjutnya di PT. Gitronik Dimindo Indonesia. Semua informasi di atas mencerminkan kondisi repository per tanggal 21 Mei 2026.*

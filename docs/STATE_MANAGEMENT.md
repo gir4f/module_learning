@@ -130,6 +130,35 @@ Action utama:
 - `attachFiles(detailId, files, sortStart)`
 - `deleteAttachment(attachmentId)`
 
+### `audit-log`
+
+File:
+
+- `app/stores/auditLog.ts`
+
+Tanggung jawab:
+
+- admin audit log list
+- cursor-based pagination
+- filter berdasarkan entity type dan actor
+
+Dipakai oleh:
+
+- `/admin/audit-logs`
+
+Current state fields:
+
+- `items`
+- `loading`
+- `error`
+- `nextCursor`
+
+Action utama:
+
+- `applyFilters(filters)`
+- `fetchPage(take)`
+- `resetState()`
+
 ## Local State That Still Exists
 
 `useState()` yang memang masih wajar dipakai:

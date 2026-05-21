@@ -392,3 +392,44 @@ Client side saat ini mengandalkan dua pola:
 
 - `statusMessage` untuk generic message
 - `fieldErrors` untuk form error per field bila ada
+
+## Audit Logs
+
+### `GET /api/audit-logs`
+
+Access:
+
+- admin only
+
+Query params:
+
+- `take` jumlah item per page (default: 50)
+- `cursor` ID cursor untuk pagination selanjutnya
+- `entityType` filter berdasarkan tipe entity (`MODULE`, `MODULE_DETAIL`, `COMPONENT_ITEM`, `ATTACHMENT`)
+- `actorId` filter berdasarkan ID aktor
+
+Response:
+
+```json
+{
+  "items": [
+    {
+      "id": "string",
+      "action": "CREATE | UPDATE | DELETE",
+      "entityType": "MODULE | MODULE_DETAIL | COMPONENT_ITEM | ATTACHMENT",
+      "entityId": "string",
+      "entityLabel": "Judul entity",
+      "actorId": "string or null",
+      "actorEmail": "admin@gitronik.co.id",
+      "actorName": "string or null",
+      "createdAt": "iso"
+    }
+  ],
+  "nextCursor": "string or null"
+}
+```
+
+Notes:
+
+- cursor-based pagination (bukan offset)
+- `nextCursor` bernilai `null` jika sudah di halaman terakhir

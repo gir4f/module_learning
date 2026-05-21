@@ -24,7 +24,8 @@ Stack utama:
   - `/admin/modules` untuk list modul
   - `/admin/modules/new` untuk create modul
   - `/admin/modules/:id` untuk editor modul
-  - admin data dikelola oleh store `modules`
+  - `/admin/audit-logs` untuk riwayat aktivitas admin
+  - admin data dikelola oleh store `modules` dan `auditLog`
   - route admin hanya untuk `ADMIN`
 - Auth surface:
   - `/login`
@@ -65,6 +66,9 @@ State dibagi seperti ini:
   - admin module list
   - admin current module by id
   - admin CRUD modul, section, dan attachment
+- `app/stores/auditLog.ts`
+  - admin audit log list dengan cursor pagination
+  - filter berdasarkan entity type dan actor
 
 `useState()` masih dipakai untuk UI-only state kecil, misalnya:
 
@@ -94,6 +98,8 @@ Rule yang dipakai sekarang:
   - serve file yang sudah diupload
 - `server/api/auth`
   - login/logout/me
+- `server/api/audit-logs`
+  - list riwayat aktivitas admin (cursor pagination)
 
 Semua server route berjalan di Nuxt/Nitro process yang sama; tidak ada backend service terpisah.
 
@@ -125,3 +131,7 @@ Semua server route berjalan di Nuxt/Nitro process yang sama; tidak ada backend s
 - Konsistensi admin -> learner dijaga di level Pinia: mutasi admin meng-invalidasi learner store, lalu learner revalidate saat surface-nya dibuka lagi.
 - List modul memakai payload ringkas, sedangkan detail modul memakai payload lengkap dari `moduleInclude`.
 - `server/utils/cache.ts` masih ada, tetapi saat ini bukan mekanisme utama konsistensi client state.
+
+## Vue Page Component Rules
+
+- Semua file `.vue` di `app/pages/` **wajib** memiliki satu root element di `<template>`. Nuxt menggunakan `<Transition>` untuk animasi antar halaman, dan Vue's `<Transition>` tidak mendukung multiple root nodes. Jika perlu menampilkan elemen tambahan (misal modal), bungkus dalam satu `<div>` wrapper.
