@@ -217,7 +217,6 @@ const emit = defineEmits<{
   edit: [module: LearningModule]
   delete: [module: LearningModule]
   'toggle-status': [module: LearningModule]
-  'open-command-palette': []
   'bulk-status': [payload: { ids: string[], status: PublishStatus }]
   'bulk-delete': [ids: string[]]
 }>()
@@ -290,7 +289,7 @@ function updateCardCenter() {
 let resizeObserver: ResizeObserver | null = null
 
 onMounted(() => {
-  window.addEventListener('keydown', handleGlobalShortcut)
+  window.addEventListener('keydown', handleGlobalEscape)
   window.addEventListener('resize', updateCardCenter, { passive: true })
   updateCardCenter()
 
@@ -301,7 +300,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleGlobalShortcut)
+  window.removeEventListener('keydown', handleGlobalEscape)
   window.removeEventListener('resize', updateCardCenter)
   resizeObserver?.disconnect()
 })
@@ -350,14 +349,9 @@ function handleSearchEscape() {
   searchInput.value?.blur()
 }
 
-function handleGlobalShortcut(event: KeyboardEvent) {
+function handleGlobalEscape(event: KeyboardEvent) {
   if (event.key === 'Escape' && selectedIds.value.length > 0) {
     clearSelection()
-    return
   }
-  if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'k') return
-  if (window.matchMedia('(max-width: 1023px)').matches) return
-  event.preventDefault()
-  emit('open-command-palette')
 }
 </script>
