@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { ACTION_VERB_MAP, ENTITY_TYPE_MAP, resolveActorDisplay } from '../../app/utils/auditDisplay'
 
 describe('ACTION_VERB_MAP', () => {
-  it('maps CREATE to menambahkan', () => {
-    expect(ACTION_VERB_MAP.CREATE).toBe('menambahkan')
+  it('maps CREATE to menambah', () => {
+    expect(ACTION_VERB_MAP.CREATE).toBe('menambah')
   })
 
-  it('maps UPDATE to mengubah', () => {
-    expect(ACTION_VERB_MAP.UPDATE).toBe('mengubah')
+  it('maps UPDATE to mengedit', () => {
+    expect(ACTION_VERB_MAP.UPDATE).toBe('mengedit')
   })
 
   it('maps DELETE to menghapus', () => {

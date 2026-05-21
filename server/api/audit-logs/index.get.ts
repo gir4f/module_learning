@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 
   if (!parsed.success) {
     const firstIssue = parsed.error.issues[0]
-    const paramName = firstIssue?.path?.[0] || 'unknown'
+    const paramName = String(firstIssue?.path?.[0] || 'unknown')
     throw createError({
       statusCode: 400,
       statusMessage: `Parameter '${paramName}' tidak valid.`,
@@ -102,8 +102,9 @@ export default defineEventHandler(async (event) => {
   let nextCursor: string | null = null
 
   if (rows.length > limit) {
+    const nextCursorEntry = rows[limit - 1]
     rows.pop()
-    nextCursor = rows[rows.length - 1].id
+    nextCursor = nextCursorEntry?.id || null
   }
 
   // 7. Return response

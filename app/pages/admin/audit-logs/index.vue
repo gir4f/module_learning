@@ -1,6 +1,5 @@
 <template>
   <section class="mx-auto w-full max-w-7xl space-y-6 px-3 pb-12 sm:px-0">
-    <!-- Page Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">
@@ -12,7 +11,6 @@
       </div>
     </div>
 
-    <!-- Filter Controls -->
     <div class="flex flex-wrap items-end gap-4">
       <label class="grid gap-1.5">
         <span class="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">Kategori</span>
@@ -22,7 +20,6 @@
           option-label="label"
           option-value="value"
           class="w-44"
-          @update:model-value="onFilterChange"
         />
       </label>
 
@@ -34,37 +31,40 @@
           option-label="label"
           option-value="value"
           class="w-44"
-          @update:model-value="onFilterChange"
         />
       </label>
     </div>
 
-    <!-- Loading State -->
     <div v-if="store.loading && store.items.length === 0" class="space-y-3">
       <div v-for="i in 5" :key="i" class="h-14 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
     </div>
 
-    <!-- Empty State -->
     <div
-      v-else-if="!store.loading && !store.error && store.items.length === 0"
+      v-else-if="!store.loading && !store.error && filteredEntries.length === 0"
       class="rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center dark:border-slate-800 dark:bg-slate-950"
     >
       <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
         <i class="pi pi-history text-2xl text-brand-teal dark:text-cyan-300" aria-hidden="true" />
       </span>
-      <p class="mt-4 text-base font-bold text-slate-700 dark:text-slate-200">Belum ada riwayat aktivitas.</p>
-      <p class="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-400">Data aktivitas akan muncul setelah ada perubahan pada sistem.</p>
+      <p class="mt-4 text-base font-bold text-slate-700 dark:text-slate-200">
+        {{ store.items.length === 0 ? 'Belum ada riwayat aktivitas.' : 'Tidak ada aktivitas yang cocok dengan filter.' }}
+      </p>
+      <p class="mt-1 text-sm font-semibold text-slate-500 dark:text-slate-400">
+        {{ store.items.length === 0 ? 'Data aktivitas akan muncul setelah ada perubahan pada sistem.' : 'Coba ubah kategori atau pengguna untuk melihat aktivitas lain.' }}
+      </p>
     </div>
 
-    <!-- Data Display -->
     <div
-      v-else-if="store.items.length > 0"
+      v-else-if="filteredEntries.length > 0"
       class="flex flex-col gap-4"
     >
-      <!-- Mobile Cards (hidden on md and up) -->
+      <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">
+        Menampilkan {{ paginatedEntries.length }} dari {{ filteredEntries.length }} aktivitas
+      </p>
+
       <div class="grid gap-3 md:hidden">
         <article
-          v-for="entry in store.items"
+          v-for="entry in paginatedEntries"
           :key="`mobile-${entry.id}`"
           class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition-all hover:border-brand-teal/50 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-teal-dark/50"
         >
@@ -97,7 +97,6 @@
         </article>
       </div>
 
-      <!-- Desktop Table (hidden on sm and down) -->
       <div class="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950 md:block">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
@@ -122,7 +121,7 @@
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
               <tr
-                v-for="entry in store.items"
+                v-for="entry in paginatedEntries"
                 :key="entry.id"
                 class="transition-all duration-200 hover:translate-x-1 hover:bg-slate-50 dark:hover:bg-slate-900/50"
               >
@@ -148,9 +147,17 @@
           </table>
         </div>
       </div>
+
+      <div v-if="filteredEntries.length > rows" class="flex justify-center border-t border-slate-200 pt-4 dark:border-slate-800">
+        <Paginator
+          v-model:first="firstRow"
+          :rows="rows"
+          :total-records="filteredEntries.length"
+          template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+        />
+      </div>
     </div>
 
-    <!-- Error State -->
     <div
       v-if="store.error"
       class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-900 dark:bg-red-950/30"
@@ -167,36 +174,25 @@
         Coba lagi
       </button>
     </div>
-
-    <!-- Load More Button -->
-    <div v-if="store.nextCursor && !store.error" class="flex justify-center">
-      <button
-        type="button"
-        class="rounded-xl border border-slate-300 bg-white px-6 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus-visible:ring-cyan-950"
-        :disabled="store.loading"
-        @click="loadMore"
-      >
-        <span v-if="store.loading" class="inline-flex items-center gap-2">
-          <i class="pi pi-spinner pi-spin" aria-hidden="true" />
-          Memuat...
-        </span>
-        <span v-else>Tampilkan Lebih Banyak</span>
-      </button>
-    </div>
   </section>
 </template>
 
 <script setup lang="ts">
+import type { AuditEntityType, AuditListFilters } from '~/types/audit'
 import { useAuditLogStore } from '~/stores/auditLog'
+import { filterAuditEntries, paginateAuditEntries, shouldResetAuditPagination } from '~/utils/auditClient'
 import { resolveActorDisplay, ACTION_VERB_MAP, ENTITY_TYPE_MAP } from '~/utils/auditDisplay'
 import { timeAgo } from '~/utils/timeAgo'
 
 definePageMeta({ layout: 'admin', middleware: ['admin'] })
 
 const store = useAuditLogStore()
+const rows = 15
+const firstRow = ref(0)
+const hydrated = ref(false)
 
-const filterEntityType = ref<string>('ALL')
-const filterActorId = ref<string>('ALL')
+const filterEntityType = ref<AuditEntityType | 'ALL'>('ALL')
+const filterActorId = ref<string | 'ALL'>('ALL')
 
 const entityTypeOptions = [
   { label: 'Semua', value: 'ALL' },
@@ -219,7 +215,16 @@ const actorOptions = computed(() => {
   ]
 })
 
+const activeFilters = computed<AuditListFilters>(() => ({
+  entityType: filterEntityType.value,
+  actorId: filterActorId.value,
+}))
+
+const filteredEntries = computed(() => filterAuditEntries(store.items, activeFilters.value))
+const paginatedEntries = computed(() => paginateAuditEntries(filteredEntries.value, firstRow.value, rows))
+
 function formatRelativeTime(dateString: string): string {
+  if (!hydrated.value) return formatAbsoluteDate(dateString)
   const result = timeAgo(dateString)
   return result === '-' ? 'Waktu tidak tersedia' : result
 }
@@ -238,33 +243,36 @@ function formatAbsoluteDate(dateString: string): string {
   }).format(date)
 }
 
-function onFilterChange() {
-  const filters: { entityType?: string; actorId?: string } = {}
-  if (filterEntityType.value !== 'ALL') filters.entityType = filterEntityType.value
-  if (filterActorId.value !== 'ALL') filters.actorId = filterActorId.value
-  store.applyFilters(filters)
-}
+watch([filterEntityType, filterActorId], ([entityType, actorId], [previousEntityType, previousActorId]) => {
+  if (shouldResetAuditPagination(
+    {
+      entityType: previousEntityType ?? 'ALL',
+      actorId: previousActorId ?? 'ALL',
+    },
+    {
+      entityType,
+      actorId,
+    },
+  )) {
+    firstRow.value = 0
+  }
+})
 
-function loadMore() {
-  store.fetchPage(50)
-}
+watch(filteredEntries, (entries) => {
+  if (firstRow.value >= entries.length && firstRow.value !== 0) {
+    firstRow.value = Math.max(0, Math.floor((entries.length - 1) / rows) * rows)
+  }
+})
 
 function retryFetch() {
-  if (store.items.length === 0) {
-    const filters: { entityType?: string; actorId?: string } = {}
-    if (filterEntityType.value !== 'ALL') filters.entityType = filterEntityType.value
-    if (filterActorId.value !== 'ALL') filters.actorId = filterActorId.value
-    store.applyFilters(filters)
-  } else {
-    store.fetchPage(50)
-  }
+  firstRow.value = 0
+  void store.fetchAll()
 }
 
 onMounted(() => {
-  store.resetState()
-  const filters: { entityType?: string; actorId?: string } = {}
-  if (filterEntityType.value !== 'ALL') filters.entityType = filterEntityType.value
-  if (filterActorId.value !== 'ALL') filters.actorId = filterActorId.value
-  store.applyFilters(filters)
+  hydrated.value = true
 })
+
+store.resetState()
+await store.fetchAll()
 </script>

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Attachment, ComponentItem, LearningModule, ModuleDetail, PublishStatus } from '~/types/learning'
+import { useAuditRecentStore } from '~/stores/auditRecent'
 import { useLearningModulesStore } from '~/stores/learningModules'
 import { apiErrorMessage } from '~/utils/apiErrors'
 import { attachmentTypeFromMimeType, normalizedUploadMimeType, uploadFile } from '~/utils/upload'
@@ -84,6 +85,10 @@ export const useModulesStore = defineStore('modules', () => {
     )
   }
 
+  function refreshAuditRecentActivity() {
+    useAuditRecentStore().triggerBackgroundRefresh()
+  }
+
   async function fetchModules(search = '') {
     pendingList.value = true
     listError.value = ''
@@ -135,6 +140,7 @@ export const useModulesStore = defineStore('modules', () => {
       setCurrentModule(module)
       upsertModule(module)
       invalidateLearnerModules(module)
+      refreshAuditRecentActivity()
       return module
     } finally {
       pendingMutation.value = false
@@ -162,6 +168,7 @@ export const useModulesStore = defineStore('modules', () => {
       }
       replaceModule(id, module)
       invalidateLearnerModules(module)
+      refreshAuditRecentActivity()
       return module
     } catch (error) {
       if (previousModule) replaceModule(id, previousModule)
@@ -195,6 +202,7 @@ export const useModulesStore = defineStore('modules', () => {
       }
       removeModule(id)
       invalidateLearnerModules(deletedModule)
+      refreshAuditRecentActivity()
     } catch (error) {
       if (previousModule) upsertModule(previousModule)
       if (previousCurrentModule) setCurrentModule(previousCurrentModule)
@@ -208,7 +216,10 @@ export const useModulesStore = defineStore('modules', () => {
     const resolvedIds = uniqueIds(ids)
     const targetModules = modules.value.filter(module => module.id && resolvedIds.includes(module.id))
     const previousStates = new Map(targetModules.map(m => [m.id, { ...m }]))
-    const previousCurrentModule = currentModule.value && resolvedIds.includes(currentModule.value.id) ? { ...currentModule.value } : null
+    const currentModuleId = currentModule.value?.id
+    const previousCurrentModule = currentModuleId && currentModule.value && resolvedIds.includes(currentModuleId)
+      ? { ...currentModule.value }
+      : null
 
     targetModules.forEach(m => {
       if (m.id) {
@@ -237,6 +248,7 @@ export const useModulesStore = defineStore('modules', () => {
         currentModule.value?.id,
         currentModule.value?.slug,
       ])
+      refreshAuditRecentActivity()
       return data
     } catch (error) {
       previousStates.forEach((prevModule, id) => {
@@ -253,7 +265,10 @@ export const useModulesStore = defineStore('modules', () => {
     const resolvedIds = uniqueIds(ids)
     const targetModules = modules.value.filter(module => module.id && resolvedIds.includes(module.id))
     const previousStates = new Map(targetModules.map(m => [m.id, { ...m }]))
-    const previousCurrentModule = currentModule.value && resolvedIds.includes(currentModule.value.id) ? { ...currentModule.value } : null
+    const currentModuleId = currentModule.value?.id
+    const previousCurrentModule = currentModuleId && currentModule.value && resolvedIds.includes(currentModuleId)
+      ? { ...currentModule.value }
+      : null
 
     targetModules.forEach(m => {
       if (m.id) removeModule(m.id)
@@ -280,6 +295,7 @@ export const useModulesStore = defineStore('modules', () => {
         ...targetKeys,
         ...currentKeys,
       ])
+      refreshAuditRecentActivity()
       return data
     } catch (error) {
       previousStates.forEach((prevModule) => {
@@ -307,6 +323,7 @@ export const useModulesStore = defineStore('modules', () => {
 
       await refreshCurrentModule()
       invalidateLearnerModules(currentModule.value)
+      refreshAuditRecentActivity()
       return currentModule.value?.details.find(item => item.id === detail.id) || detail
     } finally {
       pendingMutation.value = false
@@ -320,6 +337,7 @@ export const useModulesStore = defineStore('modules', () => {
       await api.delete(`/api/details/${detailId}`)
       await refreshCurrentModule()
       invalidateLearnerModules(currentModule.value)
+      refreshAuditRecentActivity()
     } finally {
       pendingMutation.value = false
     }
@@ -332,6 +350,7 @@ export const useModulesStore = defineStore('modules', () => {
       const { data } = await api.post<Attachment>(`/api/details/${detailId}/attachments`, payload)
       await refreshCurrentModule()
       invalidateLearnerModules(currentModule.value)
+      refreshAuditRecentActivity()
       return data
     } finally {
       pendingMutation.value = false
@@ -357,6 +376,7 @@ export const useModulesStore = defineStore('modules', () => {
       }
       await refreshCurrentModule()
       invalidateLearnerModules(currentModule.value)
+      refreshAuditRecentActivity()
     } finally {
       pendingMutation.value = false
     }
@@ -369,6 +389,7 @@ export const useModulesStore = defineStore('modules', () => {
       await api.delete(`/api/attachments/${attachmentId}`)
       await refreshCurrentModule()
       invalidateLearnerModules(currentModule.value)
+      refreshAuditRecentActivity()
     } finally {
       pendingMutation.value = false
     }

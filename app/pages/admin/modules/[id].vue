@@ -1205,9 +1205,8 @@ function handleEditorKeydown(event: KeyboardEvent) {
     clearSectionSelection()
     return
   }
-  const activeAttachmentKey = Object.keys(attachmentSelections.value).find(
-    key => attachmentSelections.value[key]?.size > 0,
-  )
+  const activeAttachmentKey = Object.entries(attachmentSelections.value)
+    .find(([, selection]) => selection?.size > 0)?.[0]
   if (activeAttachmentKey) {
     clearAttachmentSelection(activeAttachmentKey)
     return

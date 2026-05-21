@@ -4,6 +4,8 @@ import type { Profile } from '~/types/learning'
 import { apiErrorMessage } from '~/utils/apiErrors'
 import { shouldRefreshAuthState } from '~/utils/authRefresh'
 import { homeRouteForProfile } from '~/utils/authRoutes'
+import { useAuditLogStore } from '~/stores/auditLog'
+import { useAuditRecentStore } from '~/stores/auditRecent'
 import { useLearningModulesStore } from '~/stores/learningModules'
 import { useModulesStore } from '~/stores/modules'
 
@@ -98,6 +100,8 @@ export const useAuthStore = defineStore('auth', () => {
       // Bersihkan cached module data agar tidak bocor ke sesi berikutnya
       useLearningModulesStore().resetState()
       useModulesStore().resetState()
+      useAuditLogStore().resetState()
+      useAuditRecentStore().resetState()
     }
   }
 

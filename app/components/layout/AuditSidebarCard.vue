@@ -22,7 +22,7 @@
       <button
         class="mt-1 text-brand-teal hover:underline dark:text-cyan-300"
         :disabled="retrying"
-        @click="retry"
+        @click.stop.prevent="retry"
       >
         Coba lagi
       </button>
@@ -51,16 +51,25 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useAuditLogStore } from '~/stores/auditLog'
+import { useAuditRecentStore } from '~/stores/auditRecent'
 import { resolveActorDisplay, ACTION_VERB_MAP, ENTITY_TYPE_MAP } from '~/utils/auditDisplay'
 import { timeAgo } from '~/utils/timeAgo'
 
-const store = useAuditLogStore()
+const store = useAuditRecentStore()
 const { items, loading, error } = storeToRefs(store)
+const route = useRoute()
 
 const retrying = ref(false)
+const hydrated = ref(false)
 
 function formatTime(dateString: string): string {
+  if (!hydrated.value) return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Jakarta',
+  }).format(new Date(dateString))
   const result = timeAgo(dateString)
   if (!result || result === '-') return 'Waktu tidak tersedia'
   return result
@@ -72,9 +81,35 @@ async function retry() {
   retrying.value = false
 }
 
-onMounted(() => {
-  if (window.innerWidth >= 1024) {
-    store.fetchRecent(20)
+function sidebarVisibleOnViewport() {
+  return window.innerWidth >= 1024
+}
+
+async function refreshSidebar(force = false) {
+  if (!sidebarVisibleOnViewport()) return
+  if (force) {
+    await store.fetchRecent(20)
+    return
   }
+
+  await store.refreshIfStale(20)
+}
+
+function handleWindowFocus() {
+  void refreshSidebar()
+}
+
+watch(() => route.fullPath, () => {
+  void refreshSidebar()
+})
+
+onMounted(() => {
+  hydrated.value = true
+  window.addEventListener('focus', handleWindowFocus)
+  void refreshSidebar(true)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('focus', handleWindowFocus)
 })
 </script>
