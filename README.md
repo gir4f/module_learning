@@ -134,6 +134,14 @@ The seed script creates default local accounts:
 
 Change these passwords before using the app outside local development.
 
+## License
+
+This repository is proprietary software owned by PT. Gitronik Dimindo Indonesia. It is intended for internal use only.
+
+Usage, copying, modification, distribution, publication, deployment, or sublicensing requires prior written permission from PT. Gitronik Dimindo Indonesia.
+
+Third-party dependencies remain governed by their own licenses.
+
 ## Docs
 
 - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) - high-level system shape, runtime flow, and storage boundaries
