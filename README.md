@@ -39,49 +39,49 @@ npm.cmd run build
 npm.cmd test
 ```
 
-| Perintah | Keterangan |
-|:---------|:-----------|
+| Command | Description |
+|:--------|:------------|
 | `npm run dev` | Development server (Nuxt) |
-| `npm run build` | Build production — custom wrapper, lihat [Scripts](#scripts) |
-| `npm run start` | Jalankan output production (`node .output/server/index.mjs`) |
+| `npm run build` | Production build - custom wrapper, see [Scripts](#scripts) |
+| `npm run start` | Run the production output (`node .output/server/index.mjs`) |
 | `npm run type-check` | TypeScript type checking |
-| `npm test` | Jalankan unit tests (Vitest) |
+| `npm test` | Run unit tests (Vitest) |
 | `npm run db:generate` | Generate Prisma Client |
-| `npm run db:migrate` | Buat/aplikasikan Prisma migration untuk development |
-| `npm run db:seed` | Seed data awal ke database |
-| `npm run audit:assets` | Audit image assets >1MB — lihat [Scripts](#scripts) |
-| `npm run optimize:assets` | Optimasi image spesifik — lihat [Scripts](#scripts) |
+| `npm run db:migrate` | Create/apply Prisma migrations for development |
+| `npm run db:seed` | Seed initial data into the database |
+| `npm run audit:assets` | Audit image assets larger than 1MB - see [Scripts](#scripts) |
+| `npm run optimize:assets` | Optimize specific images - see [Scripts](#scripts) |
 
 ## Database Migrations
 
-Skema database dikelola lewat Prisma migrations.
+The database schema is managed through Prisma migrations.
 
-- Source model ada di `prisma/schema.prisma`.
-- Histori perubahan schema ada di `prisma/migrations` dan harus ikut version control.
-- Untuk development, gunakan `npm run db:migrate` setelah mengubah schema atau saat bootstrap database baru.
-- Untuk production, gunakan `npx prisma migrate deploy`, bukan `migrate dev`.
-- `DIRECT_URL` wajib tersedia karena Prisma memakai koneksi direct untuk perubahan schema.
+- The source model lives in `prisma/schema.prisma`.
+- Schema history lives in `prisma/migrations` and must be committed to version control.
+- For development, use `npm run db:migrate` after changing the schema or when bootstrapping a new database.
+- For production, use `npx prisma migrate deploy`, not `migrate dev`.
+- `DIRECT_URL` is required because Prisma uses a direct connection for schema changes.
 
 ## Scripts
 
-Ketiga script di `scripts/` adalah custom Node.js scripts:
+The three scripts in `scripts/` are custom Node.js scripts:
 
-### `npm run build` → `scripts/build.mjs`
+### `npm run build` -> `scripts/build.mjs`
 
-Wrapper untuk `nuxt build` yang memfilter noise warning sourcemap dari plugin `@tailwindcss/vite`. Tailwind CSS v4 menghasilkan banyak peringatan `Sourcemap is likely to be incorrect` yang tidak berbahaya tapi mengganggu output terminal. Script ini:
+A wrapper around `nuxt build` that filters noisy sourcemap warnings from the `@tailwindcss/vite` plugin. Tailwind CSS v4 emits many `Sourcemap is likely to be incorrect` warnings that are harmless but clutter terminal output. This script:
 
-- Spawn `nuxt build` sebagai child process
-- Pipe stdout/stderr melalui filter baris demi baris
-- Suppress baris yang mengandung peringatan sourcemap Tailwind
-- Forward exit code dan signal dengan benar
+- Spawns `nuxt build` as a child process
+- Pipes stdout/stderr through a line-by-line filter
+- Suppresses lines containing Tailwind sourcemap warnings
+- Forwards exit codes and signals correctly
 
-### `npm run audit:assets` → `scripts/audit-assets.mjs`
+### `npm run audit:assets` -> `scripts/audit-assets.mjs`
 
-Audit image di `public/module-assets/`. Walk direktori, temukan semua file image (avif, gif, jpeg, jpg, png, webp), laporkan ukurannya, dan exit code 1 jika ada yang >1MB. Cocok untuk CI check sebelum deploy.
+Audits images in `public/module-assets/`. It walks the directory, finds all image files (`avif`, `gif`, `jpeg`, `jpg`, `png`, `webp`), reports their sizes, and exits with code 1 if any file is larger than 1MB. This is useful as a CI check before deployment.
 
-### `npm run optimize:assets` → `scripts/optimize-assets.mjs`
+### `npm run optimize:assets` -> `scripts/optimize-assets.mjs`
 
-Optimasi gambar tertentu di `public/module-assets/` menggunakan Sharp. Resize ke max 1600×1600px dan compress (JPEG mozjpeg quality 78 / PNG palette). **Catatan**: daftar file di-hardcode (4 file spesifik) — ini one-time script, bukan optimizer generik.
+Optimizes specific images in `public/module-assets/` using Sharp. It resizes them to a maximum of `1600x1600` and compresses them (JPEG `mozjpeg` quality 78 / PNG palette). Note: the file list is hard-coded (4 specific files) - this is a one-time script, not a generic optimizer.
 
 ## Production Deploy
 
@@ -109,7 +109,7 @@ Start the Nuxt server from the generated output:
 
 ```sh
 npm run start
-# atau langsung:
+# or directly:
 node .output/server/index.mjs
 ```
 
@@ -141,4 +141,4 @@ Change these passwords before using the app outside local development.
 - [docs/API_CONTRACTS.md](./docs/API_CONTRACTS.md) - current server route contracts used by the app
 - [docs/AUTH_ACCESS.md](./docs/AUTH_ACCESS.md) - auth, session, role guard, same-origin rules, and upload access
 - [docs/STATE_MANAGEMENT.md](./docs/STATE_MANAGEMENT.md) - Pinia stores, local UI state, and source-of-truth rules
-- [docs/HANDOFF.md](./docs/HANDOFF.md) - Handoff document, for the further development 
+- [docs/HANDOFF.md](./docs/HANDOFF.md) - handoff document for further development
