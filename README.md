@@ -134,14 +134,6 @@ The seed script creates default local accounts:
 
 Change these passwords before using the app outside local development.
 
-## License
-
-This repository is proprietary software owned by PT. Gitronik Dimindo Indonesia. It is intended for internal use only.
-
-Usage, copying, modification, distribution, publication, deployment, or sublicensing requires prior written permission from PT. Gitronik Dimindo Indonesia.
-
-Third-party dependencies remain governed by their own licenses.
-
 ## Docs
 
 - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) - high-level system shape, runtime flow, and storage boundaries
@@ -150,3 +142,11 @@ Third-party dependencies remain governed by their own licenses.
 - [docs/AUTH_ACCESS.md](./docs/AUTH_ACCESS.md) - auth, session, role guard, same-origin rules, and upload access
 - [docs/STATE_MANAGEMENT.md](./docs/STATE_MANAGEMENT.md) - Pinia stores, local UI state, and source-of-truth rules
 - [docs/HANDOFF.md](./docs/HANDOFF.md) - handoff document for further development
+
+## License
+
+This repository is proprietary software owned by PT. Gitronik Dimindo Indonesia. It is intended for internal use only.
+
+Usage, copying, modification, distribution, publication, deployment, or sublicensing requires prior written permission from PT. Gitronik Dimindo Indonesia.
+
+Third-party dependencies remain governed by their own licenses.
