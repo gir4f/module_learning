@@ -141,3 +141,4 @@ Change these passwords before using the app outside local development.
 - [docs/API_CONTRACTS.md](./docs/API_CONTRACTS.md) - current server route contracts used by the app
 - [docs/AUTH_ACCESS.md](./docs/AUTH_ACCESS.md) - auth, session, role guard, same-origin rules, and upload access
 - [docs/STATE_MANAGEMENT.md](./docs/STATE_MANAGEMENT.md) - Pinia stores, local UI state, and source-of-truth rules
+- [docs/HANDOFF.md](./docs/HANDOFF.md) - Handoff document, for the further development 
