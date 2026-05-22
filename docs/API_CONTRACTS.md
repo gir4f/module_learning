@@ -2,9 +2,9 @@
 
 ## Summary
 
-Dokumen ini merangkum kontrak route yang saat ini dipakai aplikasi. Fokusnya adalah route yang benar-benar aktif di learner/admin flow sekarang.
+This document summarizes the route contracts currently used by the application. It focuses on the routes that are actually active in the current learner and admin flow.
 
-Semua route berada di `server/api`.
+All routes live under `server/api`.
 
 ## Auth
 
@@ -19,7 +19,7 @@ Body:
 }
 ```
 
-Response success:
+Successful response:
 
 ```json
 {
@@ -33,14 +33,14 @@ Response success:
 
 Notes:
 
-- invalid credentials -> `400` atau `401`
-- rate limited per IP+email -> `429`
-- success login akan set session cookie
-- role `ADMIN` dan `VIEWER` sama-sama bisa login
+- invalid credentials return `400` or `401`
+- rate limiting is applied per `IP + email` and returns `429`
+- a successful login sets the session cookie
+- both `ADMIN` and `VIEWER` can log in
 
 ### `GET /api/auth/me`
 
-Response success:
+Successful response:
 
 ```json
 {
@@ -53,7 +53,7 @@ Response success:
 }
 ```
 
-Tanpa session -> `401`.
+Without a session, the route returns `401`.
 
 ### `POST /api/auth/logout`
 
@@ -75,11 +75,11 @@ Query params:
 
 Access:
 
-- public allowed
-- unauthenticated/non-admin hanya melihat `PUBLISHED`
-- admin yang login melihat semua status
+- public
+- unauthenticated and non-admin callers only see `PUBLISHED` modules
+- logged-in admins see all statuses
 
-Response item shape saat ini adalah list payload ringkas:
+Current list item response shape:
 
 ```json
 {
@@ -96,7 +96,7 @@ Response item shape saat ini adalah list payload ringkas:
     {
       "id": "string",
       "slug": "section-slug",
-      "title": "Judul Varian Produk",
+      "title": "Product Variant Title",
       "summary": "string or null",
       "keywords": "string or null",
       "sortOrder": 0,
@@ -109,8 +109,8 @@ Response item shape saat ini adalah list payload ringkas:
 
 Notes:
 
-- response memakai `Cache-Control: no-store`
-- search berjalan server-side dengan filter across module/detail/component/attachment text
+- the response uses `Cache-Control: no-store`
+- search runs server-side across module, detail, component, and attachment text
 
 ### `POST /api/modules`
 
@@ -122,7 +122,7 @@ Body schema:
 
 ```json
 {
-  "title": "Judul Modul",
+  "title": "Module Title",
   "slug": "optional-slug",
   "description": "optional",
   "keywords": "optional",
@@ -133,22 +133,22 @@ Body schema:
 
 Response:
 
-- full module payload dengan `details` lengkap
+- full module payload with complete `details`
 
 ### `GET /api/modules/:idOrSlug`
 
 Access:
 
-- public allowed
-- non-admin hanya dapat modul `PUBLISHED`
-- admin yang login dapat modul draft juga
+- public
+- non-admin callers only receive `PUBLISHED` modules
+- logged-in admins can also receive draft modules
 
 Response:
 
 - full module payload
-- `details.components` dan `details.attachments` lengkap dan sudah terurut
+- `details.components` and `details.attachments` are complete and already sorted
 
-`404` jika modul tidak ditemukan atau tidak visible untuk role saat ini.
+Returns `404` if the module is not found or is not visible to the current role.
 
 ### `PATCH /api/modules/:id`
 
@@ -156,7 +156,7 @@ Access:
 
 - admin only
 
-Body boleh partial, minimal 1 field:
+The body may be partial, but must contain at least one field:
 
 ```json
 {
@@ -171,7 +171,7 @@ Body boleh partial, minimal 1 field:
 
 Response:
 
-- full module payload sesudah update
+- full module payload after update
 
 ### `DELETE /api/modules/:id`
 
@@ -187,7 +187,7 @@ Response:
 }
 ```
 
-Atau:
+Or:
 
 ```json
 {
@@ -195,7 +195,7 @@ Atau:
 }
 ```
 
-untuk delete idempotent ketika row sudah hilang lebih dulu.
+This supports idempotent delete behavior when the row was already removed earlier.
 
 ## Bulk Operations
 
@@ -205,7 +205,7 @@ Access:
 
 - admin only
 
-Bulk update status modul.
+Bulk-updates module status.
 
 Body:
 
@@ -228,9 +228,9 @@ Response:
 
 Notes:
 
-- `missingIds` berisi ID yang tidak ditemukan di database
-- setiap modul yang berhasil di-update menghasilkan satu `AuditLog` entry
-- response `affectedCount` bisa lebih kecil dari `requestedCount` jika ada ID invalid
+- `missingIds` contains IDs not found in the database
+- each successfully updated module produces one `AuditLog` entry
+- `affectedCount` can be smaller than `requestedCount` if some IDs are invalid
 
 ### `DELETE /api/modules/bulk`
 
@@ -238,7 +238,7 @@ Access:
 
 - admin only
 
-Bulk delete modul beserta semua detail, komponen, dan attachment.
+Bulk-deletes modules together with all related details, components, and attachments.
 
 Body:
 
@@ -260,10 +260,10 @@ Response:
 
 Notes:
 
-- file upload terkait dihapus dari filesystem setelah transaction berhasil
-- cascade delete berlaku: detail, komponen, dan attachment record ikut terhapus
-- satu `AuditLog` entry per top-level module yang dihapus (bukan per child record)
-- jika `ids` kosong atau semua invalid, `affectedCount` akan `0`
+- related uploaded files are removed from the filesystem after the transaction succeeds
+- cascade delete applies to detail, component, and attachment records
+- one `AuditLog` entry is written per top-level deleted module, not per child record
+- if `ids` is empty or all IDs are invalid, `affectedCount` is `0`
 
 ## Module Details
 
@@ -277,7 +277,7 @@ Body:
 
 ```json
 {
-  "title": "Judul Varian Produk",
+  "title": "Product Variant Title",
   "slug": "optional",
   "summary": "optional or null",
   "keywords": "optional or null",
@@ -285,7 +285,7 @@ Body:
   "components": [
     {
       "category": "optional or null",
-      "name": "Komponen",
+      "name": "Component",
       "quantity": "1",
       "unit": "pcs",
       "note": "optional or null",
@@ -305,7 +305,7 @@ Access:
 
 - admin only
 
-Body schema sama dengan create detail.
+Body schema is the same as create detail.
 
 Response:
 
@@ -338,8 +338,8 @@ Body:
 ```json
 {
   "type": "IMAGE | SPREADSHEET | FILE | LINK",
-  "title": "Lampiran",
-  "url": "/api/uploads/.... atau https://....",
+  "title": "Attachment",
+  "url": "/api/uploads/... or https://...",
   "filePath": "optional or null",
   "mimeType": "optional or null",
   "sizeBytes": 1234,
@@ -349,7 +349,7 @@ Body:
 
 Response:
 
-- attachment yang baru dibuat
+- the newly created attachment
 
 ### `PATCH /api/attachments/:attachmentId`
 
@@ -357,7 +357,7 @@ Access:
 
 - admin only
 
-Body schema sama dengan create attachment.
+Body schema is the same as create attachment.
 
 ### `DELETE /api/attachments/:attachmentId`
 
@@ -381,7 +381,7 @@ Access:
 
 - admin only
 
-Menambah satu komponen baru ke detail.
+Adds one new component to the detail.
 
 ### `PATCH /api/components/:componentId`
 
@@ -389,7 +389,7 @@ Access:
 
 - admin only
 
-Update satu komponen.
+Updates one component.
 
 ### `DELETE /api/components/:componentId`
 
@@ -397,7 +397,7 @@ Access:
 
 - admin only
 
-Hapus satu komponen.
+Deletes one component.
 
 ## Uploads
 
@@ -409,12 +409,12 @@ Access:
 
 Multipart form:
 
-- field `file` wajib
+- `file` field is required
 
 Rules:
 
-- max 10 MB
-- MIME allowed:
+- max size `10 MB`
+- allowed MIME types:
   - jpeg/png/webp/gif
   - pdf
   - csv/xls/xlsx
@@ -437,29 +437,29 @@ Response:
 
 Notes:
 
-- preview hanya dibuat untuk image jpeg/png/webp
+- previews are only generated for jpeg, png, and webp images
 
 ### `GET /api/uploads/:path`
 
 Access:
 
-- butuh login (`VIEWER` atau `ADMIN`)
+- requires `VIEWER` or `ADMIN` login
 
 Behavior:
 
-- path traversal ditolak
-- file akan di-stream dengan `Content-Type` sesuai extension
-- response memakai `Cache-Control: private, no-store`
-- `404` jika file tidak ada
+- path traversal is rejected
+- the file is streamed with `Content-Type` based on the file extension
+- the response uses `Cache-Control: private, no-store`
+- returns `404` if the file does not exist
 
 ## Error Shape
 
-Validation errors memakai helper `validationError()` dan field mapping Zod.
+Validation errors use the `validationError()` helper plus Zod field mapping.
 
-Client side saat ini mengandalkan dua pola:
+The client currently relies on two response patterns:
 
-- `statusMessage` untuk generic message
-- `fieldErrors` untuk form error per field bila ada
+- `statusMessage` for a generic message
+- `fieldErrors` for per-field form errors when available
 
 ## Audit Logs
 
@@ -471,11 +471,11 @@ Access:
 
 Query params:
 
-- `take` jumlah item per page (default: 50)
-- `limit` alias untuk `take` (dipakai oleh sidebar card)
-- `cursor` ID cursor untuk pagination selanjutnya
-- `entityType` filter berdasarkan tipe entity (`MODULE`, `MODULE_DETAIL`, `COMPONENT_ITEM`, `ATTACHMENT`)
-- `actorId` filter berdasarkan ID aktor
+- `take` number of items per page (default: 50)
+- `limit` alias for `take` (used by the sidebar card)
+- `cursor` cursor ID for the next page
+- `entityType` filter by entity type (`MODULE`, `MODULE_DETAIL`, `COMPONENT_ITEM`, `ATTACHMENT`)
+- `actorId` filter by actor ID
 
 Response:
 
@@ -487,7 +487,7 @@ Response:
       "action": "CREATE | UPDATE | DELETE",
       "entityType": "MODULE | MODULE_DETAIL | COMPONENT_ITEM | ATTACHMENT",
       "entityId": "string",
-      "entityLabel": "Judul entity",
+      "entityLabel": "Entity Title",
       "actorId": "string or null",
       "actorEmail": "admin@gitronik.co.id",
       "actorName": "string or null",
@@ -500,12 +500,12 @@ Response:
 
 Notes:
 
-- cursor-based pagination (bukan offset)
-- `nextCursor` bernilai `null` jika sudah di halaman terakhir
-- field `payloadBefore`/`payloadAfter` ada di database (tipe `Json?`) tetapi sengaja **tidak di-expose** di response API — hanya untuk forensik internal
+- pagination is cursor-based, not offset-based
+- `nextCursor` is `null` on the last page
+- `payloadBefore` and `payloadAfter` exist in the database (`Json?`) but are intentionally not exposed in the API response; they are reserved for internal forensic use
 
 ### `POST/PATCH/PUT/DELETE /api/audit-logs`
 
-Semua method selain `GET` mengembalikan **405 Method Not Allowed**.
+Every method other than `GET` returns `405 Method Not Allowed`.
 
-Route ini adalah guard intentional untuk mencegah mutasi langsung terhadap data audit log melalui API. Audit log hanya ditulis secara internal oleh server saat terjadi operasi CRUD pada modul, detail, komponen, atau attachment.
+This route group intentionally prevents direct audit-log mutation through the API. Audit logs are only written internally by the server during module, detail, component, or attachment CRUD operations.

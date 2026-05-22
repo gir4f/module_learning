@@ -2,17 +2,17 @@
 
 ## Summary
 
-Repo saat ini memakai kombinasi:
+The repository currently uses this combination:
 
-- `Pinia` untuk canonical data state
-- local `ref/reactive` untuk draft form dan UI interactions
-- `useState()` untuk UI state kecil lintas komponen/layout
+- `Pinia` for canonical data state
+- local `ref/reactive` state for draft forms and UI interactions
+- `useState()` for small cross-component or cross-layout UI state
 
-Rule praktisnya:
+Practical rules:
 
-- server data yang sudah di-load atau sudah disimpan -> Pinia
-- draft yang belum disimpan -> local form state
-- state UI kecil seperti search text, theme, dialog visibility -> local state atau `useState`
+- server data that has already been loaded or saved -> Pinia
+- drafts that have not been saved yet -> local form state
+- small UI state such as search text, theme, or dialog visibility -> local state or `useState`
 
 ## Stores
 
@@ -22,15 +22,15 @@ File:
 
 - `app/stores/auth.ts`
 
-Tanggung jawab:
+Responsibilities:
 
 - login
 - logout
-- fetch/refresh current profile
+- fetch or refresh the current profile
 - `isAdmin`
 - `isAuthenticated`
 
-Dipakai oleh:
+Used by:
 
 - login page
 - global route middleware
@@ -44,19 +44,19 @@ File:
 
 - `app/stores/learningModules.ts`
 
-Tanggung jawab:
+Responsibilities:
 
 - learner module list
 - learner current module by slug
-- pending/error untuk list dan detail
-- freshness invalidation antara surface admin dan learner
+- list and detail pending/error state
+- freshness invalidation between admin and learner surfaces
 
-Dipakai oleh:
+Used by:
 
 - homepage `/`
 - learner detail `/modules/:slug`
 - desktop navbar search
-- mobile drawer search untuk learner mode
+- learner mobile drawer search
 
 Current state fields:
 
@@ -70,7 +70,7 @@ Current state fields:
 - `dirty`
 - `detailDirtyKeys`
 
-Action utama:
+Primary actions:
 
 - `fetchModules()`
 - `ensureModules()`
@@ -89,22 +89,22 @@ File:
 
 - `app/stores/modules.ts`
 
-Tanggung jawab:
+Responsibilities:
 
 - admin module list
 - admin current module by id
-- admin CRUD module
-- save/delete detail
-- add/delete attachment
-- upload file attachment flow
+- admin module CRUD
+- save or delete details
+- add or delete attachments
+- file attachment upload flow
 
-Dipakai oleh:
+Used by:
 
 - `/admin/modules`
 - `/admin/modules/new`
 - `/admin/modules/:id`
-- desktop navbar search saat mode admin
-- mobile drawer search saat mode admin
+- desktop navbar search in admin mode
+- mobile drawer search in admin mode
 
 Current state fields:
 
@@ -116,7 +116,7 @@ Current state fields:
 - `listError`
 - `detailError`
 
-Action utama:
+Primary actions:
 
 - `fetchModules(search?)`
 - `fetchModuleById(id)`
@@ -136,13 +136,13 @@ File:
 
 - `app/stores/auditLog.ts`
 
-Tanggung jawab:
+Responsibilities:
 
-- admin audit log list
-- cursor-based pagination
-- filter berdasarkan entity type dan actor
+- load the full admin audit log dataset used by `/admin/audit-logs`
+- fetch every cursor page through `fetchAllAuditEntries(...)`
+- expose a simple loading and error state for the page
 
-Dipakai oleh:
+Used by:
 
 - `/admin/audit-logs`
 
@@ -151,13 +151,16 @@ Current state fields:
 - `items`
 - `loading`
 - `error`
-- `nextCursor`
 
-Action utama:
+Primary actions:
 
-- `applyFilters(filters)`
-- `fetchPage(take)`
+- `fetchAll(limit?)`
 - `resetState()`
+
+Note:
+
+- entity type, actor, and date filters are currently applied in the page component after the store fetch completes
+- page pagination is also local UI pagination, not store-owned cursor state
 
 ### `audit-recent`
 
@@ -165,16 +168,16 @@ File:
 
 - `app/stores/auditRecent.ts`
 
-Tanggung jawab:
+Responsibilities:
 
-- recent audit log entries untuk admin sidebar card
-- stale-refresh logic (threshold 15 detik via `shouldRefreshAuditRecent`)
-- coalescing: kalau fetch sedang jalan, request baru di-queue, bukan di-drop
-- background refresh saat navigasi antar halaman admin dan window focus
+- recent audit log entries for the admin sidebar card
+- stale-refresh logic through `shouldRefreshAuditRecent(...)`
+- queued refresh behavior while a fetch is already in flight
+- background refresh on admin navigation and window focus
 
-Dipakai oleh:
+Used by:
 
-- `AuditSidebarCard.vue` (admin sidebar)
+- `AuditSidebarCard.vue`
 
 Current state fields:
 
@@ -182,9 +185,8 @@ Current state fields:
 - `loading`
 - `error`
 - `lastFetchedAt`
-- `refreshQueued`
 
-Action utama:
+Primary actions:
 
 - `fetchRecent(limit)`
 - `refreshIfStale(limit)`
@@ -193,67 +195,67 @@ Action utama:
 
 ## Local State That Still Exists
 
-`useState()` yang memang masih wajar dipakai:
+`useState()` is still reasonable for:
 
 - `learning-module-local-search`
 - `theme-preference`
 - `theme-resolved`
 - `theme-ready`
 
-Local draft form state yang sengaja tidak dimasukkan Pinia:
+Local draft form state intentionally kept out of Pinia:
 
-- `moduleForm` di admin editor
-- `sectionForms` di admin editor
+- `moduleForm` in the admin editor
+- `sectionForms` in the admin editor
 - command palette open/close state
-- upload progress visual
+- upload progress visuals
 
-Alasan:
+Reasons:
 
-- state ini bersifat transient
-- tidak perlu menjadi shared canonical source of truth
-- lebih aman dipisah dari fetched/saved server state
-- theme memakai `useDarkMode()` composable dengan preference canonical (`system` / `light` / `dark`) dan resolved mode terpisah
+- this state is transient
+- it does not need to become shared canonical source-of-truth state
+- it is safer to keep it separate from fetched or saved server state
+- theme handling uses the `useDarkMode()` composable with canonical preference (`system`, `light`, `dark`) and a separate resolved mode
 
 ## Current Search Flow
 
 ### Learner
 
-- homepage memuat list modul ke store `learning-modules`
-- filter/search/category/sort dijalankan lokal di client
-- navbar learner search dan mobile drawer search membaca store yang sama
-- detail page mengisi `currentModule` lewat `fetchModuleBySlug`
-- setelah ada mutasi admin, learner store ditandai `dirty`
-- learner list/search/detail akan revalidate pada entry berikutnya bila dirty, bukan fetch terus-menerus
+- the homepage loads the module list into the `learning-modules` store
+- filter, search, category, and sort are handled locally on the client
+- desktop navbar search and mobile drawer search read from the same learner store
+- the detail page fills `currentModule` through `fetchModuleBySlug`
+- after an admin mutation, the learner store is marked `dirty`
+- learner list, search, and detail revalidate on the next entry when dirty instead of refetching continuously
 
 ### Admin
 
-- admin list memuat list modul ke store `modules`
-- command palette admin mencari lokal di atas `modules`
-- admin editor memuat `currentModule` by id
-- save mutation di admin selalu kembali menyinkronkan store
+- the admin list loads modules into the `modules` store
+- the admin command palette searches locally on top of `modules`
+- the admin editor loads `currentModule` by id
+- save mutations in admin always resynchronize the store
 
 ## Source-of-Truth Rules
 
 ### Admin
 
-- canonical saved module data -> store `modules`
-- editor forms -> local draft
-- setelah save:
-  - store di-refresh atau di-upsert
-  - local draft di-reset dari `currentModule`
+- canonical saved module data -> `modules` store
+- editor forms -> local drafts
+- after save:
+  - the store is refreshed or upserted
+  - the local draft is reset from `currentModule`
 
 ### Learner
 
-- canonical module list -> store `learning-modules`
-- canonical opened module -> `learning-modules.currentModule`
-- search text homepage -> `useState('learning-module-local-search')`
-- admin mutation tidak langsung menyalin object ke learner store; learner tetap refetch dari endpoint learner sendiri
+- canonical module list -> `learning-modules` store
+- canonical open module -> `learning-modules.currentModule`
+- homepage search text -> `useState('learning-module-local-search')`
+- admin mutations do not directly copy objects into the learner store; the learner side still refetches from the learner endpoint
 
 ## Anti-Patterns to Avoid
 
-Ke depan, hindari balik ke pola berikut:
+Going forward, avoid slipping back into these patterns:
 
-- page langsung memanggil Axios untuk module CRUD padahal store sudah punya action-nya
-- list pakai Pinia tapi detail/editor pakai state lokal yang tidak sinkron
-- search admin/learner punya jalur fetch kedua yang bisa stale terhadap store utama
-- memasukkan seluruh form draft ke Pinia tanpa alasan kuat
+- page components calling Axios directly for module CRUD even though the store already owns the actions
+- list views using Pinia while detail or editor views use unsynchronized local state
+- admin or learner search creating a second fetch path that can drift from the main store
+- moving entire form drafts into Pinia without a strong reason

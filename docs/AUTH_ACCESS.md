@@ -2,9 +2,9 @@
 
 ## Summary
 
-Aplikasi memakai session cookie berbasis `h3-session` dan role `ADMIN` / `VIEWER`. Saat ini seluruh surface app membutuhkan login; beda role menentukan tujuan redirect dan akses admin.
+The app uses `h3-session` cookies with `ADMIN` and `VIEWER` roles. All frontend surfaces currently require login, while role differences determine redirect targets and admin-only access.
 
-Komponen utama auth/access:
+Primary auth and access components:
 
 - `server/utils/auth.ts`
 - `server/middleware/auth.ts`
@@ -14,32 +14,32 @@ Komponen utama auth/access:
 
 ## Session Behavior
 
-Cookie session saat ini:
+Current session cookie settings:
 
 - name: `h3-session`
 - `httpOnly: true`
 - `sameSite: 'lax'`
-- `secure: true` hanya saat request dianggap HTTPS
+- `secure: true` only when the request is treated as HTTPS
 - `path: '/'`
-- `maxAge: 7 hari`
+- `maxAge: 7 days`
 
-Production guard:
+Production guards:
 
-- `SESSION_SECRET` wajib random kuat
-- default/dev placeholder secret akan menyebabkan `500` di production
+- `SESSION_SECRET` must be a strong random value
+- the default or development placeholder secret causes `500` in production
 
 ## Login Flow
 
 - `POST /api/auth/login`
-  - cari profile by email
-  - cek `passwordHash` dengan `bcryptjs`
-  - set session `userId`
+  - finds a profile by email
+  - verifies `passwordHash` with `bcryptjs`
+  - stores `userId` in the session
 - `GET /api/auth/me`
-  - baca profile dari session
+  - reads the profile from the session
 - `POST /api/auth/logout`
-  - clear session
+  - clears the session
 
-Client auth state dikelola store `auth`:
+Client auth state is managed by the `auth` store:
 
 - `profile`
 - `pending`
@@ -53,92 +53,99 @@ Client auth state dikelola store `auth`:
 
 - `/login`
   - public
-  - kalau `ADMIN` sudah login, redirect ke `/admin/modules`
-  - kalau `VIEWER` sudah login, redirect ke `/`
-  - query login selain `redirect` akan dibersihkan
-- `/admin` dan `/admin/**`
-  - frontend middleware menuntut user login
-  - middleware `admin.ts` juga menuntut `role === 'ADMIN'`
+  - redirects logged-in `ADMIN` users to `/admin/modules`
+  - redirects logged-in `VIEWER` users to `/`
+  - strips all login query params except `redirect`
+- `/admin` and `/admin/**`
+  - the global frontend middleware requires login
+  - `admin.ts` also requires `role === 'ADMIN'`
 - `/`
-  - wajib login (`VIEWER` atau `ADMIN`)
+  - requires `VIEWER` or `ADMIN` login
 - `/modules/:slug`
-  - wajib login (`VIEWER` atau `ADMIN`)
+  - requires `VIEWER` or `ADMIN` login
 
 ## API Access
 
-### Authenticated Read
+### Read Access
 
-Saat ini route read berikut mewajibkan login:
+Current read-route behavior:
 
 - `GET /api/modules`
+  - public
+  - anonymous and non-admin callers only receive `PUBLISHED` modules
+  - logged-in admins can also see drafts
 - `GET /api/modules/:idOrSlug`
+  - public
+  - anonymous and non-admin callers only receive `PUBLISHED` modules
+  - logged-in admins can also see drafts
 - `GET /api/uploads/:path`
-
-Behavior untuk read modules:
-
-- anonymous / non-admin hanya menerima modul `PUBLISHED`
-- admin yang login dapat melihat draft juga
+  - requires `VIEWER` or `ADMIN` login
 
 ### Admin-Only Mutations
 
-Mutating route modul/editor mewajibkan admin:
+The module editor and upload mutation routes require admin access:
 
 - `POST /api/modules`
 - `PATCH /api/modules/:id`
 - `DELETE /api/modules/:id`
+- `PATCH /api/modules/bulk`
+- `DELETE /api/modules/bulk`
 - `POST /api/modules/:id/details`
 - `PATCH /api/details/:detailId`
 - `DELETE /api/details/:detailId`
 - `POST /api/details/:detailId/attachments`
+- `POST /api/details/:detailId/components`
+- `PATCH /api/components/:componentId`
+- `DELETE /api/components/:componentId`
 - `PATCH /api/attachments/:attachmentId`
 - `DELETE /api/attachments/:attachmentId`
 - `POST /api/uploads`
 
 ## Same-Origin Protection
 
-`server/middleware/auth.ts` memblokir mutating API request lintas origin.
+`server/middleware/auth.ts` blocks cross-origin mutating API requests.
 
 Rules:
 
-- berlaku untuk `POST`, `PUT`, `PATCH`, `DELETE`
-- expected origin dihitung dari:
+- applies to `POST`, `PUT`, `PATCH`, and `DELETE`
+- expected origin is computed from:
   - `X-Forwarded-Proto`
   - `X-Forwarded-Host`
-  - atau request URL langsung
-- actual origin dibaca dari:
+  - or the request URL directly
+- actual origin is read from:
   - `Origin`
   - fallback `Referer`
-- kalau origin beda -> `403`
-- kalau origin tidak ada:
-  - development masih diizinkan
-  - production ditolak `403`
+- mismatched origin returns `403`
+- if origin is missing:
+  - development still allows the request
+  - production rejects it with `403`
 
-Selain route `/api/auth/*`, mutating API juga menuntut request punya session profile yang valid.
+For all routes except `/api/auth/*`, mutating API requests also require a valid session profile.
 
 ## Login Security Notes
 
-- login rate limit saat ini masih in-memory
-- key rate limit berbasis `IP + email`
+- the login rate limit is currently in-memory
+- the rate-limit key is based on `IP + email`
 - default limit:
-  - `8` attempt
-  - `15` menit
+  - `8` attempts
+  - `15` minutes
 
-Ini cukup untuk single-instance/internal deployment, tapi belum cocok sebagai shared distributed limiter.
+This is sufficient for a single-instance internal deployment, but it is not suitable as a shared distributed limiter.
 
 ## Upload Access Notes
 
-- create upload file -> admin only
-- serve upload file -> wajib login (`VIEWER` atau `ADMIN`)
-- upload path punya traversal guard
-- image upload bisa punya `preview.webp`
+- creating uploaded files is admin-only
+- serving uploaded files requires `VIEWER` or `ADMIN` login
+- upload paths are protected by a traversal guard
+- image uploads can produce `.preview.webp`
 
 ## Current Reality Notes
 
-Dokumen ini sengaja merekam kondisi repo sekarang, bukan aspirasi fase sebelumnya.
+This document intentionally records the current repository state rather than earlier project assumptions.
 
-Yang penting:
+Important points:
 
-- learner pages sekarang internal-login; learner read API masih mempertahankan kontrak role-aware yang sama
-- learner route access sekarang internal-login untuk `VIEWER` dan `ADMIN`
-- admin mutations sudah dilindungi session admin + same-origin guard
-- auth store di client sudah menjadi source of truth auth state
+- learner pages are now internal-login only
+- learner read APIs remain public but still enforce role-aware module visibility
+- admin mutations are protected by an admin session plus the same-origin guard
+- the client auth store is the source of truth for auth state
